@@ -1,0 +1,14 @@
+name = "Danogo2023/bonds_common"
+version = "1.0.0"
+license = "Apache-2.0"
+description = "The Common Library For Danogo Bonds"
+
+[repository]
+user = "vnc4f"
+project = "bonds_common"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "1.6.0"
+source = "github"

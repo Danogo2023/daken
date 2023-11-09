@@ -1,11 +1,11 @@
-name = "vnc4f/danogo-bonds-common"
+name = "Danogo2023/bonds-common"
 version = "1.0.0"
 license = "Apache-2.0"
 description = "The Common Library For Danogo Bonds"
 
 [repository]
-user = "vnc4f"
-project = "danogo-bonds-common"
+user = "Danogo2023"
+project = "bonds-common"
 platform = "github"
 
 [[dependencies]]

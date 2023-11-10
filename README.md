@@ -1,4 +1,22 @@
-# Danogo Aiken Library
+# common
+
+Write validators in the `validators` folder, and supporting functions in the `lib` folder using `.ak` as a file extension.
+
+For example, as `validators/always_true.ak`
+
+```gleam
+validator {
+  fn spend(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+    True
+  }
+}
+```
+
+## Building
+
+```sh
+aiken build
+```
 
 ## Testing
 

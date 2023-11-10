@@ -12,13 +12,14 @@ use aiken/transaction/credential.{
   from_verification_key,
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
-use bond/common.{get_day_to_maturity, posix_time_to_relative_epoch}
+use bond/constraint.{get_day_to_maturity, posix_time_to_relative_epoch}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidMaking, BondConfig, ConfigLimit,
   ConfigMaking, EpochConfig, EscrowDatum, ExchangeConfigLimit,
   ExchangeConfigMaking, PaymentDatum,
 }
-use common/types.{PublicKeyHash, SlotConfigNetwork} as common_types
+use common/time.{SlotConfigNetwork}
+use common/types.{PublicKeyHash} as common_types
 
 pub fn tx(
   inputs: List<Input>,

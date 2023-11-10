@@ -2,7 +2,7 @@ use aiken/dict.{Dict}
 use aiken/transaction.{Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
 use aiken/transaction/value.{AssetName, Value}
-use common/types.{SlotConfigNetwork}
+use common/time.{SlotConfigNetwork}
 
 pub type EpochConfig {
   // 1 year = 365 days / 5 days per epoch = 73 epoch. default: 73

@@ -1,11 +1,11 @@
-name = "Danogo2023/bonds-common"
+name = "Danogo/daken"
 version = "1.0.0"
 license = "Apache-2.0"
-description = "The Common Library For Danogo Bonds"
+description = "Danogo Aiken Library"
 
 [repository]
 user = "Danogo2023"
-project = "bonds-common"
+project = "daken"
 platform = "github"
 
 [[dependencies]]

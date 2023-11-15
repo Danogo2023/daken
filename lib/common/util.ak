@@ -1,3 +1,4 @@
+use aiken/bytearray
 use aiken/dict
 use aiken/list
 use aiken/transaction.{
@@ -35,4 +36,14 @@ pub fn get_payment_key(a: Address) -> ByteArray {
 
 pub fn must_be_signed_by(pkhs: List<PublicKeyHash>, a: Address) -> Bool {
   list.has(pkhs, get_payment_key(a))
+}
+
+pub fn get_number_from_hex_string(numstr: ByteArray) -> Int {
+  bytearray.foldl(numstr, 0, fn(byte, acc) -> Int { acc * 0x100 + byte })
+}
+
+test convert_hex_string_to_int() {
+  get_number_from_hex_string(#"887949ab") == 0x887949ab && //
+  get_number_from_hex_string(#"") == 0 && //
+  get_number_from_hex_string(#"00") == 0
 }

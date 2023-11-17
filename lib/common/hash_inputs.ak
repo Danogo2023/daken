@@ -2,7 +2,14 @@ use aiken/builtin.{cons_bytearray, quotient_integer, remainder_integer}
 use aiken/bytearray.{concat}
 use aiken/hash.{Blake2b_256, Hash, blake2b_256}
 use aiken/list
-use aiken/transaction.{OutputReference, TransactionId}
+use aiken/transaction.{Input, OutputReference, TransactionId}
+
+pub fn inputs_contain_outref(
+  inputs: List<Input>,
+  outref: OutputReference,
+) -> Bool {
+  list.any(inputs, fn(input) -> Bool { input.output_reference == outref })
+}
 
 pub fn hash_tx_outrefs(
   outrefs: List<OutputReference>,

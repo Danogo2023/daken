@@ -14,8 +14,8 @@ pub type ClubToken {
   DepositStateNft
   WithdrawStateNft
   // share token
-  OperatorShareToken { epoch_mint_token: Int, share_token_price_issue: Int }
-  MemberShareToken { epoch_mint_token: Int, share_token_price_issue: Int }
+  OperatorToken { epoch_mint_token: Int, token_price_issue: Int }
+  MemberToken { epoch_mint_token: Int, token_price_issue: Int }
   // request token
   DepositRequestToken { pool_id: Int, timestamp: Int }
   WithdrawRequestToken { pool_id: Int, token_epoch: Int, timestamp: Int }
@@ -49,7 +49,7 @@ pub fn find_club_token_type_from_name(name: ByteArray) -> ClubToken {
     if bytearray.length(name) != 11 {
       UnknownToken
     } else {
-      OperatorShareToken(
+      OperatorToken(
         get_number_from_hex_string(bytearray.slice(name, 1, 2)),
         get_number_from_hex_string(bytearray.slice(name, 3, 10)),
       )
@@ -58,7 +58,7 @@ pub fn find_club_token_type_from_name(name: ByteArray) -> ClubToken {
     if bytearray.length(name) != 11 {
       UnknownToken
     } else {
-      MemberShareToken(
+      MemberToken(
         get_number_from_hex_string(bytearray.slice(name, 1, 2)),
         get_number_from_hex_string(bytearray.slice(name, 3, 10)),
       )
@@ -127,14 +127,14 @@ test name_converting_test8() {
 //-------------------------------------
 // share token
 test name_converting_test9() {
-  find_club_token_type_from_name(#"1001b90000000005f5e101") == OperatorShareToken(
+  find_club_token_type_from_name(#"1001b90000000005f5e101") == OperatorToken(
     441,
     100_000_001,
   )
 }
 
 test name_converting_test10() {
-  find_club_token_type_from_name(#"1101b80000000005f5e100") == MemberShareToken(
+  find_club_token_type_from_name(#"1101b80000000005f5e100") == MemberToken(
     440,
     100_000_000,
   )

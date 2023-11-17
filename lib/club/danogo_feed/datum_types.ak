@@ -32,10 +32,10 @@ pub type ProtocolParams {
   // === platform configs ===
   // percentage, 0001 -> 9999: 0.01% -> 99.99%
   platform_fee_percentage: Int,
-  platform_batchers: List<Address>,
-  platform_stake_key: StakeCredential,
+  default_stake_key: StakeCredential,
   platform_force_redeem_epoch: Int,
   platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
+  platform_garbage_collector_pkh: Hash<Blake2b_224, Script>,
 }
 
 pub type PriceFeedDatum {
@@ -51,6 +51,20 @@ pub type PriceFeedDatum {
 pub type StakeKeyFeedDatum {
   club_policy_id: PolicyId,
   stake_keys: List<Hash<Blake2b_224, Script>>,
+}
+
+pub type PlatformBatcherFeedDatum {
+  // defi protocol id
+  defi_protocol_id: Int,
+  // batcher addresses for that defi id
+  batcher_addresses: List<Address>,
+}
+
+pub type DefiProtocolFeedDatum {
+  // defi protocol id
+  id: Int,
+  // valid defi addresses
+  addresses: List<Address>,
 }
 
 // gives base object, used for testing
@@ -80,23 +94,29 @@ pub fn base_protocol_params() -> ProtocolParams {
     vault_max: 1,
     // === platform configs ===
     platform_fee_percentage: 1,
-    platform_batchers: [],
-    platform_stake_key: Pointer(0, 0, 0),
+    default_stake_key: Pointer(0, 0, 0),
     platform_force_redeem_epoch: 0,
     platform_force_redeem_pkh: "",
+    platform_garbage_collector_pkh: "",
   }
 }
 
 // gives base object, used for testing
 pub fn base_price_feed_datum() -> PriceFeedDatum {
-  PriceFeedDatum {
-    created: 0,
-    expired: 0,
-    token_prices: dict.new(),
-  }
+  PriceFeedDatum { created: 0, expired: 1, token_prices: dict.new() }
 }
 
 // gives base object, used for testing
 pub fn base_stake_key_datum() -> StakeKeyFeedDatum {
   StakeKeyFeedDatum { club_policy_id: "", stake_keys: [] }
+}
+
+// gives base object, used for testing
+pub fn base_platform_batcher_feed_datum() -> PlatformBatcherFeedDatum {
+  PlatformBatcherFeedDatum { defi_protocol_id: 0, batcher_addresses: [] }
+}
+
+// gives base object, used for testing
+pub fn base_defi_protocol_feed_datum() -> DefiProtocolFeedDatum {
+  DefiProtocolFeedDatum { id: 0, addresses: [] }
 }

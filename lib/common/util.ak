@@ -19,6 +19,11 @@ pub fn get_spending_input(ctx: ScriptContext) -> Input {
   input
 }
 
+pub fn get_this_scripts_address(ctx: ScriptContext) -> Address {
+  let input = get_spending_input(ctx)
+  input.output.address
+}
+
 pub fn get_data(datums: Datums, datum: Datum) -> Option<Data> {
   when datum is {
     NoDatum -> None

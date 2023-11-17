@@ -32,7 +32,6 @@ pub type ProtocolParams {
   // === platform configs ===
   // percentage, 0001 -> 9999: 0.01% -> 99.99%
   platform_fee_percentage: Int,
-  platform_batchers: List<Address>,
   default_stake_key: StakeCredential,
   platform_force_redeem_epoch: Int,
   platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
@@ -95,7 +94,6 @@ pub fn base_protocol_params() -> ProtocolParams {
     vault_max: 1,
     // === platform configs ===
     platform_fee_percentage: 1,
-    platform_batchers: [],
     default_stake_key: Pointer(0, 0, 0),
     platform_force_redeem_epoch: 0,
     platform_force_redeem_pkh: "",

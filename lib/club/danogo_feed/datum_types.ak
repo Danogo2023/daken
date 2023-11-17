@@ -36,6 +36,7 @@ pub type ProtocolParams {
   default_stake_key: StakeCredential,
   platform_force_redeem_epoch: Int,
   platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
+  platform_garbage_collector_pkh: Hash<Blake2b_224, Script>,
 }
 
 pub type PriceFeedDatum {
@@ -53,14 +54,17 @@ pub type StakeKeyFeedDatum {
   stake_keys: List<Hash<Blake2b_224, Script>>,
 }
 
+pub type PlatformBatcherFeedDatum {
+  // defi protocol id
+  defi_protocol_id: Int,
+  // batcher addresses for that defi id
+  batcher_addresses: List<Address>,
+}
+
 pub type DefiProtocolFeedDatum {
   // defi protocol id
-  defi_id: Int,
-  // dApp name (Indigo, Optim, MinSwap,...)
-  dapp_name: ByteArray,
-  // category (Swap, Lending, CDP...)
-  category: ByteArray,
-  // valid addresses
+  id: Int,
+  // valid defi addresses
   addresses: List<Address>,
 }
 
@@ -95,6 +99,7 @@ pub fn base_protocol_params() -> ProtocolParams {
     default_stake_key: Pointer(0, 0, 0),
     platform_force_redeem_epoch: 0,
     platform_force_redeem_pkh: "",
+    platform_garbage_collector_pkh: "",
   }
 }
 
@@ -109,11 +114,11 @@ pub fn base_stake_key_datum() -> StakeKeyFeedDatum {
 }
 
 // gives base object, used for testing
+pub fn base_platform_batcher_feed_datum() -> PlatformBatcherFeedDatum {
+  PlatformBatcherFeedDatum { defi_protocol_id: 0, batcher_addresses: [] }
+}
+
+// gives base object, used for testing
 pub fn base_defi_protocol_feed_datum() -> DefiProtocolFeedDatum {
-  DefiProtocolFeedDatum {
-    defi_id: 0,
-    dapp_name: "",
-    category: "",
-    addresses: [],
-  }
+  DefiProtocolFeedDatum { id: 0, addresses: [] }
 }

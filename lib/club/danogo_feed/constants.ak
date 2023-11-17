@@ -1,6 +1,12 @@
 // danogo data feed names
-pub const governance_token_name = "gDGC" // Danogo Club Governance
+// Danogo Club Governance
+pub const governance_token_name = "gDGC"
 
-pub const price_feed_token_name = "pDGC" // Danogo Club Price Feed
+// Danogo Club Price Feed
+pub const price_feed_token_name = "pDGC"
 
-pub const stake_key_token_name = "sDGC" // Danogo Club Stake Key
+// Danogo Club Stake Key
+pub const stake_key_token_name = "sDGC"
+
+// Danogo Club Defi Protocol Feed
+pub const defi_protocol_token_name = "dDGC"

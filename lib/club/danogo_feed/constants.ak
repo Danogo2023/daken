@@ -8,8 +8,5 @@ pub const price_feed_token_name = "pDGC"
 // Danogo Club Stake Key
 pub const stake_key_token_name = "sDGC"
 
-// Danogo Club Platform Batcher Feed
-pub const platform_batcher_token_name = "bDGC"
-
 // Danogo Club Defi Protocol Feed
 pub const defi_protocol_token_name = "dDGC"

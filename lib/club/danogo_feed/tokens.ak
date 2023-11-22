@@ -4,7 +4,6 @@ pub type DanogoFeedToken {
   GovernanceToken
   PriceFeedToken
   StakeKeyToken
-  PlatformBatcherToken
   DefiProtocolToken
   UnknownFeedToken
 }
@@ -16,8 +15,6 @@ pub fn find_feed_token_type_from_name(name: ByteArray) -> DanogoFeedToken {
     PriceFeedToken
   } else if name == constants.stake_key_token_name {
     StakeKeyToken
-  } else if name == constants.platform_batcher_token_name {
-    PlatformBatcherToken
   } else if name == constants.defi_protocol_token_name {
     DefiProtocolToken
   } else {
@@ -35,10 +32,6 @@ test name_converting_test2() {
 
 test name_converting_test3() {
   find_feed_token_type_from_name("sDGC") == StakeKeyToken
-}
-
-test name_converting_test4() {
-  find_feed_token_type_from_name("bDGC") == PlatformBatcherToken
 }
 
 test name_converting_test5() {

@@ -1,15 +1,16 @@
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_224, Hash}
-use aiken/transaction/credential.{Address, Pointer, Script, StakeCredential}
+use aiken/transaction/credential.{
+  Address, Pointer, Script, StakeCredential, from_verification_key,
+}
 use aiken/transaction/value.{AssetName, PolicyId}
 
 pub type ProtocolParams {
-  platformHalt: Bool,
+  platform_halt: Bool,
   // === club addresses ===
   // club states
   generate_state_skh: Hash<Blake2b_224, Script>,
   trading_state_skh: Hash<Blake2b_224, Script>,
-  force_state_skh: Hash<Blake2b_224, Script>,
   nav_state_skh: Hash<Blake2b_224, Script>,
   deposit_state_skh: Hash<Blake2b_224, Script>,
   withdraw_state_skh: Hash<Blake2b_224, Script>,
@@ -36,6 +37,7 @@ pub type ProtocolParams {
   platform_force_redeem_epoch: Int,
   platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
   platform_garbage_collector_pkh: Hash<Blake2b_224, Script>,
+  platform_staking_batcher_address: Address,
 }
 
 pub type PriceFeedDatum {
@@ -51,31 +53,28 @@ pub type PriceFeedDatum {
 pub type StakeKeyFeedDatum {
   club_policy_id: PolicyId,
   stake_keys: List<Hash<Blake2b_224, Script>>,
+  batcher_address: Address,
 }
 
-pub type PlatformBatcherFeedDatum {
-  // defi protocol id
-  defi_protocol_id: Int,
-  // batcher addresses for that defi id
-  batcher_addresses: List<Address>,
-}
-
-pub type DefiProtocolFeedDatum {
+pub type DefiProtocolActionFeedDatum {
   // defi protocol id
   id: Int,
+  // action key
+  action_key: ByteArray,
   // valid defi addresses
   addresses: List<Address>,
+  // batcher corresponding to this action
+  batcher_address: Option<Address>,
 }
 
 // gives base object, used for testing
 pub fn base_protocol_params() -> ProtocolParams {
   ProtocolParams {
-    platformHalt: False,
+    platform_halt: False,
     // === club addresses ===
     // club states
     generate_state_skh: "",
     trading_state_skh: "",
-    force_state_skh: "",
     nav_state_skh: "",
     deposit_state_skh: "",
     withdraw_state_skh: "",
@@ -98,6 +97,7 @@ pub fn base_protocol_params() -> ProtocolParams {
     platform_force_redeem_epoch: 0,
     platform_force_redeem_pkh: "",
     platform_garbage_collector_pkh: "",
+    platform_staking_batcher_address: from_verification_key(""),
   }
 }
 
@@ -108,15 +108,19 @@ pub fn base_price_feed_datum() -> PriceFeedDatum {
 
 // gives base object, used for testing
 pub fn base_stake_key_datum() -> StakeKeyFeedDatum {
-  StakeKeyFeedDatum { club_policy_id: "", stake_keys: [] }
+  StakeKeyFeedDatum {
+    club_policy_id: "",
+    stake_keys: [],
+    batcher_address: from_verification_key(""),
+  }
 }
 
 // gives base object, used for testing
-pub fn base_platform_batcher_feed_datum() -> PlatformBatcherFeedDatum {
-  PlatformBatcherFeedDatum { defi_protocol_id: 0, batcher_addresses: [] }
-}
-
-// gives base object, used for testing
-pub fn base_defi_protocol_feed_datum() -> DefiProtocolFeedDatum {
-  DefiProtocolFeedDatum { id: 0, addresses: [] }
+pub fn base_defi_protocol_action_feed_datum() -> DefiProtocolActionFeedDatum {
+  DefiProtocolActionFeedDatum {
+    id: 0,
+    action_key: "",
+    addresses: [],
+    batcher_address: None,
+  }
 }

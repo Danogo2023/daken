@@ -8,3 +8,8 @@ pub type DepositStateDatum {
   // Increment Id
   pool_id: Int,
 }
+
+// gives base object, used for testing
+pub fn base_deposit_state_datum() -> DepositStateDatum {
+  DepositStateDatum { club_policy_id: "", total_pool_supply: 0, pool_id: 0 }
+}

@@ -1,11 +1,9 @@
 // club token prefix
 pub const operator_nft_prefix = #"01"
 
-pub const config_nft_prefix = #"02"
+pub const general_nft_prefix = #"02"
 
 pub const trading_nft_prefix = #"03"
-
-pub const force_nft_prefix = #"04"
 
 pub const nav_nft_prefix = #"05"
 

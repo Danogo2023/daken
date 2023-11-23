@@ -8,7 +8,6 @@ pub type ClubToken {
   // tokens for utxos
   GeneralNft
   TradingNft
-  ForceNft
   NavNft
   VaultStateNft
   DepositStateNft
@@ -31,12 +30,10 @@ pub fn find_club_token_type_from_name(name: ByteArray) -> ClubToken {
   let prefix = bytearray.take(name, 1)
   if prefix == constants.operator_nft_prefix {
     OperatorNft
-  } else if prefix == constants.config_nft_prefix {
+  } else if prefix == constants.general_nft_prefix {
     GeneralNft
   } else if prefix == constants.trading_nft_prefix {
     TradingNft
-  } else if prefix == constants.force_nft_prefix {
-    ForceNft
   } else if prefix == constants.nav_nft_prefix {
     NavNft
   } else if prefix == constants.vault_state_token_prefix {
@@ -92,36 +89,62 @@ pub fn find_club_token_type_from_name(name: ByteArray) -> ClubToken {
   }
 }
 
+// ========== helpers =============
+pub fn get_operator_token_name() -> ByteArray {
+  constants.operator_nft_prefix
+}
+
+pub fn get_general_token_name() -> ByteArray {
+  constants.general_nft_prefix
+}
+
+pub fn get_trading_token_name() -> ByteArray {
+  constants.trading_nft_prefix
+}
+
+pub fn get_nav_token_name() -> ByteArray {
+  constants.nav_nft_prefix
+}
+
+pub fn get_vault_state_token_name() -> ByteArray {
+  constants.vault_state_token_prefix
+}
+
+pub fn get_deposit_state_token_name() -> ByteArray {
+  constants.deposit_state_nft_prefix
+}
+
+pub fn get_withdraw_state_token_name() -> ByteArray {
+  constants.withdraw_state_nft_prefix
+}
+
+// ========== test ================
 test name_converting_test1() {
-  find_club_token_type_from_name(#"01") == OperatorNft
+  find_club_token_type_from_name(get_operator_token_name()) == OperatorNft
 }
 
 test name_converting_test2() {
-  find_club_token_type_from_name(#"02") == GeneralNft
+  find_club_token_type_from_name(get_general_token_name()) == GeneralNft
 }
 
 test name_converting_test3() {
-  find_club_token_type_from_name(#"03") == TradingNft
-}
-
-test name_converting_test4() {
-  find_club_token_type_from_name(#"04") == ForceNft
+  find_club_token_type_from_name(get_trading_token_name()) == TradingNft
 }
 
 test name_converting_test5() {
-  find_club_token_type_from_name(#"05") == NavNft
+  find_club_token_type_from_name(get_nav_token_name()) == NavNft
 }
 
 test name_converting_test6() {
-  find_club_token_type_from_name(#"06") == VaultStateNft
+  find_club_token_type_from_name(get_vault_state_token_name()) == VaultStateNft
 }
 
 test name_converting_test7() {
-  find_club_token_type_from_name(#"07") == DepositStateNft
+  find_club_token_type_from_name(get_deposit_state_token_name()) == DepositStateNft
 }
 
 test name_converting_test8() {
-  find_club_token_type_from_name(#"08") == WithdrawStateNft
+  find_club_token_type_from_name(get_withdraw_state_token_name()) == WithdrawStateNft
 }
 
 //-------------------------------------

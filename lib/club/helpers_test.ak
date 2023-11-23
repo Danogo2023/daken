@@ -2,12 +2,20 @@ use aiken/transaction.{
   Datum, InlineDatum, Input, NoDatum, Output, OutputReference, Transaction,
   TransactionId,
 }
-use aiken/transaction/credential.{from_verification_key}
+use aiken/transaction/credential.{
+  Address, Inline, ScriptCredential, VerificationKeyCredential,
+  from_verification_key,
+}
 use aiken/transaction/value.{Value}
 use club/constants.{operator_nft_prefix} as club_constant
 use club/danogo_feed/constants.{governance_token_name}
-use club/danogo_feed/datum_types.{base_price_feed_datum, base_protocol_params}
-use club/helpers.{exists_op_token, get_protocol_params}
+use club/danogo_feed/datum_types.{
+  ProtocolParams, base_price_feed_datum, base_protocol_params,
+}
+use club/helpers.{
+  exists_op_token, get_deposit_pool_address, get_deposit_state_address,
+  get_protocol_params,
+}
 
 // ======================= OP NFT ==========================
 const club_policy_id = "club_policy_id"
@@ -153,4 +161,40 @@ test test_get_protocol_params_4() fail {
     }
 
   get_protocol_params(governance_policy_id, txn) == base_protocol_params()
+}
+
+test get_deposit_state_addr_1() {
+  let deposit_state_skh =
+    #"87d5500c17ebf50604f4f13a32307b4f2a49db57774b6debc310d492"
+  let default_stake_key =
+    #"67043b1e182b0f30a2350d12e1ce69c843f4131c86057d376ae58baa"
+  let stake_credential = Inline(VerificationKeyCredential(default_stake_key))
+  let protocol_params =
+    ProtocolParams {
+      ..base_protocol_params(),
+      deposit_state_skh: #"87d5500c17ebf50604f4f13a32307b4f2a49db57774b6debc310d492",
+      default_stake_key: stake_credential,
+    }
+  get_deposit_state_address(protocol_params) == Address {
+    payment_credential: ScriptCredential(deposit_state_skh),
+    stake_credential: Some(stake_credential),
+  }
+}
+
+test get_deposit_pool_addr_1() {
+  let deposit_pool_skh =
+    #"87d5500c17ebf50604f4f13a32307b4f2a49db57774b6debc310d492"
+  let default_stake_key =
+    #"67043b1e182b0f30a2350d12e1ce69c843f4131c86057d376ae58baa"
+  let stake_credential = Inline(VerificationKeyCredential(default_stake_key))
+  let protocol_params =
+    ProtocolParams {
+      ..base_protocol_params(),
+      deposit_skh: #"87d5500c17ebf50604f4f13a32307b4f2a49db57774b6debc310d492",
+      default_stake_key: stake_credential,
+    }
+  get_deposit_pool_address(protocol_params) == Address {
+    payment_credential: ScriptCredential(deposit_pool_skh),
+    stake_credential: Some(stake_credential),
+  }
 }

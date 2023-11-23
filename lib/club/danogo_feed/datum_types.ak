@@ -38,6 +38,10 @@ pub type ProtocolParams {
   platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
   platform_garbage_collector_pkh: Hash<Blake2b_224, Script>,
   platform_staking_batcher_address: Address,
+  // minimum lovelace that LP can deposit
+  min_deposit_amount: Int,
+  // minimum lovelace that LP can withdraw
+  min_withdraw_amount: Int,
 }
 
 pub type PriceFeedDatum {
@@ -98,6 +102,8 @@ pub fn base_protocol_params() -> ProtocolParams {
     platform_force_redeem_pkh: "",
     platform_garbage_collector_pkh: "",
     platform_staking_batcher_address: from_verification_key(""),
+    min_deposit_amount: 100_000_000,
+    min_withdraw_amount: 100_000_000,
   }
 }
 

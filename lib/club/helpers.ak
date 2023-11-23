@@ -1,6 +1,7 @@
 use aiken/dict
 use aiken/list
 use aiken/transaction.{Transaction}
+use aiken/transaction/credential.{Address, ScriptCredential}
 use aiken/transaction/value.{PolicyId}
 use club/club_tokens.{OperatorNft, find_club_token_type_from_name}
 use club/danogo_feed/datum_types.{ProtocolParams}
@@ -58,4 +59,18 @@ pub fn get_protocol_params(
   expect Some(datum) = get_data(txn.datums, governance_utxo.output.datum)
   expect protocol_params: ProtocolParams = datum
   protocol_params
+}
+
+pub fn get_deposit_pool_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.deposit_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_deposit_state_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.deposit_state_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
 }

@@ -1,12 +1,11 @@
 use aiken/dict
 use aiken/list
-use aiken/transaction.{Transaction}
+use aiken/transaction.{InlineDatum, Transaction}
 use aiken/transaction/credential.{Address, ScriptCredential}
 use aiken/transaction/value.{PolicyId}
-use club/club_tokens.{OperatorNft, find_club_token_type_from_name}
+use club/constants.{operator_nft_prefix}
+use club/danogo_feed/constants.{governance_token_name} as danogo_feed_constants
 use club/danogo_feed/datum_types.{ProtocolParams}
-use club/danogo_feed/tokens.{GovernanceToken, find_feed_token_type_from_name}
-use common/util.{get_data}
 
 /// Check if Operator token is presented in transaction inputs
 /// can be used in any transaction that requires Operator token to be valid
@@ -21,10 +20,7 @@ pub fn exists_op_token(club_policy_id: PolicyId, txn: Transaction) -> Bool {
         |> list.any(
              fn(token) {
                let (token_name, _qty) = token
-               when find_club_token_type_from_name(token_name) is {
-                 OperatorNft -> True
-                 _ -> False
-               }
+               token_name == operator_nft_prefix
              },
            )
     },
@@ -48,16 +44,16 @@ pub fn get_protocol_params(
           |> list.any(
                fn(token) {
                  let (token_name, _qty) = token
-                 when find_feed_token_type_from_name(token_name) is {
-                   GovernanceToken -> True
-                   _ -> False
-                 }
+                 token_name == governance_token_name
                },
              )
       },
     )
-  expect Some(datum) = get_data(txn.datums, governance_utxo.output.datum)
-  expect protocol_params: ProtocolParams = datum
+  expect protocol_params: ProtocolParams =
+    when governance_utxo.output.datum is {
+      InlineDatum(d) -> d
+      _ -> fail @"Not found InlineDatum"
+    }
   protocol_params
 }
 

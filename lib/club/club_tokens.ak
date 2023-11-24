@@ -25,7 +25,7 @@ pub type ClubToken {
   UnknownToken
 }
 
-pub fn find_club_token_type_from_name(name: ByteArray) -> ClubToken {
+fn find_club_token_type_from_name(name: ByteArray) -> ClubToken {
   // why aiken does not support "when *string* is {}" ??
   let prefix = bytearray.take(name, 1)
   if prefix == constants.operator_nft_prefix {

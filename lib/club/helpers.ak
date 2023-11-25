@@ -57,9 +57,23 @@ pub fn get_protocol_params(
   protocol_params
 }
 
-pub fn get_deposit_pool_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_generate_state_address(protocol_params: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.deposit_skh),
+    payment_credential: ScriptCredential(protocol_params.generate_state_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_trading_state_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.trading_state_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_nav_state_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.nav_state_skh),
     stake_credential: Some(protocol_params.default_stake_key),
   }
 }
@@ -67,6 +81,36 @@ pub fn get_deposit_pool_address(protocol_params: ProtocolParams) -> Address {
 pub fn get_deposit_state_address(protocol_params: ProtocolParams) -> Address {
   Address {
     payment_credential: ScriptCredential(protocol_params.deposit_state_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_deposit_pool_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.deposit_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_withdraw_state_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.withdraw_state_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_withdraw_pool_address(protocol_params: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.withdraw_skh),
+    stake_credential: Some(protocol_params.default_stake_key),
+  }
+}
+
+pub fn get_vault_state_default_address(
+  protocol_params: ProtocolParams,
+) -> Address {
+  Address {
+    payment_credential: ScriptCredential(protocol_params.vault_state_skh),
     stake_credential: Some(protocol_params.default_stake_key),
   }
 }

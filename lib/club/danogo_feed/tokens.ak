@@ -1,4 +1,4 @@
-pub fn get_governance_token_name() -> ByteArray {
+pub fn get_gov_token_name() -> ByteArray {
   "gDGC"
 }
 

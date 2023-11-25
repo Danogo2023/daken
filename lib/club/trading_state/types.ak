@@ -13,6 +13,7 @@ pub type TradingStateDatum {
   // epoch toggle force closed on
   force_closed_at_epoch: Int,
   // ================== vault ===================
+  // Số lượng vault của club sẽ tương ứng với số lượng stake key club đang sử dụng (update khi tách vault để Staking ở Pool mới và chỉ duy nhất lần tính NAV đầu tiền khi chưa có vault nào thì tằng giá trị từ 0 lên 1)
   // update when splitting vault for staking
   // default 0, first nav -> 1
   total_vault_supply: Int,

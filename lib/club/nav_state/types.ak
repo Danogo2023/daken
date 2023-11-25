@@ -17,8 +17,6 @@ pub type NavStateDatum {
   performance_fee: Int,
   // số tiền Danogo Club thu trong lần tính NAV
   platform_fee: Int,
-  // Số lượng vault của club sẽ tương ứng với số lượng stake key club đang sử dụng (update khi tách vault để Staking ở Pool mới và chỉ duy nhất lần tính NAV đầu tiền khi chưa có vault nào thì tằng giá trị từ 0 lên 1)
-  vault_num: Int,
 }
 
 // gives base object, used for testing
@@ -32,6 +30,5 @@ pub fn base_nav_state_datum() -> NavStateDatum {
     management_fee: 0,
     performance_fee: 0,
     platform_fee: 0,
-    vault_num: 0,
   }
 }

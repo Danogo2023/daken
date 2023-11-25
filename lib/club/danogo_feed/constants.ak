@@ -1,6 +1,6 @@
 // danogo data feed names
 // Danogo Club Governance
-pub const governance_token_name = "gDGC"
+pub const gov_token_name = "gDGC"
 
 // Danogo Club Price Feed
 pub const price_feed_token_name = "pDGC"

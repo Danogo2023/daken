@@ -4,7 +4,7 @@ use aiken/transaction.{InlineDatum, Transaction}
 use aiken/transaction/credential.{Address, ScriptCredential}
 use aiken/transaction/value.{PolicyId}
 use club/constants.{operator_nft_prefix}
-use club/danogo_feed/constants.{governance_token_name} as danogo_feed_constants
+use club/danogo_feed/constants.{gov_token_name} as danogo_feed_constants
 use club/danogo_feed/datum_types.{ProtocolParams}
 
 /// Check if Operator token is presented in transaction inputs
@@ -31,26 +31,26 @@ pub fn exists_op_token(club_policy_id: PolicyId, txn: Transaction) -> Bool {
 /// can be used in any transaction that require protocol params to validate
 /// e.g.: create club needs to validate SM addresses, ...
 pub fn get_protocol_params(
-  governance_policy_id: PolicyId,
+  gov_policy_id: PolicyId,
   txn: Transaction,
 ) -> ProtocolParams {
-  expect [governance_utxo] =
+  expect [gov_utxo] =
     list.filter(
       txn.reference_inputs,
       fn(ref) {
         ref.output.value
-          |> value.tokens(governance_policy_id)
+          |> value.tokens(gov_policy_id)
           |> dict.to_list()
           |> list.any(
                fn(token) {
                  let (token_name, _qty) = token
-                 token_name == governance_token_name
+                 token_name == gov_token_name
                },
              )
       },
     )
   expect protocol_params: ProtocolParams =
-    when governance_utxo.output.datum is {
+    when gov_utxo.output.datum is {
       InlineDatum(d) -> d
       _ -> fail @"Not found InlineDatum"
     }

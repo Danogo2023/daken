@@ -8,7 +8,7 @@ use aiken/transaction/credential.{
 }
 use aiken/transaction/value.{Value}
 use club/constants.{operator_nft_prefix} as club_constant
-use club/danogo_feed/constants.{governance_token_name}
+use club/danogo_feed/constants.{gov_token_name}
 use club/danogo_feed/datum_types.{
   ProtocolParams, base_price_feed_datum, base_protocol_params,
 }
@@ -82,7 +82,7 @@ test test_exist_op_nft_3() {
 }
 
 // ======================= Protocol params ==========================
-const governance_policy_id = "governance_policy_id"
+const gov_policy_id = "gov_policy_id"
 
 fn get_input_w_value_datum(v: Value, d: Datum) -> Input {
   Input {
@@ -105,13 +105,13 @@ test test_get_protocol_params_1() fail {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(governance_policy_id, governance_token_name, 1),
+          value.from_asset(gov_policy_id, gov_token_name, 1),
           NoDatum,
         ),
       ],
     }
 
-  get_protocol_params(governance_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
 }
 
 test test_get_protocol_params_2() {
@@ -120,13 +120,13 @@ test test_get_protocol_params_2() {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(governance_policy_id, governance_token_name, 1),
+          value.from_asset(gov_policy_id, gov_token_name, 1),
           InlineDatum(base_protocol_params()),
         ),
       ],
     }
 
-  get_protocol_params(governance_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
 }
 
 test test_get_protocol_params_3() fail {
@@ -135,17 +135,17 @@ test test_get_protocol_params_3() fail {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(governance_policy_id, governance_token_name, 1),
+          value.from_asset(gov_policy_id, gov_token_name, 1),
           InlineDatum(base_protocol_params()),
         ),
         get_input_w_value_datum(
-          value.from_asset(governance_policy_id, governance_token_name, 1),
+          value.from_asset(gov_policy_id, gov_token_name, 1),
           InlineDatum(base_protocol_params()),
         ),
       ],
     }
 
-  get_protocol_params(governance_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
 }
 
 test test_get_protocol_params_4() fail {
@@ -154,13 +154,13 @@ test test_get_protocol_params_4() fail {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(governance_policy_id, governance_token_name, 1),
+          value.from_asset(gov_policy_id, gov_token_name, 1),
           InlineDatum(base_price_feed_datum()),
         ),
       ],
     }
 
-  get_protocol_params(governance_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
 }
 
 test get_deposit_state_addr_1() {

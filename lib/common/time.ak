@@ -10,6 +10,42 @@ pub type SlotConfigNetwork {
   slot_length: Int,
 }
 
+pub fn get_epoch_config_preview() -> EpochConfig {
+  EpochConfig {
+    year_to_epoch: 73,
+    epoch_boundary: 1647899091000,
+    epoch_boundary_as_epoch: 328,
+    epoch_length: 1800000,
+    epoch_length_base: 432000000,
+  }
+}
+
+pub fn get_epoch_config_mainnet() -> EpochConfig {
+  EpochConfig {
+    year_to_epoch: 73,
+    epoch_boundary: 1647899091000,
+    epoch_boundary_as_epoch: 328,
+    epoch_length: 432000000,
+    epoch_length_base: 432000000,
+  }
+}
+
+pub fn get_slot_config_network_preview() -> SlotConfigNetwork {
+  SlotConfigNetwork {
+    zero_time: 1666656000000,
+    zero_slot: 0,
+    slot_length: 1000,
+  }
+}
+
+pub fn get_slot_config_network_mainnet() -> SlotConfigNetwork {
+  SlotConfigNetwork {
+    zero_time: 1596059091000,
+    zero_slot: 4492800,
+    slot_length: 1000,
+  }
+}
+
 pub type EpochConfig {
   // 1 year = 365 days / 5 days per epoch = 73 epoch. default: 73
   year_to_epoch: Int,

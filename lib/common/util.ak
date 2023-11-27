@@ -94,3 +94,21 @@ test from_int_1() {
 test from_int_2() {
   from_int(265, 2) == #"0109"
 }
+
+pub fn find_while(
+  self: List<a>,
+  zero: result,
+  with: fn(a, result) -> (Bool, result),
+) -> result {
+  when self is {
+    [] -> zero
+    [x, ..xs] -> {
+      let (break, r) = with(x, zero)
+      if break {
+        r
+      } else {
+        find_while(xs, r, with)
+      }
+    }
+  }
+}

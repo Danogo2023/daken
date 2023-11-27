@@ -9,18 +9,18 @@ pub type ProtocolParams {
   platform_halt: Bool,
   // === club addresses ===
   // club states
-  generate_state_skh: Hash<Blake2b_224, Script>,
+  general_state_skh: Hash<Blake2b_224, Script>,
   trading_state_skh: Hash<Blake2b_224, Script>,
   nav_state_skh: Hash<Blake2b_224, Script>,
   deposit_state_skh: Hash<Blake2b_224, Script>,
   withdraw_state_skh: Hash<Blake2b_224, Script>,
   vault_state_skh: Hash<Blake2b_224, Script>,
   // requests
-  deposit_skh: Hash<Blake2b_224, Script>,
-  withdraw_skh: Hash<Blake2b_224, Script>,
-  vault_skh: Hash<Blake2b_224, Script>,
+  deposit_pool_skh: Hash<Blake2b_224, Script>,
+  withdraw_pool_skh: Hash<Blake2b_224, Script>,
+  vault_asset_skh: Hash<Blake2b_224, Script>,
   // operator
-  redeem_skh: Hash<Blake2b_224, Script>,
+  redeem_pool_skh: Hash<Blake2b_224, Script>,
   operator_fee_skh: Hash<Blake2b_224, Script>,
   // === club general configs ===
   // default: 12
@@ -33,6 +33,7 @@ pub type ProtocolParams {
   // === platform configs ===
   // percentage, 0001 -> 9999: 0.01% -> 99.99%
   platform_fee_percentage: Int,
+  platform_fee_skh: Hash<Blake2b_224, Script>,
   default_stake_key: StakeCredential,
   platform_force_redeem_epoch: Int,
   platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
@@ -77,18 +78,18 @@ pub fn base_protocol_params() -> ProtocolParams {
     platform_halt: False,
     // === club addresses ===
     // club states
-    generate_state_skh: "",
+    general_state_skh: "",
     trading_state_skh: "",
     nav_state_skh: "",
     deposit_state_skh: "",
     withdraw_state_skh: "",
     vault_state_skh: "",
     // requests
-    deposit_skh: "",
-    withdraw_skh: "",
-    vault_skh: "",
+    deposit_pool_skh: "",
+    withdraw_pool_skh: "",
+    vault_asset_skh: "",
     // operator
-    redeem_skh: "",
+    redeem_pool_skh: "",
     operator_fee_skh: "",
     // === club general configs ===
     trading_at_least: 12,
@@ -96,7 +97,8 @@ pub fn base_protocol_params() -> ProtocolParams {
     share_token_price_init: 1_000_000,
     vault_max: 1,
     // === platform configs ===
-    platform_fee_percentage: 1,
+    platform_fee_percentage: 100,
+    platform_fee_skh: "",
     default_stake_key: Pointer(0, 0, 0),
     platform_force_redeem_epoch: 0,
     platform_force_redeem_pkh: "",

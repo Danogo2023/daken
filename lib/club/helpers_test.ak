@@ -9,7 +9,7 @@ use aiken/transaction/credential.{
 use aiken/transaction/value.{Value}
 use club/constants.{operator_nft_prefix} as club_constant
 use club/danogo_feed/constants.{gov_token_name}
-use club/danogo_feed/datum_types.{
+use club/danogo_feed/types.{
   ProtocolParams, base_price_feed_datum, base_protocol_params,
 }
 use club/helpers.{
@@ -35,7 +35,7 @@ fn get_input_w_value(v: Value) -> Input {
   }
 }
 
-test test_exist_op_nft_1() {
+test exist_op_nft_1() {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -45,7 +45,7 @@ test test_exist_op_nft_1() {
   !exists_op_token(club_policy_id, txn)
 }
 
-test test_exist_op_nft_2() {
+test exist_op_nft_2() {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -63,7 +63,7 @@ test test_exist_op_nft_2() {
   exists_op_token(club_policy_id, txn)
 }
 
-test test_exist_op_nft_3() {
+test exist_op_nft_3() {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -99,7 +99,7 @@ fn get_input_w_value_datum(v: Value, d: Datum) -> Input {
   }
 }
 
-test test_get_protocol_params_1() fail {
+test get_protocol_params_fail_datum_not_found() fail {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -111,10 +111,10 @@ test test_get_protocol_params_1() fail {
       ],
     }
 
-  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn.reference_inputs) == base_protocol_params()
 }
 
-test test_get_protocol_params_2() {
+test get_protocol_params_succ_1() {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -126,10 +126,10 @@ test test_get_protocol_params_2() {
       ],
     }
 
-  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn.reference_inputs) == base_protocol_params()
 }
 
-test test_get_protocol_params_3() fail {
+test get_protocol_params_succ_2() {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -145,10 +145,10 @@ test test_get_protocol_params_3() fail {
       ],
     }
 
-  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn.reference_inputs) == base_protocol_params()
 }
 
-test test_get_protocol_params_4() fail {
+test get_protocol_params_fail_datum_invalid_expect() fail {
   let txn =
     Transaction {
       ..transaction.placeholder(),
@@ -160,7 +160,7 @@ test test_get_protocol_params_4() fail {
       ],
     }
 
-  get_protocol_params(gov_policy_id, txn) == base_protocol_params()
+  get_protocol_params(gov_policy_id, txn.reference_inputs) == base_protocol_params()
 }
 
 test get_deposit_state_addr_1() {
@@ -190,7 +190,7 @@ test get_deposit_pool_addr_1() {
   let protocol_params =
     ProtocolParams {
       ..base_protocol_params(),
-      deposit_skh: #"87d5500c17ebf50604f4f13a32307b4f2a49db57774b6debc310d492",
+      deposit_pool_skh: #"87d5500c17ebf50604f4f13a32307b4f2a49db57774b6debc310d492",
       default_stake_key: stake_credential,
     }
   get_deposit_pool_address(protocol_params) == Address {

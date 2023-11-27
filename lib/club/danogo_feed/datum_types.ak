@@ -9,7 +9,7 @@ pub type ProtocolParams {
   platform_halt: Bool,
   // === club addresses ===
   // club states
-  generate_state_skh: Hash<Blake2b_224, Script>,
+  general_state_skh: Hash<Blake2b_224, Script>,
   trading_state_skh: Hash<Blake2b_224, Script>,
   nav_state_skh: Hash<Blake2b_224, Script>,
   deposit_state_skh: Hash<Blake2b_224, Script>,
@@ -77,7 +77,7 @@ pub fn base_protocol_params() -> ProtocolParams {
     platform_halt: False,
     // === club addresses ===
     // club states
-    generate_state_skh: "",
+    general_state_skh: "",
     trading_state_skh: "",
     nav_state_skh: "",
     deposit_state_skh: "",

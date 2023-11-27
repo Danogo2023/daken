@@ -38,15 +38,7 @@ pub fn get_protocol_params(
     list.filter(
       txn.reference_inputs,
       fn(ref) {
-        ref.output.value
-          |> value.tokens(gov_policy_id)
-          |> dict.to_list()
-          |> list.any(
-               fn(token) {
-                 let (token_name, _qty) = token
-                 token_name == gov_token_name
-               },
-             )
+        value.quantity_of(ref.output.value, gov_policy_id, gov_token_name) == 1
       },
     )
   expect protocol_params: ProtocolParams =
@@ -57,9 +49,9 @@ pub fn get_protocol_params(
   protocol_params
 }
 
-pub fn get_generate_state_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_general_state_address(protocol_params: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.generate_state_skh),
+    payment_credential: ScriptCredential(protocol_params.general_state_skh),
     stake_credential: Some(protocol_params.default_stake_key),
   }
 }

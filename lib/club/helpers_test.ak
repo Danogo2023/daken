@@ -7,8 +7,8 @@ use aiken/transaction/credential.{
   from_verification_key,
 }
 use aiken/transaction/value.{Value}
-use club/constants.{operator_nft_prefix} as club_constant
-use club/danogo_feed/constants.{gov_token_name}
+use club/club_tokens.{get_operator_nft_name}
+use club/danogo_feed/tokens.{get_gov_nft_name}
 use club/danogo_feed/types.{
   ProtocolParams, base_price_feed_datum, base_protocol_params,
 }
@@ -54,7 +54,7 @@ test exist_op_nft_2() {
         get_input_w_value(value.from_asset("some policy", "some name", 1)),
         get_input_w_value(value.from_asset("some policy", "other name", 10)),
         get_input_w_value(
-          value.from_asset(club_policy_id, operator_nft_prefix, 1)
+          value.from_asset(club_policy_id, get_operator_nft_name(), 1)
             |> value.add("policy", "name", 5),
         ),
       ],
@@ -105,7 +105,7 @@ test get_protocol_params_fail_datum_not_found() fail {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(gov_policy_id, gov_token_name, 1),
+          value.from_asset(gov_policy_id, get_gov_nft_name(), 1),
           NoDatum,
         ),
       ],
@@ -120,7 +120,7 @@ test get_protocol_params_succ_1() {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(gov_policy_id, gov_token_name, 1),
+          value.from_asset(gov_policy_id, get_gov_nft_name(), 1),
           InlineDatum(base_protocol_params()),
         ),
       ],
@@ -135,11 +135,11 @@ test get_protocol_params_succ_2() {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(gov_policy_id, gov_token_name, 1),
+          value.from_asset(gov_policy_id, get_gov_nft_name(), 1),
           InlineDatum(base_protocol_params()),
         ),
         get_input_w_value_datum(
-          value.from_asset(gov_policy_id, gov_token_name, 1),
+          value.from_asset(gov_policy_id, get_gov_nft_name(), 1),
           InlineDatum(base_protocol_params()),
         ),
       ],
@@ -154,7 +154,7 @@ test get_protocol_params_fail_datum_invalid_expect() fail {
       ..transaction.placeholder(),
       reference_inputs: [
         get_input_w_value_datum(
-          value.from_asset(gov_policy_id, gov_token_name, 1),
+          value.from_asset(gov_policy_id, get_gov_nft_name(), 1),
           InlineDatum(base_price_feed_datum()),
         ),
       ],

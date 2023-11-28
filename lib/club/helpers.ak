@@ -408,3 +408,11 @@ pub fn get_tuple_ref_inputs(
     },
   )
 }
+
+pub fn has_operator_nft(club_policy_id: PolicyId, value: Value) {
+  ( value |> quantity_of(club_policy_id, operator_nft_prefix) ) > 0
+}
+
+pub fn has_general_nft(club_policy_id: PolicyId, value: Value) {
+  ( value |> quantity_of(club_policy_id, general_nft_prefix) ) > 0
+}

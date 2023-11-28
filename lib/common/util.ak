@@ -94,3 +94,63 @@ test from_int_1() {
 test from_int_2() {
   from_int(265, 2) == #"0109"
 }
+
+pub fn find_while(
+  self: List<a>,
+  zero: result,
+  with: fn(a, result) -> (Bool, result),
+) -> result {
+  when self is {
+    [] -> zero
+    [x, ..xs] -> {
+      let (break, r) = with(x, zero)
+      if break {
+        r
+      } else {
+        find_while(xs, r, with)
+      }
+    }
+  }
+}
+
+pub fn fail_if_none(msg: String, maybe_value: Option<a>) -> a {
+  when maybe_value is {
+    None -> fail msg
+    Some(v) -> v
+  }
+}
+
+test fail_if_none_1() fail {
+  fail_if_none(@"should fail", None)
+}
+
+test fail_if_none_2() {
+  fail_if_none(@"should pass", Some(1)) == 1
+}
+
+test fail_if_none_3() {
+  fail_if_none(@"should not pass", Some(1)) != 2
+}
+
+pub fn fail_if_false(msg: String, predicate: Bool, return_value: r) -> r {
+  if predicate {
+    return_value
+  } else {
+    fail msg
+  }
+}
+
+test fail_if_false_1() fail {
+  fail_if_false(@"should fail", False, 1) == 1
+}
+
+test fail_if_false_2() {
+  fail_if_false(@"should pass", True, 1) == 1
+}
+
+test fail_if_false_3() {
+  when fail_if_false(@"should not pass", True, 1) is {
+    1 -> True
+    _ -> False
+  }
+}

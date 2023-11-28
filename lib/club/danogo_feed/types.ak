@@ -1,27 +1,27 @@
 use aiken/dict.{Dict}
-use aiken/hash.{Blake2b_224, Hash}
 use aiken/transaction/credential.{
-  Address, Pointer, Script, StakeCredential, from_verification_key,
+  Address, Pointer, StakeCredential, from_verification_key,
 }
 use aiken/transaction/value.{AssetName, PolicyId}
+use common/types.{PublicKeyHash, ScriptKeyHash}
 
 pub type ProtocolParams {
   platform_halt: Bool,
   // === club addresses ===
   // club states
-  general_state_skh: Hash<Blake2b_224, Script>,
-  trading_state_skh: Hash<Blake2b_224, Script>,
-  nav_state_skh: Hash<Blake2b_224, Script>,
-  deposit_state_skh: Hash<Blake2b_224, Script>,
-  withdraw_state_skh: Hash<Blake2b_224, Script>,
-  vault_state_skh: Hash<Blake2b_224, Script>,
+  general_state_skh: ScriptKeyHash,
+  trading_state_skh: ScriptKeyHash,
+  nav_state_skh: ScriptKeyHash,
+  deposit_state_skh: ScriptKeyHash,
+  withdraw_state_skh: ScriptKeyHash,
+  vault_state_skh: ScriptKeyHash,
   // requests
-  deposit_pool_skh: Hash<Blake2b_224, Script>,
-  withdraw_pool_skh: Hash<Blake2b_224, Script>,
-  vault_asset_skh: Hash<Blake2b_224, Script>,
+  deposit_pool_skh: ScriptKeyHash,
+  withdraw_pool_skh: ScriptKeyHash,
+  vault_asset_skh: ScriptKeyHash,
   // operator
-  redeem_pool_skh: Hash<Blake2b_224, Script>,
-  operator_fee_skh: Hash<Blake2b_224, Script>,
+  redeem_pool_skh: ScriptKeyHash,
+  operator_fee_skh: ScriptKeyHash,
   // === club general configs ===
   // default: 12
   trading_at_least: Int,
@@ -33,11 +33,11 @@ pub type ProtocolParams {
   // === platform configs ===
   // percentage, 0001 -> 9999: 0.01% -> 99.99%
   platform_fee_percentage: Int,
-  platform_fee_skh: Hash<Blake2b_224, Script>,
+  platform_fee_skh: ScriptKeyHash,
   default_stake_key: StakeCredential,
   platform_force_redeem_epoch: Int,
-  platform_force_redeem_pkh: Hash<Blake2b_224, Script>,
-  platform_garbage_collector_pkh: Hash<Blake2b_224, Script>,
+  platform_force_redeem_pkh: PublicKeyHash,
+  platform_garbage_collector_pkh: PublicKeyHash,
   platform_staking_batcher_address: Address,
   // minimum lovelace that LP can deposit
   min_deposit_amount: Int,
@@ -57,7 +57,7 @@ pub type PriceFeedDatum {
 
 pub type StakeKeyFeedDatum {
   club_policy_id: PolicyId,
-  stake_keys: List<Hash<Blake2b_224, Script>>,
+  stake_keys: List<ScriptKeyHash>,
   batcher_address: Address,
 }
 

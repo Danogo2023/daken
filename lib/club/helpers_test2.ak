@@ -1,4 +1,6 @@
-use aiken/transaction.{InlineDatum, Input, Output}
+use aiken/transaction.{
+  InlineDatum, Input, Output, OutputReference, TransactionId,
+}
 use aiken/transaction/credential.{Inline, ScriptCredential}
 use aiken/transaction/value
 use club/club_tokens
@@ -14,9 +16,17 @@ use club/trading_state/types.{TradingStateDatum,
 use club/vault_state/types.{VaultStateDatum, base_vault_state_datum} as vau_type
 use club/withdraw_state/types.{WithdrawStateDatum,
   base_withdraw_state_datum} as wit_type
-use tests/fake_tx
 
 const club_policy_id = "club_policy_id"
+
+pub fn test_out_ref() -> OutputReference {
+  let out_ref =
+    OutputReference {
+      transaction_id: TransactionId { hash: #"acab" },
+      output_index: 0,
+    }
+  out_ref
+}
 
 fn get_protocol_params() -> ProtocolParams {
   ProtocolParams {
@@ -32,7 +42,7 @@ fn get_protocol_params() -> ProtocolParams {
 
 fn correct_general_input() -> Input {
   Input {
-    output_reference: fake_tx.test_out_ref(),
+    output_reference: test_out_ref(),
     output: Output {
       address: helpers.get_general_state_address(get_protocol_params()),
       value: value.from_asset(
@@ -53,7 +63,7 @@ fn correct_general_input() -> Input {
 
 fn correct_trading_input() -> Input {
   Input {
-    output_reference: fake_tx.test_out_ref(),
+    output_reference: test_out_ref(),
     output: Output {
       address: helpers.get_trading_state_address(get_protocol_params()),
       value: value.from_asset(
@@ -74,7 +84,7 @@ fn correct_trading_input() -> Input {
 
 fn correct_nav_input() -> Input {
   Input {
-    output_reference: fake_tx.test_out_ref(),
+    output_reference: test_out_ref(),
     output: Output {
       address: helpers.get_nav_state_address(get_protocol_params()),
       value: value.from_asset(club_policy_id, club_tokens.get_nav_nft_name(), 1),
@@ -91,7 +101,7 @@ fn correct_nav_input() -> Input {
 
 fn correct_deposit_input() -> Input {
   Input {
-    output_reference: fake_tx.test_out_ref(),
+    output_reference: test_out_ref(),
     output: Output {
       address: helpers.get_deposit_state_address(get_protocol_params()),
       value: value.from_asset(
@@ -112,7 +122,7 @@ fn correct_deposit_input() -> Input {
 
 fn correct_withdraw_input() -> Input {
   Input {
-    output_reference: fake_tx.test_out_ref(),
+    output_reference: test_out_ref(),
     output: Output {
       address: helpers.get_withdraw_state_address(get_protocol_params()),
       value: value.from_asset(
@@ -133,7 +143,7 @@ fn correct_withdraw_input() -> Input {
 
 fn correct_vault_input() -> Input {
   Input {
-    output_reference: fake_tx.test_out_ref(),
+    output_reference: test_out_ref(),
     output: Output {
       address: helpers.get_vault_state_address(
         get_protocol_params(),
@@ -199,14 +209,14 @@ test success_get_tuple_ref_inputs() {
     vault_state_club_policy_id: club_policy_id,
     vault_state: [
       (
-        fake_tx.test_out_ref(),
+        test_out_ref(),
         VaultStateDatum {
           ..base_vault_state_datum(),
           club_policy_id: club_policy_id,
         },
       ),
       (
-        fake_tx.test_out_ref(),
+        test_out_ref(),
         VaultStateDatum {
           ..base_vault_state_datum(),
           club_policy_id: club_policy_id,
@@ -239,7 +249,7 @@ test fail_get_tuple_ref_inputs_2() fail {
     [
       correct_vault_input(),
       Input {
-        output_reference: fake_tx.test_out_ref(),
+        output_reference: test_out_ref(),
         output: Output {
           address: helpers.get_vault_state_address(
             get_protocol_params(),

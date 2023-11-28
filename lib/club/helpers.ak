@@ -24,19 +24,15 @@ use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
 /// Check if Operator token is presented in transaction inputs
 /// can be used in any transaction that requires Operator token to be valid
 /// e.g.: update general utxo, update trading utxo...
-pub fn exists_op_token(club_policy_id: PolicyId, txn: Transaction) -> Bool {
+pub fn exists_operator_nft(club_policy_id: PolicyId, txn: Transaction) -> Bool {
   list.any(
     txn.inputs,
     fn(in) {
-      in.output.value
-        |> value.tokens(club_policy_id)
-        |> dict.to_list()
-        |> list.any(
-             fn(token) {
-               let (token_name, _qty) = token
-               token_name == get_operator_nft_name()
-             },
-           )
+      value.quantity_of(
+        in.output.value,
+        club_policy_id,
+        get_operator_nft_name(),
+      ) > 0
     },
   )
 }

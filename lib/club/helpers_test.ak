@@ -13,7 +13,7 @@ use club/danogo_feed/types.{
   ProtocolParams, base_price_feed_datum, base_protocol_params,
 }
 use club/helpers.{
-  exists_op_token, get_deposit_pool_address, get_deposit_state_address,
+  exists_operator_nft, get_deposit_pool_address, get_deposit_state_address,
   get_protocol_params,
 }
 
@@ -42,7 +42,7 @@ test exist_op_nft_1() {
       inputs: [get_input_w_value(value.zero())],
     }
 
-  !exists_op_token(club_policy_id, txn)
+  !exists_operator_nft(club_policy_id, txn)
 }
 
 test exist_op_nft_2() {
@@ -60,7 +60,7 @@ test exist_op_nft_2() {
       ],
     }
 
-  exists_op_token(club_policy_id, txn)
+  exists_operator_nft(club_policy_id, txn)
 }
 
 test exist_op_nft_3() {
@@ -78,7 +78,7 @@ test exist_op_nft_3() {
       ],
     }
 
-  !exists_op_token(club_policy_id, txn)
+  !exists_operator_nft(club_policy_id, txn)
 }
 
 // ======================= Protocol params ==========================

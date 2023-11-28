@@ -12,7 +12,7 @@ use club/club_tokens.{
   get_operator_nft_name, get_trading_nft_name, get_vault_state_token_name,
   get_withdraw_state_nft_name,
 }
-use club/danogo_feed/constants.{gov_token_name} as danogo_feed_constants
+use club/danogo_feed/tokens.{get_gov_nft_name} as club_danogo_feed_tokens
 use club/danogo_feed/types.{ProtocolParams}
 use club/deposit_state/types.{DepositStateDatum} as club_deposit_state_types
 use club/general_state/types.{GeneralStateDatum} as club_general_state_types
@@ -52,7 +52,7 @@ pub fn get_protocol_params(
     list.find(
       ref_inputs,
       fn(ref) {
-        value.quantity_of(ref.output.value, gov_policy_id, gov_token_name) == 1
+        value.quantity_of(ref.output.value, gov_policy_id, get_gov_nft_name()) == 1
       },
     )
   is {

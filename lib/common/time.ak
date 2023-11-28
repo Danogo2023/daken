@@ -151,12 +151,34 @@ pub fn posix_time_to_relative_epoch(
 }
 
 pub fn get_current_epoch(range: ValidityRange, epoch_config: EpochConfig) -> Int {
-  let validity_after_must_set =
-    when range.lower_bound.bound_type is {
-      Finite(x) -> x
-      _ -> 0
-    }
-  posix_time_to_relative_epoch(validity_after_must_set, epoch_config)
+  when range.upper_bound.bound_type is {
+    Finite(_) ->
+      when range.lower_bound.bound_type is {
+        Finite(x) -> posix_time_to_relative_epoch(x, epoch_config)
+        _ -> fail @"tx_time not set"
+      }
+    _ -> fail @"tx_ttl not set"
+  }
+}
+
+pub fn get_current_epoch_with_ttl(
+  range: ValidityRange,
+  epoch_config: EpochConfig,
+  ttl: Int,
+) -> Int {
+  when range.upper_bound.bound_type is {
+    Finite(y) ->
+      when range.lower_bound.bound_type is {
+        Finite(x) ->
+          if y - x <= ttl {
+            posix_time_to_relative_epoch(x, epoch_config)
+          } else {
+            fail @"invalid ttl"
+          }
+        _ -> fail @"tx_time not set"
+      }
+    _ -> fail @"tx_ttl not set"
+  }
 }
 
 test posix_time_to_relative_epoch_test1() {

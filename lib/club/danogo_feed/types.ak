@@ -43,6 +43,8 @@ pub type ProtocolParams {
   min_deposit_amount: Int,
   // minimum lovelace that LP can withdraw
   min_withdraw_amount: Int,
+  // ttl of tx, unit by slot
+  tx_ttl: Int,
 }
 
 pub type PriceFeedDatum {
@@ -106,6 +108,8 @@ pub fn base_protocol_params() -> ProtocolParams {
     platform_staking_batcher_address: from_verification_key(""),
     min_deposit_amount: 100_000_000,
     min_withdraw_amount: 100_000_000,
+    // 5 minutes
+    tx_ttl: 5 * 60 * 1000,
   }
 }
 

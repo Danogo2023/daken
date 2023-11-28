@@ -19,6 +19,8 @@ use club/nav_state/types.{NavStateDatum} as club_nav_state_types
 use club/trading_state/types.{TradingStateDatum} as club_trading_state_types
 use club/vault_state/types.{VaultStateDatum} as club_vault_state_types
 use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
+use common/time.{EpochConfig, SlotConfigNetwork, get_current_epoch_with_ttl}
+use common/util.{must_be_signed_by_key}
 
 /// Check if Operator token is presented in transaction inputs
 /// can be used in any transaction that requires Operator token to be valid
@@ -424,4 +426,20 @@ pub fn has_operator_nft(club_policy_id: PolicyId, val: Value) {
 
 pub fn has_general_nft(club_policy_id: PolicyId, val: Value) {
   value.quantity_of(val, club_policy_id, get_general_nft_name()) > 0
+}
+
+pub fn has_system_force_redeem(
+  tx: Transaction,
+  e_cfg: EpochConfig,
+  s_cfg: SlotConfigNetwork,
+  pp: ProtocolParams,
+  ts: TradingStateDatum,
+) -> Bool {
+  ts.force_closed? && //
+  (get_current_epoch_with_ttl(
+    tx.validity_range,
+    e_cfg,
+    pp.tx_ttl * s_cfg.slot_length,
+  ) - ts.force_closed_at_epoch > pp.platform_force_redeem_epoch)? && //
+  must_be_signed_by_key(tx.extra_signatories, pp.platform_force_redeem_pkh)?
 }

@@ -21,14 +21,18 @@ use club/trading_state/types.{TradingStateDatum} as club_trading_state_types
 use club/vault_state/types.{VaultStateDatum} as club_vault_state_types
 use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
 
-/// Check if Operator token is presented in transaction outputs
+/// Check if Operator token is presented in transaction inputs
 /// can be used in any transaction that requires Operator token to be valid
 /// e.g.: update general utxo, update trading utxo...
 pub fn exists_operator_nft(club_policy_id: PolicyId, txn: Transaction) -> Bool {
   list.any(
-    txn.outputs,
-    fn(o) {
-      value.quantity_of(o.value, club_policy_id, get_operator_nft_name()) > 0
+    txn.inputs,
+    fn(in) {
+      value.quantity_of(
+        in.output.value,
+        club_policy_id,
+        get_operator_nft_name(),
+      ) > 0
     },
   )
 }

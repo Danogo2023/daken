@@ -39,8 +39,21 @@ pub fn get_payment_key(a: Address) -> ByteArray {
   }
 }
 
+pub fn must_be_signed_by_key(
+  pkhs: List<PublicKeyHash>,
+  k: PublicKeyHash,
+) -> Bool {
+  list.has(pkhs, k)
+}
+
 pub fn must_be_signed_by(pkhs: List<PublicKeyHash>, a: Address) -> Bool {
-  list.has(pkhs, get_payment_key(a))
+  list.has(
+    pkhs,
+    when a.payment_credential is {
+      VerificationKeyCredential(v) -> v
+      ScriptCredential(_) -> fail @"Invalid PublicKeyHash"
+    },
+  )
 }
 
 pub fn get_number_from_hex_string(numstr: ByteArray) -> Int {

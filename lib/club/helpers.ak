@@ -1,12 +1,11 @@
 use aiken/bytearray
 use aiken/dict.{Dict}
 use aiken/list
-use aiken/transaction.{Datum, Input, OutputReference, Transaction}
+use aiken/transaction.{Datum, InlineDatum, Input, OutputReference, Transaction}
 use aiken/transaction/credential.{
   Address, ScriptCredential, StakeCredential, VerificationKeyCredential,
 }
 use aiken/transaction/value.{PolicyId, Value}
-use assist/data.{output_datum}
 use club/club_tokens.{
   get_deposit_state_nft_name, get_general_nft_name, get_nav_nft_name,
   get_operator_nft_name, get_trading_nft_name, get_vault_state_token_name,
@@ -54,7 +53,8 @@ pub fn get_protocol_params(
   is {
     None -> fail @"Not found governance utxo"
     Some(i) -> {
-      expect protocol_params: ProtocolParams = output_datum(i.output)
+      expect InlineDatum(d) = i.output.datum
+      expect protocol_params: ProtocolParams = d
       protocol_params
     }
   }
@@ -161,7 +161,8 @@ pub fn get_dict_ref_inputs(
       when ref.output.address.payment_credential is {
         ScriptCredential(skh) ->
           if skh == protocol_params.deposit_state_skh {
-            expect datum: DepositStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: DepositStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -175,7 +176,8 @@ pub fn get_dict_ref_inputs(
               Some((get_deposit_state_nft_name(), ref.output.datum))
             }
           } else if skh == protocol_params.withdraw_state_skh {
-            expect datum: WithdrawStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: WithdrawStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -189,7 +191,8 @@ pub fn get_dict_ref_inputs(
               Some((get_withdraw_state_nft_name(), ref.output.datum))
             }
           } else if skh == protocol_params.nav_state_skh {
-            expect datum: NavStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: NavStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -203,7 +206,8 @@ pub fn get_dict_ref_inputs(
               Some((get_nav_nft_name(), ref.output.datum))
             }
           } else if skh == protocol_params.general_state_skh {
-            expect datum: GeneralStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: GeneralStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -217,7 +221,8 @@ pub fn get_dict_ref_inputs(
               Some((get_general_nft_name(), ref.output.datum))
             }
           } else if skh == protocol_params.trading_state_skh {
-            expect datum: TradingStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: TradingStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -231,7 +236,8 @@ pub fn get_dict_ref_inputs(
               Some((get_trading_nft_name(), ref.output.datum))
             }
           } else if skh == protocol_params.vault_state_skh {
-            expect datum: VaultStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: VaultStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -285,7 +291,8 @@ pub fn get_tuple_ref_inputs(
       when ref.output.address.payment_credential is {
         ScriptCredential(skh) ->
           if skh == protocol_params.deposit_state_skh {
-            expect datum: DepositStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: DepositStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -302,7 +309,8 @@ pub fn get_tuple_ref_inputs(
               }
             }
           } else if skh == protocol_params.withdraw_state_skh {
-            expect datum: WithdrawStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: WithdrawStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -319,7 +327,8 @@ pub fn get_tuple_ref_inputs(
               }
             }
           } else if skh == protocol_params.nav_state_skh {
-            expect datum: NavStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: NavStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -336,7 +345,8 @@ pub fn get_tuple_ref_inputs(
               }
             }
           } else if skh == protocol_params.general_state_skh {
-            expect datum: GeneralStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: GeneralStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -353,7 +363,8 @@ pub fn get_tuple_ref_inputs(
               }
             }
           } else if skh == protocol_params.trading_state_skh {
-            expect datum: TradingStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: TradingStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(
@@ -370,7 +381,8 @@ pub fn get_tuple_ref_inputs(
               }
             }
           } else if skh == protocol_params.vault_state_skh {
-            expect datum: VaultStateDatum = output_datum(ref.output)
+            expect InlineDatum(d) = ref.output.datum
+            expect datum: VaultStateDatum = d
             if or {
               (club_policy_id != datum.club_policy_id)?,
               value.quantity_of(

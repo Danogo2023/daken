@@ -22,3 +22,19 @@ pub type GeneralStateDatum {
   // default: 1_000_000 (lovelace)
   share_token_price_init: Int,
 }
+
+// gives base object, used for testing
+pub fn base_general_state_datum() -> GeneralStateDatum {
+  GeneralStateDatum {
+    club_policy_id: "",
+    name: "",
+    lockup_period: 0,
+    early_withdrawal_penalty: 0,
+    management_fee: 0,
+    hurdle_rate: 0,
+    performance_bonus: 0,
+    min_capital_contribution: 0,
+    inception_date: 0,
+    share_token_price_init: 1_000_000,
+  }
+}

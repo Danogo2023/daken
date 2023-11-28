@@ -5,7 +5,7 @@ use aiken/transaction.{Datum, InlineDatum, Input, OutputReference, Transaction}
 use aiken/transaction/credential.{
   Address, ScriptCredential, StakeCredential, VerificationKeyCredential,
 }
-use aiken/transaction/value.{PolicyId}
+use aiken/transaction/value.{PolicyId, Value, quantity_of}
 use club/constants.{
   deposit_state_nft_prefix, general_nft_prefix, nav_nft_prefix,
   operator_nft_prefix, trading_nft_prefix, vault_state_token_prefix,
@@ -444,4 +444,12 @@ pub fn get_tuple_ref_inputs(
       }
     },
   )
+}
+
+pub fn has_operator_nft(club_policy_id: PolicyId, value: Value) {
+  ( value |> quantity_of(club_policy_id, operator_nft_prefix) ) > 0
+}
+
+pub fn has_general_nft(club_policy_id: PolicyId, value: Value) {
+  ( value |> quantity_of(club_policy_id, general_nft_prefix) ) > 0
 }

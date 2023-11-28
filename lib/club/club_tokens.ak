@@ -29,10 +29,26 @@ pub fn get_withdraw_state_nft_name() -> ByteArray {
   bytearray.concat(prefixes.prefix_222, #"08")
 }
 
-pub fn get_deposit_pool_nft_name() -> ByteArray {
+pub fn get_operator_share_token_name() -> ByteArray {
+  bytearray.concat(prefixes.prefix_333, #"10")
+}
+
+pub fn get_member_share_token_name() -> ByteArray {
+  bytearray.concat(prefixes.prefix_333, #"11")
+}
+
+pub fn get_deposit_pool_token_name() -> ByteArray {
   bytearray.concat(prefixes.prefix_333, #"40")
 }
 
-pub fn get_withdraw_pool_nft_name() -> ByteArray {
+pub fn get_deposit_request_token_name() -> ByteArray {
+  bytearray.concat(prefixes.prefix_333, #"20")
+}
+
+pub fn get_withdraw_pool_token_name() -> ByteArray {
   bytearray.concat(prefixes.prefix_333, #"50")
+}
+
+pub fn get_withdraw_request_token_name() -> ByteArray {
+  bytearray.concat(prefixes.prefix_333, #"30")
 }

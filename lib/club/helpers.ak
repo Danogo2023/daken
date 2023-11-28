@@ -6,10 +6,10 @@ use aiken/transaction/credential.{
   Address, ScriptCredential, StakeCredential, VerificationKeyCredential,
 }
 use aiken/transaction/value.{PolicyId}
-use club/constants.{
-  deposit_state_nft_prefix, general_nft_prefix, nav_nft_prefix,
-  operator_nft_prefix, trading_nft_prefix, vault_state_token_prefix,
-  withdraw_state_nft_prefix,
+use club/club_tokens.{
+  get_deposit_state_nft_name, get_general_nft_name, get_nav_nft_name,
+  get_operator_nft_name, get_trading_nft_name, get_vault_state_token_name,
+  get_withdraw_state_nft_name,
 }
 use club/danogo_feed/constants.{gov_token_name} as danogo_feed_constants
 use club/danogo_feed/types.{ProtocolParams}
@@ -33,7 +33,7 @@ pub fn exists_op_token(club_policy_id: PolicyId, txn: Transaction) -> Bool {
         |> list.any(
              fn(token) {
                let (token_name, _qty) = token
-               token_name == operator_nft_prefix
+               token_name == get_operator_nft_name()
              },
            )
     },
@@ -177,10 +177,10 @@ pub fn get_dict_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              deposit_state_nft_prefix,
+              get_deposit_state_nft_name(),
             ) == 1{
             
-              Some((deposit_state_nft_prefix, ref.output.datum))
+              Some((get_deposit_state_nft_name(), ref.output.datum))
             } else {
               fail @"deposit_state_nft in deposit_state utxo invalid"
             }
@@ -194,10 +194,10 @@ pub fn get_dict_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              withdraw_state_nft_prefix,
+              get_withdraw_state_nft_name(),
             ) == 1{
             
-              Some((withdraw_state_nft_prefix, ref.output.datum))
+              Some((get_withdraw_state_nft_name(), ref.output.datum))
             } else {
               fail @"withdraw_state_nft in withdraw_state utxo invalid"
             }
@@ -211,10 +211,10 @@ pub fn get_dict_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              nav_nft_prefix,
+              get_nav_nft_name(),
             ) == 1{
             
-              Some((nav_nft_prefix, ref.output.datum))
+              Some((get_nav_nft_name(), ref.output.datum))
             } else {
               fail @"nav_nft in nav_state utxo invalid"
             }
@@ -228,10 +228,10 @@ pub fn get_dict_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              general_nft_prefix,
+              get_general_nft_name(),
             ) == 1{
             
-              Some((general_nft_prefix, ref.output.datum))
+              Some((get_general_nft_name(), ref.output.datum))
             } else {
               fail @"general_nft in general_state utxo invalid"
             }
@@ -245,10 +245,10 @@ pub fn get_dict_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              trading_nft_prefix,
+              get_trading_nft_name(),
             ) == 1{
             
-              Some((trading_nft_prefix, ref.output.datum))
+              Some((get_trading_nft_name(), ref.output.datum))
             } else {
               fail @"trading_nft in trading_state utxo invalid"
             }
@@ -262,10 +262,10 @@ pub fn get_dict_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              vault_state_token_prefix,
+              get_vault_state_token_name(),
             ) == 1{
             
-              Some((vault_state_token_prefix, ref.output.datum))
+              Some((get_vault_state_token_name(), ref.output.datum))
             } else {
               fail @"vault_state_token in vault_state utxo invalid"
             }
@@ -317,7 +317,7 @@ pub fn get_tuple_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              deposit_state_nft_prefix,
+              get_deposit_state_nft_name(),
             ) == 1{
             
               when z.deposit_state is {
@@ -337,7 +337,7 @@ pub fn get_tuple_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              withdraw_state_nft_prefix,
+              get_withdraw_state_nft_name(),
             ) == 1{
             
               when z.withdraw_state is {
@@ -357,7 +357,7 @@ pub fn get_tuple_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              nav_nft_prefix,
+              get_nav_nft_name(),
             ) == 1{
             
               when z.nav_state is {
@@ -377,7 +377,7 @@ pub fn get_tuple_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              general_nft_prefix,
+              get_general_nft_name(),
             ) == 1{
             
               when z.general_state is {
@@ -397,7 +397,7 @@ pub fn get_tuple_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              trading_nft_prefix,
+              get_trading_nft_name(),
             ) == 1{
             
               when z.trading_state is {
@@ -417,7 +417,7 @@ pub fn get_tuple_ref_inputs(
             value.quantity_of(
               ref.output.value,
               datum.club_policy_id,
-              vault_state_token_prefix,
+              get_vault_state_token_name(),
             ) == 1{
             
               if

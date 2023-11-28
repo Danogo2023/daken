@@ -5,7 +5,7 @@ use aiken/transaction.{Datum, Input, OutputReference, Transaction}
 use aiken/transaction/credential.{
   Address, ScriptCredential, StakeCredential, VerificationKeyCredential,
 }
-use aiken/transaction/value.{PolicyId}
+use aiken/transaction/value.{PolicyId, Value}
 use assist/data.{output_datum}
 use club/club_tokens.{
   get_deposit_state_nft_name, get_general_nft_name, get_nav_nft_name,
@@ -409,10 +409,10 @@ pub fn get_tuple_ref_inputs(
   )
 }
 
-pub fn has_operator_nft(club_policy_id: PolicyId, value: Value) {
-  ( value |> quantity_of(club_policy_id, operator_nft_prefix) ) > 0
+pub fn has_operator_nft(club_policy_id: PolicyId, val: Value) {
+  value.quantity_of(val, club_policy_id, get_operator_nft_name()) > 0
 }
 
-pub fn has_general_nft(club_policy_id: PolicyId, value: Value) {
-  ( value |> quantity_of(club_policy_id, general_nft_prefix) ) > 0
+pub fn has_general_nft(club_policy_id: PolicyId, val: Value) {
+  value.quantity_of(val, club_policy_id, get_general_nft_name()) > 0
 }

@@ -5,7 +5,7 @@ use aiken/transaction.{Datum, InlineDatum, Input, OutputReference, Transaction}
 use aiken/transaction/credential.{
   Address, ScriptCredential, StakeCredential, VerificationKeyCredential,
 }
-use aiken/transaction/value.{PolicyId, Value}
+use aiken/transaction/value.{AssetName, PolicyId, Value}
 use club/club_tokens.{
   get_deposit_state_nft_name, get_general_nft_name, get_nav_nft_name,
   get_operator_nft_name, get_trading_nft_name, get_vault_state_token_name,
@@ -41,12 +41,11 @@ pub fn get_protocol_params(
   gov_pid: PolicyId,
   ref_inputs: List<Input>,
 ) -> ProtocolParams {
+  let gov_nft = get_gov_nft_name()
   when
     list.find(
       ref_inputs,
-      fn(ref) {
-        value.quantity_of(ref.output.value, gov_pid, get_gov_nft_name()) == 1
-      },
+      fn(ref) { value.quantity_of(ref.output.value, gov_pid, gov_nft) > 0 },
     )
   is {
     None -> fail @"Not found governance utxo"
@@ -407,7 +406,11 @@ pub fn get_general_state_ref_inputs(
         } {
           expect InlineDatum(d) = ref.output.datum
           expect datum: GeneralStateDatum = d
-          (datum.club_policy_id == club_pid, Some(datum))
+          if datum.club_policy_id == club_pid {
+            (True, Some(datum))
+          } else {
+            fail @"club_policy_id miss match in reference general state utxo"
+          }
         } else {
           (False, None)
         }
@@ -436,7 +439,11 @@ pub fn get_trading_state_ref_inputs(
         } {
           expect InlineDatum(d) = ref.output.datum
           expect datum: TradingStateDatum = d
-          (datum.club_policy_id == club_pid, Some(datum))
+          if datum.club_policy_id == club_pid {
+            (True, Some(datum))
+          } else {
+            fail @"club_policy_id miss match in reference trading state utxo"
+          }
         } else {
           (False, None)
         }
@@ -465,7 +472,11 @@ pub fn get_deposit_state_ref_inputs(
         } {
           expect InlineDatum(d) = ref.output.datum
           expect datum: DepositStateDatum = d
-          (datum.club_policy_id == club_pid, Some(datum))
+          if datum.club_policy_id == club_pid {
+            (True, Some(datum))
+          } else {
+            fail @"club_policy_id miss match in reference deposit state utxo"
+          }
         } else {
           (False, None)
         }
@@ -494,7 +505,11 @@ pub fn get_withdraw_state_ref_inputs(
         } {
           expect InlineDatum(d) = ref.output.datum
           expect datum: WithdrawStateDatum = d
-          (datum.club_policy_id == club_pid, Some(datum))
+          if datum.club_policy_id == club_pid {
+            (True, Some(datum))
+          } else {
+            fail @"club_policy_id miss match in reference withdraw state utxo"
+          }
         } else {
           (False, None)
         }
@@ -523,7 +538,11 @@ pub fn get_nav_state_ref_inputs(
         } {
           expect InlineDatum(d) = ref.output.datum
           expect datum: NavStateDatum = d
-          (datum.club_policy_id == club_pid, Some(datum))
+          if datum.club_policy_id == club_pid {
+            (True, Some(datum))
+          } else {
+            fail @"club_policy_id miss match in reference nav state utxo"
+          }
         } else {
           (False, None)
         }
@@ -532,6 +551,309 @@ pub fn get_nav_state_ref_inputs(
   is {
     Some(v) -> v
     _ -> fail @"ref nav state not found"
+  }
+}
+
+pub fn check_dual_token(
+  val: Value,
+  p1: PolicyId,
+  a1: AssetName,
+  p2: PolicyId,
+  a2: AssetName,
+) -> (Int, Int) {
+  find_while(
+    value.flatten_with(
+      val,
+      fn(p, a, q) {
+        if q > 0 {
+          if p == p1 && a == a1 {
+            Some((1, 0))
+          } else if p == p2 && a == a2 {
+            Some((0, 1))
+          } else {
+            None
+          }
+        } else {
+          None
+        }
+      },
+    ),
+    (0, 0),
+    fn(i, r) {
+      let c1 = r.1st + i.1st
+      let c2 = r.2nd + i.2nd
+      (c1 > 0 && c2 > 0, (c1, c2))
+    },
+  )
+}
+
+pub fn get_general_state_zip_ref_inputs(
+  gov_pid: PolicyId,
+  club_pid: PolicyId,
+  ref_inputs: List<Input>,
+) -> GeneralStateDatum {
+  let gov_nft = get_gov_nft_name()
+  let general_state_nft = get_general_nft_name()
+  when
+    find_while(
+      ref_inputs,
+      (None, []),
+      fn(ref, z) {
+        when ref.output.datum is {
+          InlineDatum(d) -> {
+            let t =
+              check_dual_token(
+                ref.output.value,
+                gov_pid,
+                gov_nft,
+                club_pid,
+                general_state_nft,
+              )
+            if z.1st == None && t.1st > 0 {
+              expect pp: ProtocolParams = d
+              (False, (Some(pp), z.2nd))
+            } else if t.2nd > 0 {
+              expect datum: GeneralStateDatum = d
+              if datum.club_policy_id == club_pid {
+                (
+                  z.1st != None,
+                  (z.1st, list.push(z.2nd, (ref.output.address, datum))),
+                )
+              } else {
+                (False, z)
+              }
+            } else {
+              (False, z)
+            }
+          }
+          _ -> (False, z)
+        }
+      },
+    )
+  is {
+    (None, _) -> fail @"ref governance not found"
+    (_, []) -> fail @"ref general state not found"
+    (Some(a), [_, ..] as b) -> {
+      let addr = get_general_state_address(a)
+      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      d
+    }
+  }
+}
+
+pub fn get_trading_state_zip_ref_inputs(
+  gov_pid: PolicyId,
+  club_pid: PolicyId,
+  ref_inputs: List<Input>,
+) -> TradingStateDatum {
+  let gov_nft = get_gov_nft_name()
+  let trading_state_nft = get_trading_nft_name()
+  when
+    find_while(
+      ref_inputs,
+      (None, []),
+      fn(ref, z) {
+        when ref.output.datum is {
+          InlineDatum(d) -> {
+            let t =
+              check_dual_token(
+                ref.output.value,
+                gov_pid,
+                gov_nft,
+                club_pid,
+                trading_state_nft,
+              )
+            if z.1st == None && t.1st > 0 {
+              expect pp: ProtocolParams = d
+              (False, (Some(pp), z.2nd))
+            } else if t.2nd > 0 {
+              expect datum: TradingStateDatum = d
+              if datum.club_policy_id == club_pid {
+                (
+                  z.1st != None,
+                  (z.1st, list.push(z.2nd, (ref.output.address, datum))),
+                )
+              } else {
+                (False, z)
+              }
+            } else {
+              (False, z)
+            }
+          }
+          _ -> (False, z)
+        }
+      },
+    )
+  is {
+    (None, _) -> fail @"ref governance not found"
+    (_, []) -> fail @"ref trading state not found"
+    (Some(a), [_, ..] as b) -> {
+      let addr = get_trading_state_address(a)
+      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      d
+    }
+  }
+}
+
+pub fn get_deposit_state_zip_ref_inputs(
+  gov_pid: PolicyId,
+  club_pid: PolicyId,
+  ref_inputs: List<Input>,
+) -> DepositStateDatum {
+  let gov_nft = get_gov_nft_name()
+  let deposit_state_nft = get_deposit_state_nft_name()
+  when
+    find_while(
+      ref_inputs,
+      (None, []),
+      fn(ref, z) {
+        when ref.output.datum is {
+          InlineDatum(d) -> {
+            let t =
+              check_dual_token(
+                ref.output.value,
+                gov_pid,
+                gov_nft,
+                club_pid,
+                deposit_state_nft,
+              )
+            if z.1st == None && t.1st > 0 {
+              expect pp: ProtocolParams = d
+              (False, (Some(pp), z.2nd))
+            } else if t.2nd > 0 {
+              expect datum: DepositStateDatum = d
+              if datum.club_policy_id == club_pid {
+                (
+                  z.1st != None,
+                  (z.1st, list.push(z.2nd, (ref.output.address, datum))),
+                )
+              } else {
+                (False, z)
+              }
+            } else {
+              (False, z)
+            }
+          }
+          _ -> (False, z)
+        }
+      },
+    )
+  is {
+    (None, _) -> fail @"ref governance not found"
+    (_, []) -> fail @"ref deposit state not found"
+    (Some(a), [_, ..] as b) -> {
+      let addr = get_deposit_state_address(a)
+      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      d
+    }
+  }
+}
+
+pub fn get_withdraw_state_zip_ref_inputs(
+  gov_pid: PolicyId,
+  club_pid: PolicyId,
+  ref_inputs: List<Input>,
+) -> WithdrawStateDatum {
+  let gov_nft = get_gov_nft_name()
+  let withdraw_state_nft = get_withdraw_state_nft_name()
+  when
+    find_while(
+      ref_inputs,
+      (None, []),
+      fn(ref, z) {
+        when ref.output.datum is {
+          InlineDatum(d) -> {
+            let t =
+              check_dual_token(
+                ref.output.value,
+                gov_pid,
+                gov_nft,
+                club_pid,
+                withdraw_state_nft,
+              )
+            if z.1st == None && t.1st > 0 {
+              expect pp: ProtocolParams = d
+              (False, (Some(pp), z.2nd))
+            } else if t.2nd > 0 {
+              expect datum: WithdrawStateDatum = d
+              if datum.club_policy_id == club_pid {
+                (
+                  z.1st != None,
+                  (z.1st, list.push(z.2nd, (ref.output.address, datum))),
+                )
+              } else {
+                (False, z)
+              }
+            } else {
+              (False, z)
+            }
+          }
+          _ -> (False, z)
+        }
+      },
+    )
+  is {
+    (None, _) -> fail @"ref governance not found"
+    (_, []) -> fail @"ref withdraw state not found"
+    (Some(a), [_, ..] as b) -> {
+      let addr = get_deposit_state_address(a)
+      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      d
+    }
+  }
+}
+
+pub fn get_nav_state_ref_zip_inputs(
+  gov_pid: PolicyId,
+  club_pid: PolicyId,
+  ref_inputs: List<Input>,
+) -> NavStateDatum {
+  let gov_nft = get_gov_nft_name()
+  let nav_state_nft = get_nav_nft_name()
+  when
+    find_while(
+      ref_inputs,
+      (None, []),
+      fn(ref, z) {
+        when ref.output.datum is {
+          InlineDatum(d) -> {
+            let t =
+              check_dual_token(
+                ref.output.value,
+                gov_pid,
+                gov_nft,
+                club_pid,
+                nav_state_nft,
+              )
+            if z.1st == None && t.1st > 0 {
+              expect pp: ProtocolParams = d
+              (False, (Some(pp), z.2nd))
+            } else if t.2nd > 0 {
+              expect datum: NavStateDatum = d
+              if datum.club_policy_id == club_pid {
+                (
+                  z.1st != None,
+                  (z.1st, list.push(z.2nd, (ref.output.address, datum))),
+                )
+              } else {
+                (False, z)
+              }
+            } else {
+              (False, z)
+            }
+          }
+          _ -> (False, z)
+        }
+      },
+    )
+  is {
+    (None, _) -> fail @"ref governance not found"
+    (_, []) -> fail @"ref nav state not found"
+    (Some(a), [_, ..] as b) -> {
+      let addr = get_deposit_state_address(a)
+      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      d
+    }
   }
 }
 

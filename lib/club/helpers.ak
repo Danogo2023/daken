@@ -20,20 +20,16 @@ use club/trading_state/types.{TradingStateDatum} as club_trading_state_types
 use club/vault_state/types.{VaultStateDatum} as club_vault_state_types
 use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
 use common/time.{EpochConfig, SlotConfigNetwork, get_current_epoch_with_ttl}
-use common/util.{must_be_signed_by_key}
+use common/util.{fail_if_none, find_while, must_be_signed_by_key}
 
 /// Check if Operator token is presented in transaction inputs
 /// can be used in any transaction that requires Operator token to be valid
 /// e.g.: update general utxo, update trading utxo...
-pub fn exists_operator_nft(club_policy_id: PolicyId, txn: Transaction) -> Bool {
+pub fn exists_operator_nft(club_pid: PolicyId, txn: Transaction) -> Bool {
   list.any(
     txn.inputs,
     fn(in) {
-      value.quantity_of(
-        in.output.value,
-        club_policy_id,
-        get_operator_nft_name(),
-      ) > 0
+      value.quantity_of(in.output.value, club_pid, get_operator_nft_name()) > 0
     },
   )
 }
@@ -42,215 +38,198 @@ pub fn exists_operator_nft(club_policy_id: PolicyId, txn: Transaction) -> Bool {
 /// can be used in any transaction that require protocol params to validate
 /// e.g.: create club needs to validate SM addresses, ...
 pub fn get_protocol_params(
-  gov_policy_id: PolicyId,
+  gov_pid: PolicyId,
   ref_inputs: List<Input>,
 ) -> ProtocolParams {
   when
     list.find(
       ref_inputs,
       fn(ref) {
-        value.quantity_of(ref.output.value, gov_policy_id, get_gov_nft_name()) == 1
+        value.quantity_of(ref.output.value, gov_pid, get_gov_nft_name()) == 1
       },
     )
   is {
     None -> fail @"Not found governance utxo"
     Some(i) -> {
       expect InlineDatum(d) = i.output.datum
-      expect protocol_params: ProtocolParams = d
-      protocol_params
+      expect pp: ProtocolParams = d
+      pp
     }
   }
 }
 
-pub fn get_general_state_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_general_state_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.general_state_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.general_state_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_trading_state_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_trading_state_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.trading_state_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.trading_state_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_nav_state_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_nav_state_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.nav_state_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.nav_state_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_deposit_state_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_deposit_state_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.deposit_state_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.deposit_state_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_deposit_pool_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_deposit_pool_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.deposit_pool_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.deposit_pool_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_withdraw_state_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_withdraw_state_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.withdraw_state_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.withdraw_state_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_withdraw_pool_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_withdraw_pool_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.withdraw_pool_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.withdraw_pool_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_redeem_pool_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_redeem_pool_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.redeem_pool_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.redeem_pool_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_operator_fee_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_operator_fee_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.operator_fee_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.operator_fee_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
-pub fn get_platform_fee_address(protocol_params: ProtocolParams) -> Address {
+pub fn get_platform_fee_address(pp: ProtocolParams) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.platform_fee_skh),
-    stake_credential: Some(protocol_params.default_stake_key),
+    payment_credential: ScriptCredential(pp.platform_fee_skh),
+    stake_credential: Some(pp.default_stake_key),
   }
 }
 
 pub fn get_vault_state_address(
-  protocol_params: ProtocolParams,
+  pp: ProtocolParams,
   stake: StakeCredential,
 ) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.vault_state_skh),
+    payment_credential: ScriptCredential(pp.vault_state_skh),
     stake_credential: Some(stake),
   }
 }
 
 pub fn get_vault_asset_address(
-  protocol_params: ProtocolParams,
+  pp: ProtocolParams,
   stake: StakeCredential,
 ) -> Address {
   Address {
-    payment_credential: ScriptCredential(protocol_params.vault_state_skh),
+    payment_credential: ScriptCredential(pp.vault_state_skh),
     stake_credential: Some(stake),
   }
 }
 
 pub fn get_dict_ref_inputs(
-  club_policy_id: PolicyId,
-  protocol_params: ProtocolParams,
+  club_pid: PolicyId,
+  pp: ProtocolParams,
   ref_inputs: List<Input>,
 ) -> Dict<ByteArray, Datum> {
+  let general_state_nft = get_general_nft_name()
+  let trading_state_nft = get_trading_nft_name()
+  let deposit_state_nft = get_deposit_state_nft_name()
+  let withdraw_state_nft = get_withdraw_state_nft_name()
+  let nav_state_nft = get_nav_nft_name()
+  let vault_state_token = get_vault_state_token_name()
+
   list.filter_map(
     ref_inputs,
     fn(ref) {
       when ref.output.address.payment_credential is {
         ScriptCredential(skh) ->
-          if skh == protocol_params.deposit_state_skh {
+          if skh == pp.deposit_state_skh {
             expect InlineDatum(d) = ref.output.datum
             expect datum: DepositStateDatum = d
             if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_deposit_state_nft_name(),
-              ) != 1,
+              (datum.club_policy_id != club_pid)?,
+              value.quantity_of(ref.output.value, club_pid, deposit_state_nft) != 1,
             } {
               fail @"deposit_state_nft in deposit_state utxo invalid"
             } else {
-              Some((get_deposit_state_nft_name(), ref.output.datum))
+              Some((deposit_state_nft, ref.output.datum))
             }
-          } else if skh == protocol_params.withdraw_state_skh {
+          } else if skh == pp.withdraw_state_skh {
             expect InlineDatum(d) = ref.output.datum
             expect datum: WithdrawStateDatum = d
             if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_withdraw_state_nft_name(),
-              ) != 1,
+              (datum.club_policy_id != club_pid)?,
+              value.quantity_of(ref.output.value, club_pid, withdraw_state_nft) != 1,
             } {
               fail @"withdraw_state_nft in withdraw_state utxo invalid"
             } else {
-              Some((get_withdraw_state_nft_name(), ref.output.datum))
+              Some((withdraw_state_nft, ref.output.datum))
             }
-          } else if skh == protocol_params.nav_state_skh {
+          } else if skh == pp.nav_state_skh {
             expect InlineDatum(d) = ref.output.datum
             expect datum: NavStateDatum = d
             if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_nav_nft_name(),
-              ) != 1,
+              (datum.club_policy_id != club_pid)?,
+              value.quantity_of(ref.output.value, club_pid, nav_state_nft) != 1,
             } {
               fail @"nav_nft in nav_state utxo invalid"
             } else {
-              Some((get_nav_nft_name(), ref.output.datum))
+              Some((nav_state_nft, ref.output.datum))
             }
-          } else if skh == protocol_params.general_state_skh {
+          } else if skh == pp.general_state_skh {
             expect InlineDatum(d) = ref.output.datum
             expect datum: GeneralStateDatum = d
             if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_general_nft_name(),
-              ) != 1,
+              (datum.club_policy_id != club_pid)?,
+              value.quantity_of(ref.output.value, club_pid, general_state_nft) != 1,
             } {
               fail @"general_nft in general_state utxo invalid"
             } else {
-              Some((get_general_nft_name(), ref.output.datum))
+              Some((general_state_nft, ref.output.datum))
             }
-          } else if skh == protocol_params.trading_state_skh {
+          } else if skh == pp.trading_state_skh {
             expect InlineDatum(d) = ref.output.datum
             expect datum: TradingStateDatum = d
             if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_trading_nft_name(),
-              ) != 1,
+              (datum.club_policy_id != club_pid)?,
+              value.quantity_of(ref.output.value, club_pid, trading_state_nft) != 1,
             } {
               fail @"trading_nft in trading_state utxo invalid"
             } else {
-              Some((get_trading_nft_name(), ref.output.datum))
+              Some((trading_state_nft, ref.output.datum))
             }
-          } else if skh == protocol_params.vault_state_skh {
+          } else if skh == pp.vault_state_skh {
             expect InlineDatum(d) = ref.output.datum
             expect datum: VaultStateDatum = d
             if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_vault_state_token_name(),
-              ) != 1,
+              (datum.club_policy_id != club_pid)?,
+              value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1,
             } {
               fail @"vault_state_token in vault_state utxo invalid"
             } else {
-              Some((get_vault_state_token_name(), ref.output.datum))
+              Some((vault_state_token, ref.output.datum))
             }
           } else {
             None
@@ -268,16 +247,29 @@ pub type RefInputDatum {
   nav_state: Option<NavStateDatum>,
   general_state: Option<GeneralStateDatum>,
   trading_state: Option<TradingStateDatum>,
-  vault_state_club_policy_id: ByteArray,
+  vault_state_club_pid: PolicyId,
   vault_state: List<(OutputReference, VaultStateDatum)>,
 }
 
 // loop one time in ref to get all datum of ref inputs, if present
 pub fn get_tuple_ref_inputs(
-  club_policy_id: PolicyId,
-  protocol_params: ProtocolParams,
+  club_pid: PolicyId,
+  pp: ProtocolParams,
   ref_inputs: List<Input>,
 ) -> RefInputDatum {
+  let general_state_addr = get_general_state_address(pp)
+  let trading_state_addr = get_trading_state_address(pp)
+  let deposit_state_addr = get_deposit_state_address(pp)
+  let withdraw_state_addr = get_withdraw_state_address(pp)
+  let nav_state_addr = get_nav_state_address(pp)
+
+  let general_state_nft = get_general_nft_name()
+  let trading_state_nft = get_trading_nft_name()
+  let deposit_state_nft = get_deposit_state_nft_name()
+  let withdraw_state_nft = get_withdraw_state_nft_name()
+  let nav_state_nft = get_nav_nft_name()
+  let vault_state_token = get_vault_state_token_name()
+
   list.foldr(
     ref_inputs,
     RefInputDatum {
@@ -286,146 +278,259 @@ pub fn get_tuple_ref_inputs(
       nav_state: None,
       general_state: None,
       trading_state: None,
-      vault_state_club_policy_id: #"",
+      vault_state_club_pid: #"",
       vault_state: [],
     },
     fn(ref, z) {
-      when ref.output.address.payment_credential is {
-        ScriptCredential(skh) ->
-          if skh == protocol_params.deposit_state_skh {
-            expect InlineDatum(d) = ref.output.datum
-            expect datum: DepositStateDatum = d
-            if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_deposit_state_nft_name(),
-              ) != 1,
-            } {
-              fail @"deposit_state_nft in deposit_state utxo invalid"
-            } else {
-              when z.deposit_state is {
-                None -> RefInputDatum { ..z, deposit_state: Some(datum) }
-                _ -> fail @"deposit_state existed"
-              }
-            }
-          } else if skh == protocol_params.withdraw_state_skh {
-            expect InlineDatum(d) = ref.output.datum
-            expect datum: WithdrawStateDatum = d
-            if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_withdraw_state_nft_name(),
-              ) != 1,
-            } {
-              fail @"withdraw_state_nft in withdraw_state utxo invalid"
-            } else {
-              when z.withdraw_state is {
-                None -> RefInputDatum { ..z, withdraw_state: Some(datum) }
-                _ -> fail @"withdraw_state existed"
-              }
-            }
-          } else if skh == protocol_params.nav_state_skh {
-            expect InlineDatum(d) = ref.output.datum
-            expect datum: NavStateDatum = d
-            if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_nav_nft_name(),
-              ) != 1,
-            } {
-              fail @"nav_nft in nav_state utxo invalid"
-            } else {
-              when z.nav_state is {
-                None -> RefInputDatum { ..z, nav_state: Some(datum) }
-                _ -> fail @"nav_state existed"
-              }
-            }
-          } else if skh == protocol_params.general_state_skh {
-            expect InlineDatum(d) = ref.output.datum
-            expect datum: GeneralStateDatum = d
-            if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_general_nft_name(),
-              ) != 1,
-            } {
-              fail @"general_nft in general_state utxo invalid"
-            } else {
-              when z.general_state is {
-                None -> RefInputDatum { ..z, general_state: Some(datum) }
-                _ -> fail @"general_state existed"
-              }
-            }
-          } else if skh == protocol_params.trading_state_skh {
-            expect InlineDatum(d) = ref.output.datum
-            expect datum: TradingStateDatum = d
-            if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_trading_nft_name(),
-              ) != 1,
-            } {
-              fail @"trading_nft in trading_state utxo invalid"
-            } else {
-              when z.trading_state is {
-                None -> RefInputDatum { ..z, trading_state: Some(datum) }
-                _ -> fail @"trading_state existed"
-              }
-            }
-          } else if skh == protocol_params.vault_state_skh {
-            expect InlineDatum(d) = ref.output.datum
-            expect datum: VaultStateDatum = d
-            if or {
-              (club_policy_id != datum.club_policy_id)?,
-              value.quantity_of(
-                ref.output.value,
-                datum.club_policy_id,
-                get_vault_state_token_name(),
-              ) != 1,
-            } {
-              fail @"vault_state_token in vault_state utxo invalid"
-            } else {
-              if or {
-                datum.club_policy_id == z.vault_state_club_policy_id,
-                z.vault_state_club_policy_id == #"",
-              } {
-                RefInputDatum {
-                  ..z,
-                  vault_state_club_policy_id: datum.club_policy_id,
-                  vault_state: list.push(
-                    z.vault_state,
-                    (ref.output_reference, datum),
-                  ),
-                }
-              } else {
-                fail @"vault_state_club_policy_id invalid"
-              }
-            }
-          } else {
-            z
+      if ref.output.address == deposit_state_addr {
+        expect InlineDatum(d) = ref.output.datum
+        expect datum: DepositStateDatum = d
+        if or {
+          (datum.club_policy_id != club_pid)?,
+          value.quantity_of(ref.output.value, club_pid, deposit_state_nft) != 1,
+        } {
+          fail @"deposit_state_nft in deposit_state utxo invalid"
+        } else {
+          when z.deposit_state is {
+            None -> RefInputDatum { ..z, deposit_state: Some(datum) }
+            _ -> fail @"deposit_state existed"
           }
-        VerificationKeyCredential(_) -> z
+        }
+      } else if ref.output.address == withdraw_state_addr {
+        expect InlineDatum(d) = ref.output.datum
+        expect datum: WithdrawStateDatum = d
+        if or {
+          (datum.club_policy_id != club_pid)?,
+          value.quantity_of(ref.output.value, club_pid, withdraw_state_nft) != 1,
+        } {
+          fail @"withdraw_state_nft in withdraw_state utxo invalid"
+        } else {
+          when z.withdraw_state is {
+            None -> RefInputDatum { ..z, withdraw_state: Some(datum) }
+            _ -> fail @"withdraw_state existed"
+          }
+        }
+      } else if ref.output.address == nav_state_addr {
+        expect InlineDatum(d) = ref.output.datum
+        expect datum: NavStateDatum = d
+        if or {
+          (datum.club_policy_id != club_pid)?,
+          value.quantity_of(ref.output.value, club_pid, nav_state_nft) != 1,
+        } {
+          fail @"nav_nft in nav_state utxo invalid"
+        } else {
+          when z.nav_state is {
+            None -> RefInputDatum { ..z, nav_state: Some(datum) }
+            _ -> fail @"nav_state existed"
+          }
+        }
+      } else if ref.output.address == general_state_addr {
+        expect InlineDatum(d) = ref.output.datum
+        expect datum: GeneralStateDatum = d
+        if or {
+          (datum.club_policy_id != club_pid)?,
+          value.quantity_of(ref.output.value, club_pid, general_state_nft) != 1,
+        } {
+          fail @"general_nft in general_state utxo invalid"
+        } else {
+          when z.general_state is {
+            None -> RefInputDatum { ..z, general_state: Some(datum) }
+            _ -> fail @"general_state existed"
+          }
+        }
+      } else if ref.output.address == trading_state_addr {
+        expect InlineDatum(d) = ref.output.datum
+        expect datum: TradingStateDatum = d
+        if or {
+          (datum.club_policy_id != club_pid)?,
+          value.quantity_of(ref.output.value, club_pid, trading_state_nft) != 1,
+        } {
+          fail @"trading_nft in trading_state utxo invalid"
+        } else {
+          when z.trading_state is {
+            None -> RefInputDatum { ..z, trading_state: Some(datum) }
+            _ -> fail @"trading_state existed"
+          }
+        }
+      } else {
+        when ref.output.address.payment_credential is {
+          ScriptCredential(skh) ->
+            if skh == pp.vault_state_skh {
+              expect InlineDatum(d) = ref.output.datum
+              expect datum: VaultStateDatum = d
+              if or {
+                (datum.club_policy_id != club_pid)?,
+                value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1,
+              } {
+                fail @"vault_state_token in vault_state utxo invalid"
+              } else {
+                if or {
+                  datum.club_policy_id == z.vault_state_club_pid,
+                  z.vault_state_club_pid == #"",
+                } {
+                  RefInputDatum {
+                    ..z,
+                    vault_state_club_pid: datum.club_policy_id,
+                    vault_state: list.push(
+                      z.vault_state,
+                      (ref.output_reference, datum),
+                    ),
+                  }
+                } else {
+                  fail @"vault_state_club_pid invalid"
+                }
+              }
+            } else {
+              z
+            }
+          VerificationKeyCredential(_) -> z
+        }
       }
     },
   )
 }
 
-pub fn has_operator_nft(club_policy_id: PolicyId, val: Value) {
-  value.quantity_of(val, club_policy_id, get_operator_nft_name()) > 0
+pub fn get_general_state_ref_inputs(
+  club_pid: PolicyId,
+  addr: Address,
+  ref_inputs: List<Input>,
+) -> GeneralStateDatum {
+  let general_state_nft = get_general_nft_name()
+  fail_if_none(
+    @"ref general state not found",
+    find_while(
+      ref_inputs,
+      None,
+      fn(ref, _) {
+        if and {
+          ref.output.address == addr,
+          value.quantity_of(ref.output.value, club_pid, general_state_nft) > 0,
+        } {
+          expect InlineDatum(d) = ref.output.datum
+          expect datum: GeneralStateDatum = d
+          (datum.club_policy_id == club_pid, Some(datum))
+        } else {
+          (False, None)
+        }
+      },
+    ),
+  )
 }
 
-pub fn has_general_nft(club_policy_id: PolicyId, val: Value) {
-  value.quantity_of(val, club_policy_id, get_general_nft_name()) > 0
+pub fn get_trading_state_ref_inputs(
+  club_pid: PolicyId,
+  addr: Address,
+  ref_inputs: List<Input>,
+) -> TradingStateDatum {
+  let trading_state_nft = get_trading_nft_name()
+  fail_if_none(
+    @"ref trading state not found",
+    find_while(
+      ref_inputs,
+      None,
+      fn(ref, _) {
+        if and {
+          ref.output.address == addr,
+          value.quantity_of(ref.output.value, club_pid, trading_state_nft) > 0,
+        } {
+          expect InlineDatum(d) = ref.output.datum
+          expect datum: TradingStateDatum = d
+          (datum.club_policy_id == club_pid, Some(datum))
+        } else {
+          (False, None)
+        }
+      },
+    ),
+  )
+}
+
+pub fn get_deposit_state_ref_inputs(
+  club_pid: PolicyId,
+  addr: Address,
+  ref_inputs: List<Input>,
+) -> DepositStateDatum {
+  let deposit_state_nft = get_deposit_state_nft_name()
+  fail_if_none(
+    @"ref deposit state not found",
+    find_while(
+      ref_inputs,
+      None,
+      fn(ref, _) {
+        if and {
+          ref.output.address == addr,
+          value.quantity_of(ref.output.value, club_pid, deposit_state_nft) > 0,
+        } {
+          expect InlineDatum(d) = ref.output.datum
+          expect datum: DepositStateDatum = d
+          (datum.club_policy_id == club_pid, Some(datum))
+        } else {
+          (False, None)
+        }
+      },
+    ),
+  )
+}
+
+pub fn get_withdraw_state_ref_inputs(
+  club_pid: PolicyId,
+  addr: Address,
+  ref_inputs: List<Input>,
+) -> WithdrawStateDatum {
+  let withdraw_state_nft = get_withdraw_state_nft_name()
+  fail_if_none(
+    @"ref withdraw state not found",
+    find_while(
+      ref_inputs,
+      None,
+      fn(ref, _) {
+        if and {
+          ref.output.address == addr,
+          value.quantity_of(ref.output.value, club_pid, withdraw_state_nft) > 0,
+        } {
+          expect InlineDatum(d) = ref.output.datum
+          expect datum: WithdrawStateDatum = d
+          (datum.club_policy_id == club_pid, Some(datum))
+        } else {
+          (False, None)
+        }
+      },
+    ),
+  )
+}
+
+pub fn get_nav_state_ref_inputs(
+  club_pid: PolicyId,
+  addr: Address,
+  ref_inputs: List<Input>,
+) -> NavStateDatum {
+  let nav_state_nft = get_nav_nft_name()
+  fail_if_none(
+    @"ref nav state not found",
+    find_while(
+      ref_inputs,
+      None,
+      fn(ref, _) {
+        if and {
+          ref.output.address == addr,
+          value.quantity_of(ref.output.value, club_pid, nav_state_nft) > 0,
+        } {
+          expect InlineDatum(d) = ref.output.datum
+          expect datum: NavStateDatum = d
+          (datum.club_policy_id == club_pid, Some(datum))
+        } else {
+          (False, None)
+        }
+      },
+    ),
+  )
+}
+
+pub fn has_operator_nft(club_pid: PolicyId, val: Value) -> Bool {
+  value.quantity_of(val, club_pid, get_operator_nft_name()) > 0
+}
+
+pub fn has_general_nft(club_pid: PolicyId, val: Value) -> Bool {
+  value.quantity_of(val, club_pid, get_general_nft_name()) > 0
 }
 
 pub fn has_system_force_redeem(

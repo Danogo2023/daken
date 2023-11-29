@@ -206,7 +206,7 @@ test success_get_tuple_ref_inputs() {
         club_policy_id: club_policy_id,
       },
     ),
-    vault_state_club_policy_id: club_policy_id,
+    vault_state_club_pid: club_policy_id,
     vault_state: [
       (
         test_out_ref(),
@@ -237,7 +237,7 @@ test fail_get_tuple_ref_inputs_1() fail {
     nav_state: None,
     deposit_state: None,
     withdraw_state: None,
-    vault_state_club_policy_id: "",
+    vault_state_club_pid: "",
     vault_state: [],
   }
 }
@@ -276,7 +276,7 @@ test fail_get_tuple_ref_inputs_2() fail {
     nav_state: None,
     deposit_state: None,
     withdraw_state: None,
-    vault_state_club_policy_id: "",
+    vault_state_club_pid: "",
     vault_state: [],
   }
 }
@@ -292,7 +292,7 @@ test fail_get_tuple_ref_inputs_3() fail {
     nav_state: None,
     deposit_state: None,
     withdraw_state: None,
-    vault_state_club_policy_id: "",
+    vault_state_club_pid: "",
     vault_state: [],
   }
 }

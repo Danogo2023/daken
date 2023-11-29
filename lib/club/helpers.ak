@@ -20,7 +20,7 @@ use club/trading_state/types.{TradingStateDatum} as club_trading_state_types
 use club/vault_state/types.{VaultStateDatum} as club_vault_state_types
 use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
 use common/time.{EpochConfig, SlotConfigNetwork, get_current_epoch_with_ttl}
-use common/util.{fail_if_none, find_while, must_be_signed_by_key}
+use common/util.{find_while, must_be_signed_by_key}
 
 /// Check if Operator token is presented in transaction inputs
 /// can be used in any transaction that requires Operator token to be valid
@@ -396,8 +396,7 @@ pub fn get_general_state_ref_inputs(
   ref_inputs: List<Input>,
 ) -> GeneralStateDatum {
   let general_state_nft = get_general_nft_name()
-  fail_if_none(
-    @"ref general state not found",
+  when
     find_while(
       ref_inputs,
       None,
@@ -413,8 +412,11 @@ pub fn get_general_state_ref_inputs(
           (False, None)
         }
       },
-    ),
-  )
+    )
+  is {
+    Some(v) -> v
+    _ -> fail @"ref general state not found"
+  }
 }
 
 pub fn get_trading_state_ref_inputs(
@@ -423,8 +425,7 @@ pub fn get_trading_state_ref_inputs(
   ref_inputs: List<Input>,
 ) -> TradingStateDatum {
   let trading_state_nft = get_trading_nft_name()
-  fail_if_none(
-    @"ref trading state not found",
+  when
     find_while(
       ref_inputs,
       None,
@@ -440,8 +441,11 @@ pub fn get_trading_state_ref_inputs(
           (False, None)
         }
       },
-    ),
-  )
+    )
+  is {
+    Some(v) -> v
+    _ -> fail @"ref trading state not found"
+  }
 }
 
 pub fn get_deposit_state_ref_inputs(
@@ -450,8 +454,7 @@ pub fn get_deposit_state_ref_inputs(
   ref_inputs: List<Input>,
 ) -> DepositStateDatum {
   let deposit_state_nft = get_deposit_state_nft_name()
-  fail_if_none(
-    @"ref deposit state not found",
+  when
     find_while(
       ref_inputs,
       None,
@@ -467,8 +470,11 @@ pub fn get_deposit_state_ref_inputs(
           (False, None)
         }
       },
-    ),
-  )
+    )
+  is {
+    Some(v) -> v
+    _ -> fail @"ref deposit state not found"
+  }
 }
 
 pub fn get_withdraw_state_ref_inputs(
@@ -477,8 +483,7 @@ pub fn get_withdraw_state_ref_inputs(
   ref_inputs: List<Input>,
 ) -> WithdrawStateDatum {
   let withdraw_state_nft = get_withdraw_state_nft_name()
-  fail_if_none(
-    @"ref withdraw state not found",
+  when
     find_while(
       ref_inputs,
       None,
@@ -494,8 +499,11 @@ pub fn get_withdraw_state_ref_inputs(
           (False, None)
         }
       },
-    ),
-  )
+    )
+  is {
+    Some(v) -> v
+    _ -> fail @"ref withdraw state not found"
+  }
 }
 
 pub fn get_nav_state_ref_inputs(
@@ -504,8 +512,7 @@ pub fn get_nav_state_ref_inputs(
   ref_inputs: List<Input>,
 ) -> NavStateDatum {
   let nav_state_nft = get_nav_nft_name()
-  fail_if_none(
-    @"ref nav state not found",
+  when
     find_while(
       ref_inputs,
       None,
@@ -521,8 +528,11 @@ pub fn get_nav_state_ref_inputs(
           (False, None)
         }
       },
-    ),
-  )
+    )
+  is {
+    Some(v) -> v
+    _ -> fail @"ref nav state not found"
+  }
 }
 
 pub fn has_operator_nft(club_pid: PolicyId, val: Value) -> Bool {

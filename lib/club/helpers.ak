@@ -591,7 +591,7 @@ pub fn get_general_state_zip_ref_inputs(
   gov_pid: PolicyId,
   club_pid: PolicyId,
   ref_inputs: List<Input>,
-) -> GeneralStateDatum {
+) -> (ProtocolParams, GeneralStateDatum) {
   let gov_nft = get_gov_nft_name()
   let general_state_nft = get_general_nft_name()
   when
@@ -636,7 +636,7 @@ pub fn get_general_state_zip_ref_inputs(
     (Some(a), [_, ..] as b) -> {
       let addr = get_general_state_address(a)
       expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
-      d
+      (a, d)
     }
   }
 }
@@ -645,7 +645,7 @@ pub fn get_trading_state_zip_ref_inputs(
   gov_pid: PolicyId,
   club_pid: PolicyId,
   ref_inputs: List<Input>,
-) -> TradingStateDatum {
+) -> (ProtocolParams, TradingStateDatum) {
   let gov_nft = get_gov_nft_name()
   let trading_state_nft = get_trading_nft_name()
   when
@@ -690,7 +690,7 @@ pub fn get_trading_state_zip_ref_inputs(
     (Some(a), [_, ..] as b) -> {
       let addr = get_trading_state_address(a)
       expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
-      d
+      (a, d)
     }
   }
 }
@@ -699,7 +699,7 @@ pub fn get_deposit_state_zip_ref_inputs(
   gov_pid: PolicyId,
   club_pid: PolicyId,
   ref_inputs: List<Input>,
-) -> DepositStateDatum {
+) -> (ProtocolParams, DepositStateDatum) {
   let gov_nft = get_gov_nft_name()
   let deposit_state_nft = get_deposit_state_nft_name()
   when
@@ -744,7 +744,7 @@ pub fn get_deposit_state_zip_ref_inputs(
     (Some(a), [_, ..] as b) -> {
       let addr = get_deposit_state_address(a)
       expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
-      d
+      (a, d)
     }
   }
 }
@@ -753,7 +753,7 @@ pub fn get_withdraw_state_zip_ref_inputs(
   gov_pid: PolicyId,
   club_pid: PolicyId,
   ref_inputs: List<Input>,
-) -> WithdrawStateDatum {
+) -> (ProtocolParams, WithdrawStateDatum) {
   let gov_nft = get_gov_nft_name()
   let withdraw_state_nft = get_withdraw_state_nft_name()
   when
@@ -798,7 +798,7 @@ pub fn get_withdraw_state_zip_ref_inputs(
     (Some(a), [_, ..] as b) -> {
       let addr = get_deposit_state_address(a)
       expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
-      d
+      (a, d)
     }
   }
 }
@@ -807,7 +807,7 @@ pub fn get_nav_state_ref_zip_inputs(
   gov_pid: PolicyId,
   club_pid: PolicyId,
   ref_inputs: List<Input>,
-) -> NavStateDatum {
+) -> (ProtocolParams, NavStateDatum) {
   let gov_nft = get_gov_nft_name()
   let nav_state_nft = get_nav_nft_name()
   when
@@ -852,7 +852,7 @@ pub fn get_nav_state_ref_zip_inputs(
     (Some(a), [_, ..] as b) -> {
       let addr = get_deposit_state_address(a)
       expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
-      d
+      (a, d)
     }
   }
 }

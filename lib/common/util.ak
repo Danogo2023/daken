@@ -2,12 +2,13 @@ use aiken/bytearray
 use aiken/dict
 use aiken/list
 use aiken/transaction.{
-  Datum, DatumHash, InlineDatum, Input, NoDatum, ScriptContext, Spend,
+  Datum, DatumHash, InlineDatum, Input, NoDatum, ScriptContext, Spend, Transaction,
 }
 use aiken/transaction/credential.{
   Address, ScriptCredential, VerificationKeyCredential,
 }
 use common/types.{Datums, PublicKeyHash}
+use aiken/transaction/value.{PolicyId}
 
 pub fn get_spending_input(ctx: ScriptContext) -> Input {
   expect Spend(output_reference) = ctx.purpose
@@ -126,44 +127,10 @@ pub fn find_while(
   }
 }
 
-pub fn fail_if_none(msg: String, maybe_value: Option<a>) -> a {
-  when maybe_value is {
-    None -> fail msg
-    Some(v) -> v
-  }
-}
-
-test fail_if_none_1() fail {
-  fail_if_none(@"should fail", None)
-}
-
-test fail_if_none_2() {
-  fail_if_none(@"should pass", Some(1)) == 1
-}
-
-test fail_if_none_3() {
-  fail_if_none(@"should not pass", Some(1)) != 2
-}
-
-pub fn fail_if_false(msg: String, predicate: Bool, return_value: r) -> r {
-  if predicate {
-    return_value
-  } else {
-    fail msg
-  }
-}
-
-test fail_if_false_1() fail {
-  fail_if_false(@"should fail", False, 1) == 1
-}
-
-test fail_if_false_2() {
-  fail_if_false(@"should pass", True, 1) == 1
-}
-
-test fail_if_false_3() {
-  when fail_if_false(@"should not pass", True, 1) is {
-    1 -> True
-    _ -> False
-  }
+pub fn is_burned_nft(tx: Transaction, policy_id: PolicyId, nft_name: ByteArray) {
+  (
+    tx.mint
+      |> value.from_minted_value
+      |> value.quantity_of(policy_id, nft_name)
+  ) == -1
 }

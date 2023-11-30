@@ -37,12 +37,14 @@ pub type ProtocolParams {
   default_stake_key: StakeCredential,
   platform_force_redeem_epoch: Int,
   platform_force_redeem_pkh: PublicKeyHash,
+  platform_garbage_collector_deposit_amount: Int,
   platform_garbage_collector_pkh: PublicKeyHash,
   platform_staking_batcher_address: Address,
   // minimum lovelace that LP can deposit
   min_deposit_amount: Int,
   // minimum lovelace that LP can withdraw
   min_withdraw_amount: Int,
+  fee_withdraw_amount: Int,
   // ttl of tx, unit by slot
   tx_ttl: Int,
 }
@@ -104,10 +106,12 @@ pub fn base_protocol_params() -> ProtocolParams {
     default_stake_key: Pointer(0, 0, 0),
     platform_force_redeem_epoch: 0,
     platform_force_redeem_pkh: "",
+    platform_garbage_collector_deposit_amount: 2_000_000,
     platform_garbage_collector_pkh: "",
     platform_staking_batcher_address: from_verification_key(""),
     min_deposit_amount: 100_000_000,
     min_withdraw_amount: 100_000_000,
+    fee_withdraw_amount: 2_000_000,
     // 5 minutes
     tx_ttl: 5 * 60 * 1000,
   }

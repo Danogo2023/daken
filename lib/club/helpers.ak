@@ -3,7 +3,8 @@ use aiken/dict.{Dict}
 use aiken/list
 use aiken/transaction.{Datum, InlineDatum, Input, OutputReference, Transaction}
 use aiken/transaction/credential.{
-  Address, ScriptCredential, StakeCredential, VerificationKeyCredential,
+  Address, PaymentCredential, ScriptCredential, StakeCredential,
+  VerificationKeyCredential,
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use club/club_tokens.{
@@ -147,6 +148,54 @@ pub fn get_vault_asset_address(
   }
 }
 
+pub fn get_general_state_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.general_state_skh)
+}
+
+pub fn get_trading_state_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.trading_state_skh)
+}
+
+pub fn get_nav_state_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.nav_state_skh)
+}
+
+pub fn get_deposit_state_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.deposit_state_skh)
+}
+
+pub fn get_deposit_pool_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.deposit_pool_skh)
+}
+
+pub fn get_withdraw_state_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.withdraw_state_skh)
+}
+
+pub fn get_withdraw_pool_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.withdraw_pool_skh)
+}
+
+pub fn get_redeem_pool_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.redeem_pool_skh)
+}
+
+pub fn get_operator_fee_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.operator_fee_skh)
+}
+
+pub fn get_platform_fee_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.platform_fee_skh)
+}
+
+pub fn get_vault_state_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.vault_state_skh)
+}
+
+pub fn get_vault_asset_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.vault_state_skh)
+}
+
 pub fn get_dict_ref_inputs(
   club_pid: PolicyId,
   pp: ProtocolParams,
@@ -256,11 +305,12 @@ pub fn get_tuple_ref_inputs(
   pp: ProtocolParams,
   ref_inputs: List<Input>,
 ) -> RefInputDatum {
-  let general_state_addr = get_general_state_address(pp)
-  let trading_state_addr = get_trading_state_address(pp)
-  let deposit_state_addr = get_deposit_state_address(pp)
-  let withdraw_state_addr = get_withdraw_state_address(pp)
-  let nav_state_addr = get_nav_state_address(pp)
+  let general_state_pk = get_general_state_pkey(pp)
+  let trading_state_pk = get_trading_state_pkey(pp)
+  let deposit_state_pk = get_deposit_state_pkey(pp)
+  let withdraw_state_pk = get_withdraw_state_pkey(pp)
+  let nav_state_pk = get_nav_state_pkey(pp)
+  let vault_state_pk = get_vault_state_pkey(pp)
 
   let general_state_nft = get_general_nft_name()
   let trading_state_nft = get_trading_nft_name()
@@ -281,8 +331,9 @@ pub fn get_tuple_ref_inputs(
       vault_state: [],
     },
     fn(ref, z) {
-      if ref.output.address == deposit_state_addr {
-        expect InlineDatum(d) = ref.output.datum
+      let ref_output_pk = ref.output.address.payment_credential
+      expect InlineDatum(d) = ref.output.datum
+      if ref_output_pk == deposit_state_pk {
         expect datum: DepositStateDatum = d
         if or {
           (datum.club_policy_id != club_pid)?,
@@ -295,8 +346,7 @@ pub fn get_tuple_ref_inputs(
             _ -> fail @"deposit_state existed"
           }
         }
-      } else if ref.output.address == withdraw_state_addr {
-        expect InlineDatum(d) = ref.output.datum
+      } else if ref_output_pk == withdraw_state_pk {
         expect datum: WithdrawStateDatum = d
         if or {
           (datum.club_policy_id != club_pid)?,
@@ -309,8 +359,7 @@ pub fn get_tuple_ref_inputs(
             _ -> fail @"withdraw_state existed"
           }
         }
-      } else if ref.output.address == nav_state_addr {
-        expect InlineDatum(d) = ref.output.datum
+      } else if ref_output_pk == nav_state_pk {
         expect datum: NavStateDatum = d
         if or {
           (datum.club_policy_id != club_pid)?,
@@ -323,8 +372,7 @@ pub fn get_tuple_ref_inputs(
             _ -> fail @"nav_state existed"
           }
         }
-      } else if ref.output.address == general_state_addr {
-        expect InlineDatum(d) = ref.output.datum
+      } else if ref_output_pk == general_state_pk {
         expect datum: GeneralStateDatum = d
         if or {
           (datum.club_policy_id != club_pid)?,
@@ -337,8 +385,7 @@ pub fn get_tuple_ref_inputs(
             _ -> fail @"general_state existed"
           }
         }
-      } else if ref.output.address == trading_state_addr {
-        expect InlineDatum(d) = ref.output.datum
+      } else if ref_output_pk == trading_state_pk {
         expect datum: TradingStateDatum = d
         if or {
           (datum.club_policy_id != club_pid)?,
@@ -351,39 +398,32 @@ pub fn get_tuple_ref_inputs(
             _ -> fail @"trading_state existed"
           }
         }
-      } else {
-        when ref.output.address.payment_credential is {
-          ScriptCredential(skh) ->
-            if skh == pp.vault_state_skh {
-              expect InlineDatum(d) = ref.output.datum
-              expect datum: VaultStateDatum = d
-              if or {
-                (datum.club_policy_id != club_pid)?,
-                value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1,
-              } {
-                fail @"vault_state_token in vault_state utxo invalid"
-              } else {
-                if or {
-                  datum.club_policy_id == z.vault_state_club_pid,
-                  z.vault_state_club_pid == #"",
-                } {
-                  RefInputDatum {
-                    ..z,
-                    vault_state_club_pid: datum.club_policy_id,
-                    vault_state: list.push(
-                      z.vault_state,
-                      (ref.output_reference, datum),
-                    ),
-                  }
-                } else {
-                  fail @"vault_state_club_pid invalid"
-                }
-              }
-            } else {
-              z
+      } else if ref_output_pk == vault_state_pk {
+        expect datum: VaultStateDatum = d
+        if or {
+          (datum.club_policy_id != club_pid)?,
+          value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1,
+        } {
+          fail @"vault_state_token in vault_state utxo invalid"
+        } else {
+          if or {
+            datum.club_policy_id == z.vault_state_club_pid,
+            z.vault_state_club_pid == #"",
+          } {
+            RefInputDatum {
+              ..z,
+              vault_state_club_pid: datum.club_policy_id,
+              vault_state: list.push(
+                z.vault_state,
+                (ref.output_reference, datum),
+              ),
             }
-          VerificationKeyCredential(_) -> z
+          } else {
+            fail @"vault_state_club_pid invalid"
+          }
         }
+      } else {
+        z
       }
     },
   )
@@ -634,8 +674,9 @@ pub fn get_general_state_zip_ref_inputs(
     (None, _) -> fail @"ref governance not found"
     (_, []) -> fail @"ref general state not found"
     (Some(a), [_, ..] as b) -> {
-      let addr = get_general_state_address(a)
-      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      let pk = get_general_state_pkey(a)
+      expect Some((_, d)) =
+        list.find(b, fn(i) { i.1st.payment_credential == pk })
       (a, d)
     }
   }
@@ -688,8 +729,9 @@ pub fn get_trading_state_zip_ref_inputs(
     (None, _) -> fail @"ref governance not found"
     (_, []) -> fail @"ref trading state not found"
     (Some(a), [_, ..] as b) -> {
-      let addr = get_trading_state_address(a)
-      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      let pk = get_trading_state_pkey(a)
+      expect Some((_, d)) =
+        list.find(b, fn(i) { i.1st.payment_credential == pk })
       (a, d)
     }
   }
@@ -742,8 +784,9 @@ pub fn get_deposit_state_zip_ref_inputs(
     (None, _) -> fail @"ref governance not found"
     (_, []) -> fail @"ref deposit state not found"
     (Some(a), [_, ..] as b) -> {
-      let addr = get_deposit_state_address(a)
-      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      let pk = get_deposit_state_pkey(a)
+      expect Some((_, d)) =
+        list.find(b, fn(i) { i.1st.payment_credential == pk })
       (a, d)
     }
   }
@@ -796,8 +839,9 @@ pub fn get_withdraw_state_zip_ref_inputs(
     (None, _) -> fail @"ref governance not found"
     (_, []) -> fail @"ref withdraw state not found"
     (Some(a), [_, ..] as b) -> {
-      let addr = get_deposit_state_address(a)
-      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      let pk = get_deposit_state_pkey(a)
+      expect Some((_, d)) =
+        list.find(b, fn(i) { i.1st.payment_credential == pk })
       (a, d)
     }
   }
@@ -850,8 +894,9 @@ pub fn get_nav_state_ref_zip_inputs(
     (None, _) -> fail @"ref governance not found"
     (_, []) -> fail @"ref nav state not found"
     (Some(a), [_, ..] as b) -> {
-      let addr = get_deposit_state_address(a)
-      expect Some((_, d)) = list.find(b, fn(i) { i.1st == addr })
+      let pk = get_deposit_state_pkey(a)
+      expect Some((_, d)) =
+        list.find(b, fn(i) { i.1st.payment_credential == pk })
       (a, d)
     }
   }

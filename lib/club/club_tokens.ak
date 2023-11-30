@@ -88,6 +88,20 @@ pub fn get_withdraw_request_token_name(
     |> bytearray.concat(number_to_bytearray_hex(timestamp_ms, 6))
 }
 
+pub fn is_deposit_request_token_in_pool(name: ByteArray, pool_id: Int) {
+  bytearray.take(name, 7) == bytearray.concat(
+    get_deposit_request_token_prefix(),
+    number_to_bytearray_hex(pool_id, 2),
+  )
+}
+
+pub fn is_withdraw_request_token_in_pool(name: ByteArray, pool_id: Int) {
+  bytearray.take(name, 7) == bytearray.concat(
+    get_withdraw_request_token_prefix(),
+    number_to_bytearray_hex(pool_id, 2),
+  )
+}
+
 test get_share_token_name_1() {
   get_share_token_name(#"10", 440, 100_000_000) == #"1001b80000000005f5e100"
 }
@@ -122,4 +136,45 @@ test get_withdraw_request_token_name_2() {
     get_withdraw_request_token_prefix(),
     #"00000000000000000000",
   )
+}
+
+test is_deposit_request_token_in_pool_1() {
+  is_deposit_request_token_in_pool(get_deposit_request_token_name(2, 10), 2)
+}
+
+test is_deposit_request_token_in_pool_2() {
+  !is_deposit_request_token_in_pool(get_deposit_request_token_name(2, 10), 1)
+}
+
+test is_deposit_request_token_in_pool_3() {
+  !is_deposit_request_token_in_pool(
+    get_withdraw_request_token_name(2, 2, 10),
+    2,
+  )
+}
+
+test is_deposit_request_token_in_pool_4() {
+  !is_deposit_request_token_in_pool("", 2)
+}
+
+test is_withdraw_request_token_in_pool_1() {
+  is_withdraw_request_token_in_pool(
+    get_withdraw_request_token_name(2, 3, 10),
+    2,
+  )
+}
+
+test is_withdraw_request_token_in_pool_2() {
+  !is_withdraw_request_token_in_pool(
+    get_withdraw_request_token_name(2, 3, 10),
+    1,
+  )
+}
+
+test is_withdraw_request_token_in_pool_3() {
+  !is_withdraw_request_token_in_pool(get_deposit_request_token_name(2, 10), 2)
+}
+
+test is_withdraw_request_token_in_pool_4() {
+  !is_withdraw_request_token_in_pool("", 2)
 }

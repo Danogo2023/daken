@@ -192,17 +192,17 @@ pub fn datum_epoch_valid(
 }
 
 pub fn datum_ask_limit_compare(all: AskLimit, alr: AskLimit) {
-  (all.owner_payment_key == alr.owner_payment_key)? && (all.owner_stake_key == alr.owner_stake_key)? && (all.requested_yield == alr.requested_yield)?
+  (all.owner_vk == alr.owner_vk)? && (all.owner_sk == alr.owner_sk)? && (all.requested_yield == alr.requested_yield)?
 }
 
 pub fn datum_bid_limit_compare(bll: BidLimit, blr: BidLimit) {
-  (bll.owner_payment_key == blr.owner_payment_key)? && (bll.owner_stake_key == blr.owner_stake_key)? && (bll.from_epoch == blr.from_epoch)? && (bll.to_epoch == blr.to_epoch)? && (bll.requested_yield == blr.requested_yield)?
+  (bll.owner_vk == blr.owner_vk)? && (bll.owner_sk == blr.owner_sk)? && (bll.from_epoch == blr.from_epoch)? && (bll.to_epoch == blr.to_epoch)? && (bll.requested_yield == blr.requested_yield)?
 }
 
 pub fn datum_ask_making_compare(aml: AskMaking, amr: AskMaking) {
-  (aml.owner_payment_key == amr.owner_payment_key)? && (aml.owner_stake_key == amr.owner_stake_key)? && (aml.requested_yield == amr.requested_yield)? && (aml.bid_sc == amr.bid_sc)? && (aml.margin == amr.margin)?
+  (aml.owner_vk == amr.owner_vk)? && (aml.owner_sk == amr.owner_sk)? && (aml.requested_yield == amr.requested_yield)? && (aml.bid_sc == amr.bid_sc)? && (aml.margin == amr.margin)?
 }
 
 pub fn datum_bid_making_compare(bml: BidMaking, bmr: BidMaking) {
-  (bml.owner_payment_key == bmr.owner_payment_key)? && (bml.owner_stake_key == bmr.owner_stake_key)? && (bml.from_epoch == bmr.from_epoch)? && (bml.to_epoch == bmr.to_epoch)? && (bml.requested_yield == bmr.requested_yield)? && (bml.ask_sc == bmr.ask_sc)? && (bml.margin == bmr.margin)?
+  (bml.owner_vk == bmr.owner_vk)? && (bml.owner_sk == bmr.owner_sk)? && (bml.from_epoch == bmr.from_epoch)? && (bml.to_epoch == bmr.to_epoch)? && (bml.requested_yield == bmr.requested_yield)? && (bml.ask_sc == bmr.ask_sc)? && (bml.margin == bmr.margin)?
 }

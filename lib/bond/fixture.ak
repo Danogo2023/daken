@@ -92,7 +92,7 @@ pub fn get_epoch_config_mainnet() -> EpochConfig {
   }
 }
 
-pub fn get_slot_config_network_preview() -> SlotConfigNetwork {
+pub fn get_slot_config_preview() -> SlotConfigNetwork {
   SlotConfigNetwork {
     zero_time: 1666656000000,
     zero_slot: 0,
@@ -100,7 +100,7 @@ pub fn get_slot_config_network_preview() -> SlotConfigNetwork {
   }
 }
 
-pub fn get_slot_config_network_mainnet() -> SlotConfigNetwork {
+pub fn get_slot_config_mainnet() -> SlotConfigNetwork {
   SlotConfigNetwork {
     zero_time: 1596059091000,
     zero_slot: 4492800,
@@ -156,7 +156,7 @@ pub fn get_config_limit_preview() -> ConfigLimit {
   ConfigLimit {
     bond: get_bond_config_preview(),
     exchange: get_exchange_config(),
-    slot_config_network: get_slot_config_network_preview(),
+    slot: get_slot_config_preview(),
   }
 }
 
@@ -164,7 +164,7 @@ pub fn get_config_limit_mainnet() -> ConfigLimit {
   ConfigLimit {
     bond: get_bond_config_mainnet(),
     exchange: get_exchange_config(),
-    slot_config_network: get_slot_config_network_mainnet(),
+    slot: get_slot_config_mainnet(),
   }
 }
 
@@ -172,7 +172,7 @@ pub fn get_config_making_preview() -> ConfigMaking {
   ConfigMaking {
     bond: get_bond_config_preview(),
     exchange: get_exchange_making_config(),
-    slot_config_network: get_slot_config_network_preview(),
+    slot: get_slot_config_preview(),
   }
 }
 
@@ -180,7 +180,7 @@ pub fn get_config_making_mainnet() -> ConfigMaking {
   ConfigMaking {
     bond: get_bond_config_mainnet(),
     exchange: get_exchange_making_config(),
-    slot_config_network: get_slot_config_network_mainnet(),
+    slot: get_slot_config_mainnet(),
   }
 }
 
@@ -429,11 +429,11 @@ pub fn get_input_escrow(
 
 pub fn gen_ask_limit_datum(owner: Address, requested_yield: Int) -> AskLimit {
   AskLimit {
-    owner_payment_key: when owner.payment_credential is {
+    owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
       ScriptCredential(sc) -> sc
     },
-    owner_stake_key: when owner.stake_credential is {
+    owner_sk: when owner.stake_credential is {
       Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
       _ -> None
     },
@@ -449,11 +449,11 @@ pub fn gen_bid_limit_datum(
   requested_yield: Int,
 ) -> BidLimit {
   BidLimit {
-    owner_payment_key: when owner.payment_credential is {
+    owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
       ScriptCredential(sh) -> sh
     },
-    owner_stake_key: when owner.stake_credential is {
+    owner_sk: when owner.stake_credential is {
       Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
       _ -> None
     },
@@ -466,11 +466,11 @@ pub fn gen_bid_limit_datum(
 
 pub fn gen_ask_making_datum(owner: Address, requested_yield: Int) -> AskMaking {
   AskMaking {
-    owner_payment_key: when owner.payment_credential is {
+    owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
       ScriptCredential(sh) -> sh
     },
-    owner_stake_key: when owner.stake_credential is {
+    owner_sk: when owner.stake_credential is {
       Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
       _ -> None
     },
@@ -485,11 +485,11 @@ pub fn gen_tampered_ask_making_datum(
   requested_yield: Int,
 ) -> AskMaking {
   AskMaking {
-    owner_payment_key: when owner.payment_credential is {
+    owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
       ScriptCredential(sh) -> sh
     },
-    owner_stake_key: when owner.stake_credential is {
+    owner_sk: when owner.stake_credential is {
       Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
       _ -> None
     },
@@ -507,11 +507,11 @@ pub fn gen_bid_making_datum(
   requested_yield: Int,
 ) -> BidMaking {
   BidMaking {
-    owner_payment_key: when owner.payment_credential is {
+    owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
       ScriptCredential(sh) -> sh
     },
-    owner_stake_key: when owner.stake_credential is {
+    owner_sk: when owner.stake_credential is {
       Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
       _ -> None
     },
@@ -532,11 +532,11 @@ pub fn gen_tampered_bid_making_datum(
   requested_yield: Int,
 ) -> BidMaking {
   BidMaking {
-    owner_payment_key: when owner.payment_credential is {
+    owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
       ScriptCredential(sh) -> sh
     },
-    owner_stake_key: when owner.stake_credential is {
+    owner_sk: when owner.stake_credential is {
       Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
       _ -> None
     },

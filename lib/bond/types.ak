@@ -1,8 +1,9 @@
 use aiken/dict.{Dict}
 use aiken/transaction.{Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
-use aiken/transaction/value.{AssetName, Value}
+use aiken/transaction/value.{AssetName, Value, PolicyId}
 use common/time.{SlotConfigNetwork}
+use common/types.{PublicKeyHash ScriptKeyHash}
 
 pub type EpochConfig {
   // 1 year = 365 days / 5 days per epoch = 73 epoch. default: 73
@@ -22,7 +23,7 @@ pub type EpochConfig {
 }
 
 pub type BondConfig {
-  escrow_payment_key: ByteArray,
+  escrow_payment_key: ScriptKeyHash,
   escrow_policy_id: ByteArray,
   // basis_points reference value, default: 10_000
   basis_points_ref_unit: Int,
@@ -58,13 +59,13 @@ pub type ExchangeConfigMaking {
 pub type ConfigLimit {
   bond: BondConfig,
   exchange: ExchangeConfigLimit,
-  slot_config_network: SlotConfigNetwork,
+  slot: SlotConfigNetwork,
 }
 
 pub type ConfigMaking {
   bond: BondConfig,
   exchange: ExchangeConfigMaking,
-  slot_config_network: SlotConfigNetwork,
+  slot: SlotConfigNetwork,
 }
 
 pub type EscrowDatum {
@@ -73,9 +74,9 @@ pub type EscrowDatum {
   // PEpochTime: duration of the loan in epochs
   duration: Int,
   // PCurrencySymbol
-  bond_symbol: ByteArray,
+  bond_symbol: PolicyId,
   // PTokenName: token name of both Uniqueness and Ownership NFTs
-  token_name: ByteArray,
+  token_name: AssetName,
   // PInteger
   bond_amount: Int,
   // PEpochTime: number of epochs paid in advance
@@ -91,8 +92,8 @@ pub type EscrowDatum {
 pub type BondWriterDatum {
   epo_rewards: Value,
   duration: Int,
-  bond_symbol: ByteArray,
-  token_name: ByteArray,
+  bond_symbol: PolicyId,
+  token_name: AssetName,
   bond_amount: Int,
   buffer: Int,
   otmFee: Int,
@@ -106,8 +107,8 @@ pub type EscrowInfoResult<a, b> {
 }
 
 pub type EscrowInfo {
-  bond_symbol: ByteArray,
-  token_name: ByteArray,
+  bond_symbol: PolicyId,
+  token_name: AssetName,
   bond_amount: Int,
   start_epoch: Int,
   end_epoch: Int,
@@ -153,36 +154,42 @@ pub type PaymentDatum {
 }
 
 pub type AskLimit {
-  owner_payment_key: ByteArray,
-  owner_stake_key: Option<ByteArray>,
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<Credential>,
   requested_yield: Int,
 }
 
+pub type BondType {
+  Danogo
+  Optim
+}
+
 pub type BidLimit {
-  owner_payment_key: ByteArray,
-  owner_stake_key: Option<ByteArray>,
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<Credential>,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
+  bond_types: List<BondType>,
 }
 
 pub type AskMaking {
-  owner_payment_key: ByteArray,
-  owner_stake_key: Option<ByteArray>,
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<Credential>,
   requested_yield: Int,
-  bid_sc: ByteArray,
+  bid_sc: ScriptKeyHash,
   margin: Int,
 }
 
 pub type BidMaking {
-  owner_payment_key: ByteArray,
-  owner_stake_key: Option<ByteArray>,
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<Credential>,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
-  ask_sc: ByteArray,
+  ask_sc: ScriptKeyHash,
   margin: Int,
 }
 

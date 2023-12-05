@@ -1,9 +1,9 @@
 use aiken/dict.{Dict}
 use aiken/transaction.{Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
-use aiken/transaction/value.{AssetName, Value, PolicyId}
+use aiken/transaction/value.{AssetName, PolicyId, Value}
 use common/time.{SlotConfigNetwork}
-use common/types.{PublicKeyHash ScriptKeyHash}
+use common/types.{PublicKeyHash, ScriptKeyHash}
 
 pub type EpochConfig {
   // 1 year = 365 days / 5 days per epoch = 73 epoch. default: 73
@@ -155,7 +155,7 @@ pub type PaymentDatum {
 
 pub type AskLimit {
   owner_vk: PublicKeyHash,
-  owner_sk: Option<Credential>,
+  owner_sk: Option<PublicKeyHash>,
   requested_yield: Int,
 }
 
@@ -164,9 +164,9 @@ pub type BondType {
   Optim
 }
 
-pub type BidLimit {
+pub type BidLimitDanogo {
   owner_vk: PublicKeyHash,
-  owner_sk: Option<Credential>,
+  owner_sk: Option<PublicKeyHash>,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,
@@ -174,9 +174,18 @@ pub type BidLimit {
   bond_types: List<BondType>,
 }
 
+pub type BidLimit {
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<PublicKeyHash>,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+}
+
 pub type AskMaking {
   owner_vk: PublicKeyHash,
-  owner_sk: Option<Credential>,
+  owner_sk: Option<PublicKeyHash>,
   requested_yield: Int,
   bid_sc: ScriptKeyHash,
   margin: Int,
@@ -184,7 +193,7 @@ pub type AskMaking {
 
 pub type BidMaking {
   owner_vk: PublicKeyHash,
-  owner_sk: Option<Credential>,
+  owner_sk: Option<PublicKeyHash>,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,

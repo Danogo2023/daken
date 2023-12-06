@@ -112,11 +112,19 @@ pub fn is_member_share_token(name: ByteArray) {
   bytearray.take(name, 5) == get_member_share_token_prefix()
 }
 
+pub fn is_deposit_request_token(name: ByteArray) {
+  bytearray.take(name, 5) == get_deposit_request_token_prefix()
+}
+
 pub fn is_deposit_request_token_in_pool(name: ByteArray, pool_id: Int) {
   bytearray.take(name, 7) == bytearray.concat(
     get_deposit_request_token_prefix(),
     number_to_bytearray_hex(pool_id, 2),
   )
+}
+
+pub fn is_withdraw_request_token(name: ByteArray) {
+  bytearray.take(name, 5) == get_withdraw_request_token_prefix()
 }
 
 pub fn is_withdraw_request_token_in_pool(name: ByteArray, pool_id: Int) {

@@ -35,6 +35,6 @@ pub fn base_vault_state_datum() -> VaultStateDatum {
   }
 }
 
-pub fn base_vault_asset_datum() -> VaultAssetDatum {
-  VaultAssetDatum { club_policy_id: "" }
+pub fn base_vault_asset_datum(club_policy_id: ByteArray) -> VaultAssetDatum {
+  VaultAssetDatum { club_policy_id }
 }

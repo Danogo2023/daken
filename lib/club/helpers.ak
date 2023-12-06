@@ -18,7 +18,8 @@ use club/deposit_state/types.{DepositStateDatum} as club_deposit_state_types
 use club/general_state/types.{GeneralStateDatum} as club_general_state_types
 use club/nav_state/types.{NavStateDatum} as club_nav_state_types
 use club/trading_state/types.{TradingStateDatum} as club_trading_state_types
-use club/vault_state/types.{VaultStateDatum} as club_vault_state_types
+use club/vault_state/types.{VaultAssetDatum,
+  VaultStateDatum} as club_vault_state_types
 use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
 use common/time.{EpochConfig, SlotConfigNetwork, get_current_epoch_with_ttl}
 use common/util.{find_while, must_be_signed_by_key}
@@ -270,14 +271,20 @@ pub fn get_dict_ref_inputs(
             }
           } else if skh == pp.vault_state_skh {
             expect InlineDatum(d) = ref.output.datum
-            expect datum: VaultStateDatum = d
-            if or {
-              (datum.club_policy_id != club_pid)?,
-              value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1,
-            } {
-              fail @"vault_state_token in vault_state utxo invalid"
+            if
+            value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1{
+            
+              expect _datum: VaultAssetDatum = d
+              // this is vault asset
+              None
             } else {
-              Some((vault_state_token, ref.output.datum))
+              // this is vault state
+              expect datum: VaultStateDatum = d
+              if (datum.club_policy_id != club_pid)? {
+                fail @"vault_state_token in vault_state utxo invalid"
+              } else {
+                Some((vault_state_token, ref.output.datum))
+              }
             }
           } else {
             None
@@ -399,27 +406,33 @@ pub fn get_tuple_ref_inputs(
           }
         }
       } else if ref_output_pk == vault_state_pk {
-        expect datum: VaultStateDatum = d
-        if or {
-          (datum.club_policy_id != club_pid)?,
-          value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1,
-        } {
-          fail @"vault_state_token in vault_state utxo invalid"
+        if
+        value.quantity_of(ref.output.value, club_pid, vault_state_token) != 1{
+        
+          // this is vault asset
+          expect _datum: VaultAssetDatum = d
+          z
         } else {
-          if or {
-            datum.club_policy_id == z.vault_state_club_pid,
-            z.vault_state_club_pid == #"",
-          } {
-            RefInputDatum {
-              ..z,
-              vault_state_club_pid: datum.club_policy_id,
-              vault_state: list.push(
-                z.vault_state,
-                (ref.output_reference, datum),
-              ),
-            }
+          // this is vault state
+          expect datum: VaultStateDatum = d
+          if (datum.club_policy_id != club_pid)? {
+            fail @"policy in vault_state utxo invalid"
           } else {
-            fail @"vault_state_club_pid invalid"
+            if or {
+              datum.club_policy_id == z.vault_state_club_pid,
+              z.vault_state_club_pid == #"",
+            } {
+              RefInputDatum {
+                ..z,
+                vault_state_club_pid: datum.club_policy_id,
+                vault_state: list.push(
+                  z.vault_state,
+                  (ref.output_reference, datum),
+                ),
+              }
+            } else {
+              fail @"vault_state_club_pid invalid"
+            }
           }
         }
       } else {

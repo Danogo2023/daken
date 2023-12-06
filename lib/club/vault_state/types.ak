@@ -35,6 +35,6 @@ pub fn base_vault_state_datum() -> VaultStateDatum {
   }
 }
 
-pub fn base_vault_asset_datum_2() -> VaultAssetDatum {
+pub fn base_vault_asset_datum() -> VaultAssetDatum {
   VaultAssetDatum { club_policy_id: "" }
 }

@@ -2,13 +2,14 @@ use aiken/bytearray
 use aiken/dict
 use aiken/list
 use aiken/transaction.{
-  Datum, DatumHash, InlineDatum, Input, NoDatum, ScriptContext, Spend, Transaction,
+  Datum, DatumHash, InlineDatum, Input, NoDatum, ScriptContext, Spend,
+  Transaction,
 }
 use aiken/transaction/credential.{
   Address, ScriptCredential, VerificationKeyCredential,
 }
-use common/types.{Datums, PublicKeyHash}
 use aiken/transaction/value.{PolicyId}
+use common/types.{Datums, PublicKeyHash}
 
 pub fn get_spending_input(ctx: ScriptContext) -> Input {
   expect Spend(output_reference) = ctx.purpose

@@ -1,14 +1,14 @@
-name = "Danogo/daken"
+name = "danogo2023/daken"
 version = "1.0.0"
 license = "Apache-2.0"
 description = "Danogo Aiken Library"
 
 [repository]
-user = "Danogo2023"
+user = "danogo2023/daken"
 project = "daken"
 platform = "github"
 
 [[dependencies]]
 name = "aiken-lang/stdlib"
-version = "1.6.0"
+version = "1.7.0"
 source = "github"

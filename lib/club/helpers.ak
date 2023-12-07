@@ -21,7 +21,7 @@ use club/trading_state/types.{TradingStateDatum} as club_trading_state_types
 use club/vault_state/types.{VaultAssetDatum,
   VaultStateDatum} as club_vault_state_types
 use club/withdraw_state/types.{WithdrawStateDatum} as club_withdraw_state_types
-use common/time.{EpochConfig, SlotConfigNetwork, get_current_epoch_with_ttl}
+use common/time.{EpochConfig, SlotConfig, get_current_epoch_with_ttl}
 use common/util.{find_while, must_be_signed_by_key}
 
 /// Check if Operator token is presented in transaction inputs
@@ -926,7 +926,7 @@ pub fn has_general_nft(club_pid: PolicyId, val: Value) -> Bool {
 pub fn has_system_force_redeem(
   tx: Transaction,
   e_cfg: EpochConfig,
-  s_cfg: SlotConfigNetwork,
+  s_cfg: SlotConfig,
   pp: ProtocolParams,
   ts: TradingStateDatum,
 ) -> Bool {

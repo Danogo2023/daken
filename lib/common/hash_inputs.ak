@@ -45,7 +45,7 @@ test test_hash_all() {
     Input {
       output_reference: OutputReference {
         transaction_id: TransactionId { hash: "lastTxn" },
-        output_index: 2894,
+        output_index: 0,
       },
       output: Output {
         address: from_script(#""),
@@ -58,7 +58,7 @@ test test_hash_all() {
     Input {
       output_reference: OutputReference {
         transaction_id: TransactionId { hash: "mid" },
-        output_index: 1,
+        output_index: 0,
       },
       output: Output {
         address: from_script(#""),
@@ -80,7 +80,35 @@ test test_hash_all() {
         reference_script: None,
       },
     }
-  hash_all([utxo, utxo2, utxo3]) == blake2b_256("beg0mid1lastTxn2894")
+  let utxo4 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "lastTxn" },
+        output_index: 3,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  let utxo5 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "beg" },
+        output_index: 3,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  hash_all([utxo, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
+    "beg0mid0lastTxn0beg3lastTxn3",
+  )
 }
 
 pub fn hash_head(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {

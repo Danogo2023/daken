@@ -4,7 +4,15 @@ use aiken/interval.{
 use aiken/time.{PosixTime}
 use aiken/transaction.{ValidityRange}
 
-pub type SlotConfigNetwork {
+pub type BasisPoints {
+  // basis_points reference value, default: 10_000
+  base: Int,
+  // range basis_points min = 1, max = 9_999
+  min: Int,
+  max: Int,
+}
+
+pub type SlotConfig {
   zero_time: PosixTime,
   zero_slot: Int,
   slot_length: Int,
@@ -30,20 +38,12 @@ pub fn get_epoch_config_mainnet() -> EpochConfig {
   }
 }
 
-pub fn get_slot_config_network_preview() -> SlotConfigNetwork {
-  SlotConfigNetwork {
-    zero_time: 1666656000000,
-    zero_slot: 0,
-    slot_length: 1000,
-  }
+pub fn get_slot_config_network_preview() -> SlotConfig {
+  SlotConfig { zero_time: 1666656000000, zero_slot: 0, slot_length: 1000 }
 }
 
-pub fn get_slot_config_network_mainnet() -> SlotConfigNetwork {
-  SlotConfigNetwork {
-    zero_time: 1596059091000,
-    zero_slot: 4492800,
-    slot_length: 1000,
-  }
+pub fn get_slot_config_network_mainnet() -> SlotConfig {
+  SlotConfig { zero_time: 1596059091000, zero_slot: 4492800, slot_length: 1000 }
 }
 
 pub type EpochConfig {
@@ -63,16 +63,13 @@ pub type EpochConfig {
   epoch_length_base: Int,
 }
 
-pub fn slot_to_begin_posix_time(
-  slot: Int,
-  slot_config: SlotConfigNetwork,
-) -> PosixTime {
+pub fn slot_to_begin_posix_time(slot: Int, slot_config: SlotConfig) -> PosixTime {
   slot_config.zero_time + ( slot - slot_config.zero_slot ) * slot_config.slot_length
 }
 
 pub fn posix_time_to_enclosing_slot(
   posix_time: PosixTime,
-  slot_config: SlotConfigNetwork,
+  slot_config: SlotConfig,
 ) -> Int {
   ( posix_time - slot_config.zero_time ) / slot_config.slot_length + slot_config.zero_slot
 }

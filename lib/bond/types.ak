@@ -2,7 +2,7 @@ use aiken/dict.{Dict}
 use aiken/transaction.{Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
-use common/time.{SlotConfigNetwork}
+use common/time.{SlotConfig}
 use common/types.{PublicKeyHash, ScriptKeyHash}
 
 pub type EpochConfig {
@@ -59,13 +59,13 @@ pub type ExchangeConfigMaking {
 pub type ConfigLimit {
   bond: BondConfig,
   exchange: ExchangeConfigLimit,
-  slot: SlotConfigNetwork,
+  slot: SlotConfig,
 }
 
 pub type ConfigMaking {
   bond: BondConfig,
   exchange: ExchangeConfigMaking,
-  slot: SlotConfigNetwork,
+  slot: SlotConfig,
 }
 
 pub type EscrowDatum {

@@ -3,7 +3,7 @@ use aiken/interval.{Finite}
 use aiken/transaction.{ValidityRange}
 use common/constants
 use common/convert.{number_to_bytearray_hex}
-use common/time.{SlotConfigNetwork}
+use common/time.{SlotConfig}
 
 pub fn get_operator_nft_name() -> ByteArray {
   bytearray.concat(constants.prefix_222, #"01")
@@ -73,7 +73,7 @@ pub fn get_share_token_name(
 pub fn get_deposit_request_token_name(
   pool_id: Int,
   validity_range: ValidityRange,
-  _slot_config: SlotConfigNetwork,
+  _slot_config: SlotConfig,
 ) -> ByteArray {
   let lowerbound =
     when validity_range.lower_bound.bound_type is {
@@ -90,7 +90,7 @@ pub fn get_withdraw_request_token_name(
   pool_id: Int,
   epoch_mint_token: Int,
   validity_range: ValidityRange,
-  _slot_config: SlotConfigNetwork,
+  _slot_config: SlotConfig,
 ) -> ByteArray {
   let lowerbound =
     when validity_range.lower_bound.bound_type is {

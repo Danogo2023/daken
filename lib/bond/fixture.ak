@@ -18,7 +18,7 @@ use bond/types.{
   ConfigMaking, EpochConfig, EscrowDatum, ExchangeConfigLimit,
   ExchangeConfigMaking, PaymentDatum,
 }
-use common/time.{SlotConfigNetwork}
+use common/time.{SlotConfig}
 use common/types.{PublicKeyHash} as common_types
 
 pub fn tx(
@@ -92,20 +92,12 @@ pub fn get_epoch_config_mainnet() -> EpochConfig {
   }
 }
 
-pub fn get_slot_config_preview() -> SlotConfigNetwork {
-  SlotConfigNetwork {
-    zero_time: 1666656000000,
-    zero_slot: 0,
-    slot_length: 1000,
-  }
+pub fn get_slot_config_preview() -> SlotConfig {
+  SlotConfig { zero_time: 1666656000000, zero_slot: 0, slot_length: 1000 }
 }
 
-pub fn get_slot_config_mainnet() -> SlotConfigNetwork {
-  SlotConfigNetwork {
-    zero_time: 1596059091000,
-    zero_slot: 4492800,
-    slot_length: 1000,
-  }
+pub fn get_slot_config_mainnet() -> SlotConfig {
+  SlotConfig { zero_time: 1596059091000, zero_slot: 4492800, slot_length: 1000 }
 }
 
 fn get_bond_config_preview() -> BondConfig {

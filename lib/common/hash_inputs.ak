@@ -41,7 +41,7 @@ pub fn hash_all(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
 }
 
 test test_hash_all() {
-  let utxo =
+  let utxo1 =
     Input {
       output_reference: OutputReference {
         transaction_id: TransactionId { hash: "lastTxn" },
@@ -106,8 +106,16 @@ test test_hash_all() {
         reference_script: None,
       },
     }
-  hash_all([utxo, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
-    "beg0mid0lastTxn0beg3lastTxn3",
+  hash_all([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
+    list.foldl(
+      [utxo3, utxo2, utxo1, utxo5, utxo4],
+      #"",
+      fn(outref: Input, ret: ByteArray) -> ByteArray {
+        outref.output_reference.transaction_id.hash
+          |> concat(int_to_digit(outref.output_reference.output_index))
+          |> concat(ret, _)
+      },
+    ),
   )
 }
 
@@ -136,11 +144,11 @@ pub fn hash_head(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
 }
 
 test test_hash_head() {
-  let utxo =
+  let utxo1 =
     Input {
       output_reference: OutputReference {
         transaction_id: TransactionId { hash: "lastTxn" },
-        output_index: 0,
+        output_index: 1,
       },
       output: Output {
         address: from_script(#""),
@@ -152,7 +160,9 @@ test test_hash_head() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "mid" },
+        transaction_id: TransactionId {
+          hash: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
+        },
         output_index: 0,
       },
       output: Output {
@@ -166,7 +176,7 @@ test test_hash_head() {
     Input {
       output_reference: OutputReference {
         transaction_id: TransactionId { hash: "beg" },
-        output_index: 0,
+        output_index: 1,
       },
       output: Output {
         address: from_script(#""),
@@ -201,7 +211,12 @@ test test_hash_head() {
         reference_script: None,
       },
     }
-  hash_head([utxo, utxo2, utxo3, utxo4, utxo5]) == blake2b_256("beg0")
+  hash_head([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
+    concat(
+      #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
+      int_to_digit(0),
+    ),
+  )
 }
 
 pub fn hash_last(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
@@ -294,7 +309,9 @@ test test_hash_last() {
         reference_script: None,
       },
     }
-  hash_last([utxo, utxo2, utxo3, utxo4, utxo5]) == blake2b_256("lastTxn3")
+  hash_last([utxo, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
+    concat("lastTxn", int_to_digit(3)),
+  )
 }
 
 /// this function only work for i >= 0

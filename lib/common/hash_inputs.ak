@@ -244,7 +244,7 @@ pub fn hash_last(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
 }
 
 test test_hash_last() {
-  let utxo =
+  let utxo1 =
     Input {
       output_reference: OutputReference {
         transaction_id: TransactionId { hash: "lastTxn" },
@@ -309,7 +309,7 @@ test test_hash_last() {
         reference_script: None,
       },
     }
-  hash_last([utxo, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
+  hash_last([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
     concat("lastTxn", int_to_digit(3)),
   )
 }

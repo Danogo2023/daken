@@ -30,7 +30,7 @@ pub type BondDatum {
 pub type BondIssueConfig {
   slot: SlotConfig,
   epoch: EpochConfig,
-  basis_points: BasisPoints,
+  basis: BasisPoints,
   platform: PlatformConfig,
 }
 

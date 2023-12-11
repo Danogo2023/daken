@@ -10,34 +10,40 @@ pub fn inputs_contain_outref(
   inputs: List<Input>,
   outref: OutputReference,
 ) -> Bool {
-  list.any(inputs, fn(input) -> Bool { input.output_reference == outref })
+  list.any(inputs, fn(i) -> Bool { i.output_reference == outref })
 }
 
-pub fn hash_all(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
-  let sorted =
-    list.sort(
-      outrefs,
-      fn(a: Input, b: Input) -> Ordering {
-        if a.output_reference.output_index < b.output_reference.output_index {
-          Less
-        } else if a.output_reference.output_index == b.output_reference.output_index {
-          Equal
-        } else {
-          Greater
-        }
-      },
-    )
+pub fn sort_inputs(inputs: List<Input>) -> List<Input> {
+  list.sort(
+    inputs,
+    fn(a: Input, b: Input) -> Ordering {
+      if a.output_reference.output_index < b.output_reference.output_index {
+        Less
+      } else if a.output_reference.output_index == b.output_reference.output_index {
+        Equal
+      } else {
+        Greater
+      }
+    },
+  )
+}
+
+pub fn hash_sorted_all(inputs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
   blake2b_256(
     list.foldl(
-      sorted,
+      inputs,
       #"",
-      fn(outref: Input, ret: ByteArray) -> ByteArray {
-        outref.output_reference.transaction_id.hash
-          |> concat(int_to_digit(outref.output_reference.output_index))
+      fn(i: Input, ret: ByteArray) -> ByteArray {
+        i.output_reference.transaction_id.hash
+          |> concat(int_to_digit(i.output_reference.output_index))
           |> concat(ret, _)
       },
     ),
   )
+}
+
+pub fn hash_all(inputs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
+  hash_sorted_all(sort_inputs(inputs))
 }
 
 test test_hash_all() {
@@ -119,28 +125,19 @@ test test_hash_all() {
   )
 }
 
-pub fn hash_head(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
-  let sorted =
-    list.sort(
-      outrefs,
-      fn(a: Input, b: Input) -> Ordering {
-        if a.output_reference.output_index < b.output_reference.output_index {
-          Less
-        } else if a.output_reference.output_index == b.output_reference.output_index {
-          Equal
-        } else {
-          Greater
-        }
-      },
-    )
-  when list.head(sorted) is {
-    Some(outref) ->
+pub fn hash_sorted(input: Option<Input>) -> Hash<Blake2b_256, ByteArray> {
+  when input is {
+    Some(i) ->
       blake2b_256(
-        outref.output_reference.transaction_id.hash
-          |> concat(int_to_digit(outref.output_reference.output_index)),
+        i.output_reference.transaction_id.hash
+          |> concat(int_to_digit(i.output_reference.output_index)),
       )
-    _ -> fail @"not found outref"
+    _ -> fail @"not found input"
   }
+}
+
+pub fn hash_head(inputs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
+  hash_sorted(list.head(sort_inputs(inputs)))
 }
 
 test test_hash_head() {
@@ -219,32 +216,101 @@ test test_hash_head() {
   )
 }
 
-pub fn hash_head_salt(
-  outrefs: List<Input>,
+pub fn hash_last(inputs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
+  hash_sorted(list.last(sort_inputs(inputs)))
+}
+
+test test_hash_last() {
+  let utxo1 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "lastTxn" },
+        output_index: 0,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  let utxo2 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "mid" },
+        output_index: 2,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  let utxo3 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "beg" },
+        output_index: 1,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  let utxo4 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "lastTxn" },
+        output_index: 3,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  let utxo5 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId { hash: "beg" },
+        output_index: 3,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  hash_last([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
+    concat("lastTxn", int_to_digit(3)),
+  )
+}
+
+pub fn hash_sorted_salt(
+  input: Option<Input>,
   salt: ByteArray,
 ) -> Hash<Blake2b_256, ByteArray> {
-  let sorted =
-    list.sort(
-      outrefs,
-      fn(a: Input, b: Input) -> Ordering {
-        if a.output_reference.output_index < b.output_reference.output_index {
-          Less
-        } else if a.output_reference.output_index == b.output_reference.output_index {
-          Equal
-        } else {
-          Greater
-        }
-      },
-    )
-  when list.head(sorted) is {
-    Some(outref) ->
+  when input is {
+    Some(i) ->
       blake2b_256(
-        outref.output_reference.transaction_id.hash
-          |> concat(int_to_digit(outref.output_reference.output_index))
+        i.output_reference.transaction_id.hash
+          |> concat(int_to_digit(i.output_reference.output_index))
           |> concat(salt),
       )
-    _ -> fail @"not found outref"
+    _ -> fail @"not found input"
   }
+}
+
+pub fn hash_head_salt(
+  inputs: List<Input>,
+  salt: ByteArray,
+) -> Hash<Blake2b_256, ByteArray> {
+  hash_sorted_salt(list.head(sort_inputs(inputs)), salt)
 }
 
 test test_hash_head_salt() {
@@ -320,101 +386,6 @@ test test_hash_head_salt() {
     #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1"
       |> concat(int_to_digit(0))
       |> concat(salt),
-  )
-}
-
-pub fn hash_last(outrefs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
-  let sorted =
-    list.sort(
-      outrefs,
-      fn(a: Input, b: Input) -> Ordering {
-        if a.output_reference.output_index < b.output_reference.output_index {
-          Less
-        } else if a.output_reference.output_index == b.output_reference.output_index {
-          Equal
-        } else {
-          Greater
-        }
-      },
-    )
-  when list.last(sorted) is {
-    Some(outref) ->
-      blake2b_256(
-        outref.output_reference.transaction_id.hash
-          |> concat(int_to_digit(outref.output_reference.output_index)),
-      )
-    _ -> fail @"not found outref"
-  }
-}
-
-test test_hash_last() {
-  let utxo1 =
-    Input {
-      output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
-        output_index: 0,
-      },
-      output: Output {
-        address: from_script(#""),
-        value: value.zero(),
-        datum: NoDatum,
-        reference_script: None,
-      },
-    }
-  let utxo2 =
-    Input {
-      output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "mid" },
-        output_index: 2,
-      },
-      output: Output {
-        address: from_script(#""),
-        value: value.zero(),
-        datum: NoDatum,
-        reference_script: None,
-      },
-    }
-  let utxo3 =
-    Input {
-      output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
-        output_index: 1,
-      },
-      output: Output {
-        address: from_script(#""),
-        value: value.zero(),
-        datum: NoDatum,
-        reference_script: None,
-      },
-    }
-  let utxo4 =
-    Input {
-      output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
-        output_index: 3,
-      },
-      output: Output {
-        address: from_script(#""),
-        value: value.zero(),
-        datum: NoDatum,
-        reference_script: None,
-      },
-    }
-  let utxo5 =
-    Input {
-      output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
-        output_index: 3,
-      },
-      output: Output {
-        address: from_script(#""),
-        value: value.zero(),
-        datum: NoDatum,
-        reference_script: None,
-      },
-    }
-  hash_last([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
-    concat("lastTxn", int_to_digit(3)),
   )
 }
 

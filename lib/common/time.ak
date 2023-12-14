@@ -203,3 +203,33 @@ test get_current_epoch_test1() {
   let validity_range = entirely_between(1700553368000, 1700553369000)
   get_current_epoch(validity_range, epoch_config) == 29580
 }
+
+pub fn tx_validity_valid(
+  tx: Transaction,
+  slot_length: Int,
+  expired: Option<Int>,
+) -> Int {
+  let tx_start =
+    when tx.validity_range.lower_bound.bound_type is {
+      Finite(x) -> x
+      _ -> 0
+    }
+  let tx_end =
+    when tx.validity_range.upper_bound.bound_type is {
+      Finite(x) -> x
+      _ -> 0
+    }
+  if and {
+    (tx_start > 0)?,
+    (tx_end > 0)?,
+    (tx_end > tx_start)?,
+    (tx_end - tx_start <= when expired is {
+      Some(x) -> x
+      None -> 3 * 60
+    } * slot_length)?,
+  } {
+    tx_start
+  } else {
+    fail @"tx validity_range invalid"
+  }
+}

@@ -1,9 +1,8 @@
 use aiken/bytearray
 use aiken/dict.{Dict}
-use aiken/interval.{Finite}
 use aiken/list
 use aiken/math
-use aiken/transaction.{Input, Transaction}
+use aiken/transaction.{Input}
 use aiken/transaction/credential.{ScriptCredential, VerificationKeyCredential}
 use aiken/transaction/value.{AssetName}
 use bond/types.{

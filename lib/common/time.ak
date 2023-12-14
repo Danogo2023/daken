@@ -2,7 +2,7 @@ use aiken/interval.{
   Finite, Interval, IntervalBound, PositiveInfinity, entirely_between,
 }
 use aiken/time.{PosixTime}
-use aiken/transaction.{ValidityRange}
+use aiken/transaction.{Transaction, ValidityRange}
 
 pub type BasisPoints {
   // basis_points reference value, default: 10_000

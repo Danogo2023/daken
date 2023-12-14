@@ -1,8 +1,9 @@
 use aiken/bytearray
 use aiken/dict.{Dict}
+use aiken/interval.{Finite}
 use aiken/list
 use aiken/math
-use aiken/transaction.{Input}
+use aiken/transaction.{Input, Transaction}
 use aiken/transaction/credential.{ScriptCredential, VerificationKeyCredential}
 use aiken/transaction/value.{AssetName}
 use bond/types.{
@@ -205,4 +206,30 @@ pub fn datum_ask_making_compare(aml: AskMaking, amr: AskMaking) {
 
 pub fn datum_bid_making_compare(bml: BidMaking, bmr: BidMaking) {
   (bml.owner_vk == bmr.owner_vk)? && (bml.owner_sk == bmr.owner_sk)? && (bml.from_epoch == bmr.from_epoch)? && (bml.to_epoch == bmr.to_epoch)? && (bml.requested_yield == bmr.requested_yield)? && (bml.ask_sc == bmr.ask_sc)? && (bml.margin == bmr.margin)?
+}
+
+pub fn tx_validity_valid(tx: Transaction, tx_ttl: Int, slot_length: Int) -> Int {
+  let tx_start =
+    when tx.validity_range.lower_bound.bound_type is {
+      Finite(x) -> x
+      _ -> 0
+    }
+  let tx_end =
+    when tx.validity_range.upper_bound.bound_type is {
+      Finite(x) -> x
+      _ -> 0
+    }
+  if and {
+    (tx_start > 0)?,
+    (tx_end > 0)?,
+    (tx_end > tx_start)?,
+    (tx_end - tx_start <= when tx_ttl is {
+      Some(x) -> x
+      None -> 3 * 60
+    } * slot_length)?,
+  } {
+    tx_start
+  } else {
+    fail @"tx validity_range invalid"
+  }
 }

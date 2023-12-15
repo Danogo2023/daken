@@ -167,7 +167,7 @@ pub fn get_current_epoch_with_ttl(
     Finite(y) ->
       when range.lower_bound.bound_type is {
         Finite(x) ->
-          if y - x <= ttl {
+          if (y - x <= ttl)? {
             posix_time_to_relative_epoch(x, epoch_config)
           } else {
             fail @"invalid ttl"
@@ -179,16 +179,7 @@ pub fn get_current_epoch_with_ttl(
 }
 
 test posix_time_to_relative_epoch_test1() {
-  let epoch_config =
-    EpochConfig {
-      year_to_epoch: 73,
-      epoch_boundary: 1647899091000,
-      epoch_boundary_as_epoch: 328,
-      epoch_length: 1800000,
-      epoch_length_base: 432000000,
-    }
-
-  posix_time_to_relative_epoch(1700553368000, epoch_config) == 29580
+  posix_time_to_relative_epoch(1700553368000, get_epoch_config_preview()) == 29580
 }
 
 test get_current_epoch_test1() {

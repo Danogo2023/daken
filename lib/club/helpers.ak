@@ -934,7 +934,8 @@ pub fn has_system_force_redeem(
   (get_current_epoch_with_ttl(
     tx.validity_range,
     e_cfg,
-    pp.tx_ttl * s_cfg.slot_length,
+    pp.tx_ttl,
+    s_cfg.slot_length
   ) - ts.force_closed_at_epoch > pp.platform_force_redeem_epoch)? && //
   must_be_signed_by_key(tx.extra_signatories, pp.platform_force_redeem_pkh)?
 }

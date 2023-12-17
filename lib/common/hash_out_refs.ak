@@ -167,6 +167,17 @@ pub fn hash_out_ref(i: OutputReference) -> Hash<Blake2b_256, ByteArray> {
   )
 }
 
+test succ_hash_out_ref() {
+  let out_ref_1 =
+    OutputReference {
+      transaction_id: TransactionId {
+        hash: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
+      },
+      output_index: 0,
+    }
+  hash_out_ref(out_ref_1) == #"060f4c8b63d168305c5b020708cac4e7befe6063f83f68255cb9c207860c4410"
+}
+
 pub fn hash_out_refs_head_sort_asc(
   out_refs: List<OutputReference>,
 ) -> Hash<Blake2b_256, ByteArray> {

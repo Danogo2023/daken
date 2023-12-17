@@ -1,5 +1,5 @@
 use aiken/builtin.{cons_bytearray, quotient_integer, remainder_integer}
-use aiken/bytearray.{concat}
+use aiken/bytearray
 use aiken/hash.{Blake2b_256, Hash, blake2b_256}
 use aiken/list
 use aiken/transaction.{Input, NoDatum, Output, OutputReference, TransactionId}
@@ -35,8 +35,8 @@ pub fn hash_sorted_all(inputs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
       #"",
       fn(i: Input, ret: ByteArray) -> ByteArray {
         i.output_reference.transaction_id.hash
-          |> concat(int_to_digit(i.output_reference.output_index))
-          |> concat(ret, _)
+          |> bytearray.concat(int_to_digit(i.output_reference.output_index))
+          |> bytearray.concat(ret, _)
       },
     ),
   )
@@ -118,8 +118,8 @@ test test_hash_all() {
       #"",
       fn(outref: Input, ret: ByteArray) -> ByteArray {
         outref.output_reference.transaction_id.hash
-          |> concat(int_to_digit(outref.output_reference.output_index))
-          |> concat(ret, _)
+          |> bytearray.concat(int_to_digit(outref.output_reference.output_index))
+          |> bytearray.concat(ret, _)
       },
     ),
   )
@@ -130,7 +130,7 @@ pub fn hash_sorted(input: Option<Input>) -> Hash<Blake2b_256, ByteArray> {
     Some(i) ->
       blake2b_256(
         i.output_reference.transaction_id.hash
-          |> concat(int_to_digit(i.output_reference.output_index)),
+          |> bytearray.concat(int_to_digit(i.output_reference.output_index)),
       )
     _ -> fail @"not found input"
   }
@@ -209,7 +209,7 @@ test test_hash_head() {
       },
     }
   hash_head([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
-    concat(
+    bytearray.concat(
       #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
       int_to_digit(0),
     ),
@@ -287,7 +287,7 @@ test test_hash_last() {
       },
     }
   hash_last([utxo1, utxo2, utxo3, utxo4, utxo5]) == blake2b_256(
-    concat("lastTxn", int_to_digit(3)),
+    bytearray.concat("lastTxn", int_to_digit(3)),
   )
 }
 
@@ -299,11 +299,33 @@ pub fn hash_sorted_salt(
     Some(i) ->
       blake2b_256(
         i.output_reference.transaction_id.hash
-          |> concat(int_to_digit(i.output_reference.output_index))
-          |> concat(salt),
+          |> bytearray.concat(int_to_digit(i.output_reference.output_index))
+          |> bytearray.concat(salt),
       )
     _ -> fail @"not found input"
   }
+}
+
+test hash_tmp() {
+  let salt = #"d53d658b5f7eac3f741389135662a2bf9f2475844141705a5c0514f81e47f9bf"
+  let utxo1 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId {
+          hash: #"23850612667a59e236ceeea412440b446fa697f2b988eb05e070aaa18c8cad0f",
+        },
+        output_index: 0,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  hash_sorted_salt(Some(utxo1), salt) == blake2b_256(
+    #"23850612667a59e236ceeea412440b446fa697f2b988eb05e070aaa18c8cad0f30d53d658b5f7eac3f741389135662a2bf9f2475844141705a5c0514f81e47f9bf",
+  )
 }
 
 pub fn hash_head_salt(
@@ -384,8 +406,8 @@ test test_hash_head_salt() {
     }
   hash_head_salt([utxo1, utxo2, utxo3, utxo4, utxo5], salt) == blake2b_256(
     #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1"
-      |> concat(int_to_digit(0))
-      |> concat(salt),
+      |> bytearray.concat(int_to_digit(0))
+      |> bytearray.concat(salt),
   )
 }
 

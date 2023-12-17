@@ -2,7 +2,7 @@ use aiken/interval.{
   Finite, Interval, IntervalBound, PositiveInfinity, entirely_between,
 }
 use aiken/time.{PosixTime}
-use aiken/transaction.{Transaction, ValidityRange}
+use aiken/transaction.{ValidityRange}
 
 pub type BasisPoints {
   // basis_points reference value, default: 10_000
@@ -147,11 +147,11 @@ pub fn posix_time_to_relative_epoch(
   ( posix_time - epoch_config.epoch_boundary ) / epoch_config.epoch_length + epoch_config.epoch_boundary_as_epoch
 }
 
-pub fn get_current_epoch(range: ValidityRange, epoch_config: EpochConfig) -> Int {
+pub fn get_current_epoch(range: ValidityRange, e: EpochConfig) -> Int {
   when range.upper_bound.bound_type is {
     Finite(_) ->
       when range.lower_bound.bound_type is {
-        Finite(x) -> posix_time_to_relative_epoch(x, epoch_config)
+        Finite(x) -> posix_time_to_relative_epoch(x, e)
         _ -> fail @"tx_time not set"
       }
     _ -> fail @"tx_ttl not set"
@@ -159,23 +159,12 @@ pub fn get_current_epoch(range: ValidityRange, epoch_config: EpochConfig) -> Int
 }
 
 pub fn get_current_epoch_with_ttl(
-  range: ValidityRange,
-  epoch_config: EpochConfig,
+  v: ValidityRange,
+  e: EpochConfig,
   ttl: Int,
+  slot_length: Int,
 ) -> Int {
-  when range.upper_bound.bound_type is {
-    Finite(y) ->
-      when range.lower_bound.bound_type is {
-        Finite(x) ->
-          if (y - x <= ttl)? {
-            posix_time_to_relative_epoch(x, epoch_config)
-          } else {
-            fail @"invalid ttl"
-          }
-        _ -> fail @"tx_time not set"
-      }
-    _ -> fail @"tx_ttl not set"
-  }
+  posix_time_to_relative_epoch(tx_validity_valid(v, slot_length, Some(ttl)), e)
 }
 
 test posix_time_to_relative_epoch_test1() {
@@ -183,41 +172,35 @@ test posix_time_to_relative_epoch_test1() {
 }
 
 test get_current_epoch_test1() {
-  let epoch_config =
-    EpochConfig {
-      year_to_epoch: 73,
-      epoch_boundary: 1647899091000,
-      epoch_boundary_as_epoch: 328,
-      epoch_length: 1800000,
-      epoch_length_base: 432000000,
-    }
   let validity_range = entirely_between(1700553368000, 1700553369000)
-  get_current_epoch(validity_range, epoch_config) == 29580
+  get_current_epoch(validity_range, get_epoch_config_preview()) == 29580
 }
 
 pub fn tx_validity_valid(
-  tx: Transaction,
+  v: ValidityRange,
   slot_length: Int,
-  expired: Option<Int>,
+  ttl: Option<Int>,
 ) -> Int {
   let tx_start =
-    when tx.validity_range.lower_bound.bound_type is {
+    when v.lower_bound.bound_type is {
       Finite(x) -> x
       _ -> 0
     }
   let tx_end =
-    when tx.validity_range.upper_bound.bound_type is {
+    when v.upper_bound.bound_type is {
       Finite(x) -> x
       _ -> 0
     }
+  let expire =
+    when ttl is {
+      Some(x) -> x
+      None -> 3 * 60
+    } * slot_length
   if and {
     (tx_start > 0)?,
     (tx_end > 0)?,
-    (tx_end > tx_start)?,
-    (tx_end - tx_start <= when expired is {
-      Some(x) -> x
-      None -> 3 * 60
-    } * slot_length)?,
+    (tx_end >= tx_start)?,
+    (tx_end - tx_start <= expire)?,
   } {
     tx_start
   } else {

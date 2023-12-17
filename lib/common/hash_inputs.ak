@@ -327,6 +327,31 @@ pub fn hash_input(i: Input) -> Hash<Blake2b_256, ByteArray> {
   )
 }
 
+test succ_hash_input() {
+  let utxo1 =
+    Input {
+      output_reference: OutputReference {
+        transaction_id: TransactionId {
+          hash: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
+        },
+        output_index: 0,
+      },
+      output: Output {
+        address: from_script(#""),
+        value: value.zero(),
+        datum: NoDatum,
+        reference_script: None,
+      },
+    }
+  // hash_input(utxo1) == blake2b_256(
+  //   bytearray.concat(
+  //     #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
+  //     convert.int_to_digit(0),
+  //   ),
+  // )
+  hash_input(utxo1) == #"060f4c8b63d168305c5b020708cac4e7befe6063f83f68255cb9c207860c4410"
+}
+
 pub fn hash_inputs_head_sort_asc(
   inputs: List<Input>,
 ) -> Hash<Blake2b_256, ByteArray> {

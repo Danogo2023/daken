@@ -121,21 +121,23 @@
     │ PASS [mem:  73957, cpu: 27725698] succ_hash_out_refs_not_sort
     │ PASS [mem: 176348, cpu: 71284742] succ_hash_out_refs_sort_asc
     │ PASS [mem: 237288, cpu: 83163897] succ_hash_out_refs_quicksort_asc
+    │ PASS [mem:  11698, cpu:  4147556] succ_hash_out_ref
     │ PASS [mem: 109066, cpu: 44809713] succ_hash_out_refs_head_sort_asc
     │ PASS [mem: 113273, cpu: 46267101] succ_hash_out_refs_last_sort_asc
     │ PASS [mem:  13307, cpu:  4563595] succ_hash_out_ref_salt
     │ PASS [mem: 110675, cpu: 45225752] succ_hash_out_refs_head_salt_sort_asc
-    ┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7 tests | 7 passed | 0 failed
+    ┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8 tests | 8 passed | 0 failed
 
     ┍━ common/hash_inputs ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     │ PASS [mem: 119457, cpu:  43808463] succ_hash_inputs_not_sort
     │ PASS [mem: 250360, cpu:  97000779] succ_hash_inputs_sort_asc
     │ PASS [mem: 313892, cpu: 109755686] succ_hash_inputs_quicksort_asc
+    │ PASS [mem:  20606, cpu:   7326309] succ_hash_input
     │ PASS [mem: 167526, cpu:  65271238] succ_hash_inputs_head_sort_asc
     │ PASS [mem: 166549, cpu:  64977122] succ_hash_inputs_last_sort_asc
     │ PASS [mem:  22215, cpu:   7742348] succ_hash_input_salt
     │ PASS [mem: 169135, cpu:  65687277] succ_hash_inputs_head_salt_sort_asc
-    ┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7 tests | 7 passed | 0 failed
+    ┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8 tests | 8 passed | 0 failed
 
 
 

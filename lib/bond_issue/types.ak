@@ -42,7 +42,7 @@ pub type PlatformConfig {
   // fee receive address
   address: Address,
   // Khoảng thời gian giao dịch hợp lệ, giá trị tính theo slot
-  tx_ttl: Option<Int>,
+  tx_ttl: Int,
   // default: 6 epoch
   min_buffer: Int,
   // datum.prepaid = Min(<min_buffer>+prepaid_plus, <duration>)

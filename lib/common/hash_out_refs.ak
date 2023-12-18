@@ -183,7 +183,7 @@ pub fn hash_out_refs_head_sort_asc(
 ) -> Hash<Blake2b_256, ByteArray> {
   when list.head(sort_asc_out_refs(out_refs)) is {
     Some(i) -> hash_out_ref(i)
-    _ -> fail @"not found input"
+    _ -> #""
   }
 }
 
@@ -225,7 +225,7 @@ pub fn hash_out_refs_last_sort_asc(
 ) -> Hash<Blake2b_256, ByteArray> {
   when list.last(sort_asc_out_refs(out_refs)) is {
     Some(i) -> hash_out_ref(i)
-    _ -> fail @"not found input"
+    _ -> #""
   }
 }
 
@@ -292,7 +292,7 @@ pub fn hash_out_refs_head_salt_sort_asc(
 ) -> Hash<Blake2b_256, ByteArray> {
   when list.head(sort_asc_out_refs(out_refs)) is {
     Some(i) -> hash_out_ref_salt(i, salt)
-    None -> fail @"not found input"
+    _ -> #""
   }
 }
 

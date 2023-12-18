@@ -2,7 +2,7 @@ use aiken/bytearray
 use aiken/hash.{Blake2b_256, Hash, blake2b_256}
 use aiken/list
 use aiken/transaction.{Input, NoDatum, Output, OutputReference, TransactionId}
-use aiken/transaction/credential.{from_script}
+use aiken/transaction/credential
 use aiken/transaction/value
 use common/convert
 
@@ -88,7 +88,7 @@ test succ_hash_inputs_not_sort() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -101,7 +101,7 @@ test succ_hash_inputs_not_sort() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -114,7 +114,7 @@ test succ_hash_inputs_not_sort() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -127,7 +127,7 @@ test succ_hash_inputs_not_sort() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -140,7 +140,7 @@ test succ_hash_inputs_not_sort() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -168,7 +168,7 @@ test succ_hash_inputs_sort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -181,7 +181,7 @@ test succ_hash_inputs_sort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -194,7 +194,7 @@ test succ_hash_inputs_sort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -207,7 +207,7 @@ test succ_hash_inputs_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -220,7 +220,7 @@ test succ_hash_inputs_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -248,7 +248,7 @@ test succ_hash_inputs_quicksort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -261,7 +261,7 @@ test succ_hash_inputs_quicksort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -274,7 +274,7 @@ test succ_hash_inputs_quicksort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -287,7 +287,7 @@ test succ_hash_inputs_quicksort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -300,7 +300,7 @@ test succ_hash_inputs_quicksort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -337,7 +337,7 @@ test succ_hash_input() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -357,7 +357,7 @@ pub fn hash_inputs_head_sort_asc(
 ) -> Hash<Blake2b_256, ByteArray> {
   when list.head(sort_asc_inputs(inputs)) is {
     Some(i) -> hash_input(i)
-    _ -> fail @"not found input"
+    _ -> #""
   }
 }
 
@@ -369,7 +369,7 @@ test succ_hash_inputs_head_sort_asc() {
         output_index: 1,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -384,7 +384,7 @@ test succ_hash_inputs_head_sort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -397,7 +397,7 @@ test succ_hash_inputs_head_sort_asc() {
         output_index: 1,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -410,7 +410,7 @@ test succ_hash_inputs_head_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -423,7 +423,7 @@ test succ_hash_inputs_head_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -443,7 +443,7 @@ pub fn hash_inputs_last_sort_asc(
 ) -> Hash<Blake2b_256, ByteArray> {
   when list.last(sort_asc_inputs(inputs)) is {
     Some(i) -> hash_input(i)
-    _ -> fail @"not found input"
+    _ -> #""
   }
 }
 
@@ -455,7 +455,7 @@ test succ_hash_inputs_last_sort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -468,7 +468,7 @@ test succ_hash_inputs_last_sort_asc() {
         output_index: 2,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -481,7 +481,7 @@ test succ_hash_inputs_last_sort_asc() {
         output_index: 1,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -494,7 +494,7 @@ test succ_hash_inputs_last_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -507,7 +507,7 @@ test succ_hash_inputs_last_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -541,7 +541,7 @@ test succ_hash_input_salt() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -559,7 +559,7 @@ pub fn hash_inputs_head_salt_sort_asc(
 ) -> Hash<Blake2b_256, ByteArray> {
   when list.head(sort_asc_inputs(inputs)) is {
     Some(i) -> hash_input_salt(i, salt)
-    None -> fail @"not found input"
+    _ -> #""
   }
 }
 
@@ -572,7 +572,7 @@ test succ_hash_inputs_head_salt_sort_asc() {
         output_index: 1,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -587,7 +587,7 @@ test succ_hash_inputs_head_salt_sort_asc() {
         output_index: 0,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -600,7 +600,7 @@ test succ_hash_inputs_head_salt_sort_asc() {
         output_index: 1,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -613,7 +613,7 @@ test succ_hash_inputs_head_salt_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,
@@ -626,7 +626,7 @@ test succ_hash_inputs_head_salt_sort_asc() {
         output_index: 3,
       },
       output: Output {
-        address: from_script(#""),
+        address: credential.from_script(#""),
         value: value.zero(),
         datum: NoDatum,
         reference_script: None,

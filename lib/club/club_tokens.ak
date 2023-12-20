@@ -4,6 +4,7 @@ use aiken/transaction.{ValidityRange}
 use common/constants
 use common/convert.{number_to_bytearray_hex}
 use common/time.{SlotConfig}
+use common/util.{get_number_from_hex_string}
 
 pub fn get_operator_nft_name() -> ByteArray {
   bytearray.concat(constants.prefix_222, #"01")
@@ -67,6 +68,13 @@ pub fn get_share_token_name(
   prefixes
     |> bytearray.concat(number_to_bytearray_hex(epoch_mint_token, 2))
     |> bytearray.concat(number_to_bytearray_hex(price_issue, 8))
+}
+
+// token name = <prefixes: 5 bytes><epoch: 2 bytes><issue_price: 8 bytes> -> (epoch, issue_price)
+pub fn get_epoch_price_from_share_token_name(name: ByteArray) {
+  let epoch = get_number_from_hex_string(bytearray.slice(name, 5, 6))
+  let issue_price = get_number_from_hex_string(bytearray.slice(name, 7, 14))
+  (epoch, issue_price)
 }
 
 // <prefixes><poolid - 2bytes><timestamp - 6bytes>
@@ -136,6 +144,22 @@ pub fn is_withdraw_request_token_in_pool(name: ByteArray, pool_id: Int) {
 
 test get_share_token_name_1() {
   get_share_token_name(#"10", 440, 100_000_000) == #"1001b80000000005f5e100"
+}
+
+test correct_epoch_price_share_token_name_1() {
+  let (epoch, price) =
+    get_epoch_price_from_share_token_name(
+      get_share_token_name(get_member_share_token_prefix(), 440, 100_000_000),
+    )
+  epoch == 440 && price == 100_000_000
+}
+
+test correct_epoch_price_share_token_name_2() {
+  let (epoch, price) =
+    get_epoch_price_from_share_token_name(
+      get_share_token_name(get_operator_share_token_prefix(), 440, 100_000_000),
+    )
+  epoch == 440 && price == 100_000_000
 }
 
 test get_share_token_name_2() {

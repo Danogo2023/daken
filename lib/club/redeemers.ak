@@ -171,3 +171,9 @@ pub const redeem_pool_platform_garbage_collect = 56
 
 /// (Redeem Pool) Redeemer Pool Upgrade Version
 pub const redeemer_pool_upgrade_version = 57
+
+/// (Vault State) Vault State Calc NAV
+pub const vault_state_calc_nav = 58
+
+/// (Operator Fee) Operator Fee Calc NAV
+pub const operator_fee_calc_nav = 78

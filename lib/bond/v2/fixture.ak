@@ -4,6 +4,7 @@ use aiken/hash.{Blake2b_256, Hash}
 use aiken/interval.{
   Finite, Interval, IntervalBound, NegativeInfinity, PositiveInfinity,
 }
+use aiken/time.{PosixTime}
 use aiken/transaction.{
   Datum, Input, Output, OutputReference, Transaction, TransactionId,
 }
@@ -12,17 +13,18 @@ use aiken/transaction/credential.{
   from_verification_key,
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
-use bond/constraint.{get_day_to_maturity}
 use bond/types.{
-  AskLimit, AskMaking, BidLimit, BidMaking, BondConfig, ConfigLimit,
-  ConfigMaking, EscrowDatum, ExchangeConfigLimit, ExchangeConfigMaking,
-  PaymentDatum,
+  AskLimit, AskMaking, BidLimit, BidMaking, BondConfigLimit, BondConfigMaking,
+  EscrowConfig, EscrowDatum, ExchangeConfigLimit, ExchangeConfigMaking,
+  PaymentDatum, PlatformConfig,
 }
+use bond/v2/constraint.{get_day_to_maturity}
 use common/time.{
-  SlotConfig, get_epoch_config_mainnet, get_epoch_config_preview,
+  Basis, DayNum, EpochTime, SlotConfig, get_basis_points_config,
+  get_epoch_config_mainnet, get_epoch_config_preview,
   posix_time_to_relative_epoch,
-}
-use common/types.{PublicKeyHash} as common_types
+} as common_time
+use common/types.{Lovelace, PublicKeyHash} as common_types
 
 pub fn tx(
   inputs: List<Input>,
@@ -76,36 +78,14 @@ pub fn tx(
 }
 
 pub fn get_slot_config_preview() -> SlotConfig {
-  SlotConfig { zero_time: 1666656000000, zero_slot: 0, slot_length: 1000 }
+  SlotConfig { zero_time: 1_666_656_000_000, zero_slot: 0, slot_length: 1_000 }
 }
 
 pub fn get_slot_config_mainnet() -> SlotConfig {
-  SlotConfig { zero_time: 1596059091000, zero_slot: 4492800, slot_length: 1000 }
-}
-
-fn get_bond_config_preview() -> BondConfig {
-  BondConfig {
-    escrow_payment_key: get_escrow_address_hash(),
-    escrow_policy_id: get_escrow_policy_id(),
-    basis_points_ref_unit: 10000,
-    basis_points_min: 1,
-    basis_points_max: 9999,
-    one_ada_2_lovelace: 1000000,
-    bond_face_value: 100000000,
-    epoch_config: get_epoch_config_preview(),
-  }
-}
-
-fn get_bond_config_mainnet() -> BondConfig {
-  BondConfig {
-    escrow_payment_key: get_escrow_address_hash(),
-    escrow_policy_id: get_escrow_policy_id(),
-    basis_points_ref_unit: 10000,
-    basis_points_min: 1,
-    basis_points_max: 9999,
-    one_ada_2_lovelace: 1000000,
-    bond_face_value: 100000000,
-    epoch_config: get_epoch_config_mainnet(),
+  SlotConfig {
+    zero_time: 1_596_059_091_000,
+    zero_slot: 4_492_800,
+    slot_length: 1_000,
   }
 }
 
@@ -127,35 +107,64 @@ fn get_exchange_making_config() -> ExchangeConfigMaking {
   }
 }
 
-pub fn get_config_limit_preview() -> ConfigLimit {
-  ConfigLimit {
-    bond: get_bond_config_preview(),
-    exchange: get_exchange_config(),
+pub fn get_platform_config_preview() -> PlatformConfig {
+  PlatformConfig {
     slot: get_slot_config_preview(),
+    epoch: get_epoch_config_preview(),
+    basis: get_basis_points_config(),
+    one_ada_2_lovelace: 1_000_000,
+    bond_face_value: 100_000_000,
   }
 }
 
-pub fn get_config_limit_mainnet() -> ConfigLimit {
-  ConfigLimit {
-    bond: get_bond_config_mainnet(),
+pub fn get_platform_config_mainnet() -> PlatformConfig {
+  PlatformConfig {
+    slot: get_slot_config_mainnet(),
+    epoch: get_epoch_config_mainnet(),
+    basis: get_basis_points_config(),
+    one_ada_2_lovelace: 1_000_000,
+    bond_face_value: 100_000_000,
+  }
+}
+
+pub fn get_escrow_config() -> EscrowConfig {
+  dict.new()
+    |> dict.insert(
+         get_escrow_policy_id(),
+         get_escrow_address_hash(),
+         bytearray.compare,
+       )
+}
+
+pub fn get_config_limit_preview() -> BondConfigLimit {
+  BondConfigLimit {
+    platform: get_platform_config_preview(),
+    escrow: get_escrow_config(),
     exchange: get_exchange_config(),
-    slot: get_slot_config_mainnet(),
   }
 }
 
-pub fn get_config_making_preview() -> ConfigMaking {
-  ConfigMaking {
-    bond: get_bond_config_preview(),
-    exchange: get_exchange_making_config(),
-    slot: get_slot_config_preview(),
+pub fn get_config_limit_mainnet() -> BondConfigLimit {
+  BondConfigLimit {
+    platform: get_platform_config_mainnet(),
+    escrow: get_escrow_config(),
+    exchange: get_exchange_config(),
   }
 }
 
-pub fn get_config_making_mainnet() -> ConfigMaking {
-  ConfigMaking {
-    bond: get_bond_config_mainnet(),
+pub fn get_config_making_preview() -> BondConfigMaking {
+  BondConfigMaking {
+    platform: get_platform_config_preview(),
+    escrow: get_escrow_config(),
     exchange: get_exchange_making_config(),
-    slot: get_slot_config_mainnet(),
+  }
+}
+
+pub fn get_config_making_mainnet() -> BondConfigMaking {
+  BondConfigMaking {
+    platform: get_platform_config_mainnet(),
+    escrow: get_escrow_config(),
+    exchange: get_exchange_making_config(),
   }
 }
 
@@ -254,88 +263,79 @@ pub fn get_og_lender_1() -> ByteArray {
 }
 
 pub type EscrowFullInfo {
-  start_epoch: Int,
-  duration_epoch: Int,
-  maturity_epoch: Int,
+  start_epoch: EpochTime,
+  duration_epoch: EpochTime,
+  maturity_epoch: EpochTime,
   bond_amount: Int,
-  principal: Int,
-  epo_rewards: Int,
-  premium_paid_lovelace: Int,
-  premium_paid_epoch: Int,
-  otm_fee: Int,
-  current_epoch: Int,
-  tx_time: Int,
-  interest_buffer: Int,
-  interest_due_paid: Int,
-  interest_level_lovelace: Int,
-  interest_level_epoch: Int,
-  interest_at_maturity_one_bond: Int,
-  received_at_maturity_one_bond: Int,
-  day_to_maturity: Int,
+  principal: Lovelace,
+  epo_rewards: Lovelace,
+  premium_paid_lovelace: Lovelace,
+  premium_paid_epoch: EpochTime,
+  otm_fee: Basis,
+  current_epoch: EpochTime,
+  tx_time: PosixTime,
+  interest_buffer: EpochTime,
+  interest_due_paid: EpochTime,
+  interest_level_lovelace: Lovelace,
+  interest_level_epoch: EpochTime,
+  interest_at_maturity_one_bond: Lovelace,
+  received_at_maturity_one_bond: Lovelace,
+  day_to_maturity: DayNum,
 }
 
 pub fn calc_escrow_full_info(
-  bond_config: BondConfig,
-  escrow_lovelace: Int,
-  escrow_datum: EscrowDatum,
-  tx_posix_time: Int,
+  cfg: PlatformConfig,
+  escrow_balance: Lovelace,
+  escrow_dt: EscrowDatum,
+  tx_time: PosixTime,
 ) -> EscrowFullInfo {
-  let current_epoch =
-    posix_time_to_relative_epoch(tx_posix_time, bond_config.epoch_config)
-  let start_epoch =
-    escrow_datum.start + bond_config.epoch_config.epoch_boundary_as_epoch
-  let end_epoch = start_epoch + escrow_datum.duration
+  let epo_current: EpochTime = posix_time_to_relative_epoch(tx_time, cfg.epoch)
+  let epo_start: EpochTime = escrow_dt.start + cfg.epoch.epoch_boundary_as_epoch
+  let epo_end: EpochTime = epo_start + escrow_dt.duration
   // Tong tien goc voi thong tin so luong bond trong datum
-  let principal_lovelace =
-    escrow_datum.bond_amount * bond_config.bond_face_value
+  let principal: Lovelace = escrow_dt.bond_amount * cfg.bond_face_value
   // Tong tien lai dang giu trong escrow
-  let premium_paid_lovelace = escrow_lovelace - principal_lovelace
+  let premium_paid: Lovelace = escrow_balance - principal
   // So tien lai borrower phai tra moi epoch cho tong so bond phat hanh
-  let epoch_rewards_lovelace = value.lovelace_of(escrow_datum.epo_rewards)
+  let epo_rewards: Lovelace = value.lovelace_of(escrow_dt.epo_rewards)
   // Tong so tien lai borrower phai tra den current epoch
-  let interest_due_paid_lovelace =
-    if current_epoch >= end_epoch {
-      escrow_datum.duration
+  let epo_due_paid: EpochTime =
+    if epo_current >= epo_end {
+      escrow_dt.duration
     } else {
-      current_epoch - start_epoch + 1
-    } * epoch_rewards_lovelace
+      epo_current - epo_start + 1
+    } * epo_rewards
   // Tong so tien lai theo epoch da duoc borrower thanh toan
-  let premium_paid_epoch = premium_paid_lovelace / epoch_rewards_lovelace
+  let premium_paid_epoch: EpochTime = premium_paid / epo_rewards
   // Tong so tien lai dang tra thua
-  let interest_level_lovelace =
-    premium_paid_lovelace - interest_due_paid_lovelace
+  let interest_level: Lovelace = premium_paid - epo_due_paid
   // Tong so tien lai dang tra thua tinh theo epoch
-  let interest_level_epoch = interest_level_lovelace / epoch_rewards_lovelace
+  let interest_level_epoch: EpochTime = interest_level / epo_rewards
   // Tien phi Optim thu cua Borrower 3%
-  let lend_after_fee =
-    1 * bond_config.basis_points_ref_unit - escrow_datum.otm_fee
+  let lender_rate: Basis = cfg.basis.base - escrow_dt.otm_fee
   // Tong tien lai lender nhan duoc khi den ky dao han cua 1 bond
-  let interest_at_maturity_one_bond =
-    epoch_rewards_lovelace * escrow_datum.duration * lend_after_fee / bond_config.basis_points_ref_unit / escrow_datum.bond_amount
+  let interest_at_maturity: Lovelace =
+    epo_rewards * escrow_dt.duration * lender_rate / cfg.basis.base / escrow_dt.bond_amount
   EscrowFullInfo {
-    start_epoch,
-    duration_epoch: escrow_datum.duration,
-    maturity_epoch: end_epoch,
-    bond_amount: escrow_datum.bond_amount,
-    principal: principal_lovelace,
-    epo_rewards: epoch_rewards_lovelace,
-    premium_paid_lovelace,
+    start_epoch: epo_start,
+    duration_epoch: escrow_dt.duration,
+    maturity_epoch: epo_end,
+    bond_amount: escrow_dt.bond_amount,
+    principal,
+    epo_rewards,
+    premium_paid_lovelace: premium_paid,
     premium_paid_epoch,
-    otm_fee: escrow_datum.otm_fee,
-    current_epoch,
-    tx_time: tx_posix_time,
-    interest_buffer: escrow_datum.buffer,
-    interest_due_paid: interest_due_paid_lovelace,
-    interest_level_lovelace,
+    otm_fee: escrow_dt.otm_fee,
+    current_epoch: epo_current,
+    tx_time,
+    interest_buffer: escrow_dt.buffer,
+    interest_due_paid: epo_due_paid,
+    interest_level_lovelace: interest_level,
     interest_level_epoch,
-    interest_at_maturity_one_bond,
+    interest_at_maturity_one_bond: interest_at_maturity,
     // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
-    received_at_maturity_one_bond: interest_at_maturity_one_bond + bond_config.bond_face_value,
-    day_to_maturity: get_day_to_maturity(
-      tx_posix_time,
-      end_epoch,
-      bond_config.epoch_config,
-    ),
+    received_at_maturity_one_bond: interest_at_maturity + cfg.bond_face_value,
+    day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch),
   }
 }
 

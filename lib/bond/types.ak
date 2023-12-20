@@ -2,25 +2,8 @@ use aiken/dict.{Dict}
 use aiken/transaction.{Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
-use common/time.{SlotConfig}
+use common/time.{BasisPoints, EpochConfig, SlotConfig}
 use common/types.{PublicKeyHash, ScriptKeyHash}
-
-pub type EpochConfig {
-  // 1 year = 365 days / 5 days per epoch = 73 epoch. default: 73
-  year_to_epoch: Int,
-  // default: 1_647_899_091_000
-  epoch_boundary: Int,
-  // default: epoch 327+1
-  epoch_boundary_as_epoch: Int,
-  // Each Cardano epoch consists of a number of slots, where each slot lasts for one second
-  // A Cardano epoch currently includes 432,000 slots (5 days)
-  // Format with miliseconds
-  // mainnet: 432_000_000
-  // preview: 1_800_000
-  epoch_length: Int,
-  // base is 5 days = 432_000_000
-  epoch_length_base: Int,
-}
 
 pub type BondConfig {
   escrow_payment_key: ScriptKeyHash,
@@ -43,7 +26,7 @@ pub type ExchangeConfigLimit {
   // value in range 0001 -> 9999 default: 1% per yield == 100
   seller_fee: Int,
   // Khoảng thời gian giao dịch sell hợp lệ, giá trị tính theo slot
-  tx_buy_valid_slot: Option<Int>,
+  tx_buy_ttl: Option<Int>,
 }
 
 pub type ExchangeConfigMaking {
@@ -53,7 +36,7 @@ pub type ExchangeConfigMaking {
   // value in range 0001 -> 9999 default: 1% per yield == 100
   taker_fee: Int,
   // Time frame for valid transaction, value represent slot
-  tx_buy_valid_slot: Option<Int>,
+  tx_buy_ttl: Option<Int>,
 }
 
 pub type ConfigLimit {
@@ -66,6 +49,32 @@ pub type ConfigMaking {
   bond: BondConfig,
   exchange: ExchangeConfigMaking,
   slot: SlotConfig,
+}
+
+// Dict<escrow_pid, escrow_skh>
+// { escrow_skh: ScriptKeyHash, escrow_pid: PolicyId }
+pub type EscrowConfig =
+  Dict<PolicyId, ScriptKeyHash>
+
+pub type PlatformConfig {
+  slot: SlotConfig,
+  epoch: EpochConfig,
+  basis: BasisPoints,
+  one_ada_2_lovelace: Int,
+  // 1 bond = 100 ADA = 100_000_000 lovelace. default: 100 ADA = 100_000_000 lovelace
+  bond_face_value: Int,
+}
+
+pub type BondConfigLimit {
+  platform: PlatformConfig,
+  escrow: EscrowConfig,
+  exchange: ExchangeConfigLimit,
+}
+
+pub type BondConfigMaking {
+  platform: PlatformConfig,
+  escrow: EscrowConfig,
+  exchange: ExchangeConfigMaking,
 }
 
 pub type EscrowDatum {
@@ -164,7 +173,7 @@ pub type BondType {
   Optim
 }
 
-pub type BidLimitDanogo {
+pub type BidLimitMulti {
   owner_vk: PublicKeyHash,
   owner_sk: Option<PublicKeyHash>,
   from_epoch: Int,

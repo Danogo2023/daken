@@ -5,42 +5,59 @@ use aiken/math
 use aiken/time.{PosixTime}
 use aiken/transaction.{Input}
 use aiken/transaction/credential.{ScriptCredential, VerificationKeyCredential}
-use aiken/transaction/value.{AssetName}
+use aiken/transaction/value.{AssetName, PolicyId}
 use bond/types.{
-  AskLimit, AskMaking, BidLimit, BidMaking, BondConfig, ConfigLimit,
-  ConfigMaking, Error, EscrowDatum, EscrowInfo, EscrowInfoResult, OK,
+  AskLimit, AskMaking, BidLimit, BidMaking, Error, EscrowConfig, EscrowDatum,
+  EscrowInfo, EscrowInfoResult, OK, PlatformConfig,
 }
 use common/time.{
-  Basis, DayNum, EpochConfig, EpochTime, get_milliseconds_of_day,
+  Basis, BasisPoints, DayNum, EpochConfig, EpochTime, get_milliseconds_of_day,
   relative_epoch_to_posix_time_start,
 } as common_time
-use common/types.{Lovelace} as common_types
+use common/types.{Lovelace, ScriptKeyHash} as common_types
 
 pub fn get_escrow_ref_inputs(
   ref_inputs: List<Input>,
-  cfg: BondConfig,
+  cfg: EscrowConfig,
 ) -> Option<Input> {
+  let escrow_pids: List<PolicyId> = dict.keys(cfg)
+  let escrow_skhs: List<ScriptKeyHash> = dict.values(cfg)
   list.find(
     ref_inputs,
     fn(i) {
       when i.output.address.payment_credential is {
         VerificationKeyCredential(_) -> False
-        ScriptCredential(k) -> {
-          let escrow_asset = value.tokens(i.output.value, cfg.escrow_policy_id)
-          k == cfg.escrow_payment_key && dict.size(escrow_asset) == 1 && when
-            list.at(dict.values(escrow_asset), 0)
-          is {
-            Some(v) -> v > 0
-            None -> False
+        ScriptCredential(k) ->
+          if list.has(escrow_skhs, k) {
+            let pid_diff: List<PolicyId> =
+              list.difference(escrow_pids, value.policies(i.output.value))
+            if list.length(escrow_pids) - list.length(pid_diff) == 1 {
+              when list.at(list.difference(escrow_pids, pid_diff), 0) is {
+                Some(escrow_pid) ->
+                  when
+                    list.at(
+                      dict.values(value.tokens(i.output.value, escrow_pid)),
+                      0,
+                    )
+                  is {
+                    Some(v) -> v > 0
+                    None -> False
+                  }
+                _ -> False
+              }
+            } else {
+              False
+            }
+          } else {
+            False
           }
-        }
       }
     },
   )
 }
 
 pub fn get_escrow_info(
-  cfg: BondConfig,
+  cfg: PlatformConfig,
   escrow_balance: Lovelace,
   escrow_dt: EscrowDatum,
   tx_time: PosixTime,
@@ -80,13 +97,13 @@ pub fn get_escrow_info(
     Error("Escrow closable")
   } else {
     // Tien phi Optim thu cua Borrower 3%
-    let lender_rate: Basis = cfg.basis_points_ref_unit - escrow_dt.otm_fee
+    let lender_rate: Basis = cfg.basis.base - escrow_dt.otm_fee
     // Tong tien lai lender nhan duoc cua tat ca bond phat hanh khi ket thuc chu ky dao han
     let lender_interest: Lovelace =
       epoch_rewards * escrow_dt.duration * lender_rate
     // Tong tien lai lender nhan duoc khi den ky dao han cua 1 bond da tru phi cua Optim 3%
     let interest_at_maturity: Lovelace =
-      lender_interest / cfg.basis_points_ref_unit / escrow_dt.bond_amount
+      lender_interest / cfg.basis.base / escrow_dt.bond_amount
     OK(
       EscrowInfo {
         bond_symbol: escrow_dt.bond_symbol,
@@ -97,7 +114,7 @@ pub fn get_escrow_info(
         // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
         received_at_maturity_one_bond: interest_at_maturity + cfg.bond_face_value,
         // So ngay den ky dao han cua bond
-        day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch_config),
+        day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch),
       },
     )
   }
@@ -147,12 +164,12 @@ pub fn bond_assets(
   )
 }
 
-pub fn datum_yield_limit_valid(conf: ConfigLimit, val: Basis) -> Bool {
-  (math.clamp(val, conf.bond.basis_points_min, conf.bond.basis_points_max) == val)?
+pub fn datum_yield_limit_valid(basis: BasisPoints, v: Int) -> Bool {
+  (math.clamp(v, basis.min, basis.max) == v)?
 }
 
-pub fn datum_yield_making_valid(conf: ConfigMaking, val: Basis) -> Bool {
-  (math.clamp(val, conf.bond.basis_points_min, conf.bond.basis_points_max) == val)?
+pub fn datum_yield_making_valid(basis: BasisPoints, v: Int) -> Bool {
+  (math.clamp(v, basis.min, basis.max) == v)?
 }
 
 pub fn datum_epoch_valid(

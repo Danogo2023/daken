@@ -10,3 +10,6 @@ pub type ScriptKeyHash =
 
 pub type Datums =
   Dict<Hash<Blake2b_256, Data>, Data>
+
+pub type Lovelace =
+  Int

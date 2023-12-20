@@ -221,7 +221,7 @@ pub fn tx_validity_valid(
   let tx_start =
     when v.lower_bound.bound_type is {
       Finite(x) -> x
-      _ -> 0
+      _ -> fail
     }
   let tx_end =
     when v.upper_bound.bound_type is {

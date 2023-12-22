@@ -15,8 +15,8 @@ use aiken/transaction/credential.{
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidMaking, BondConfigLimit, BondConfigMaking,
-  EscrowConfig, EscrowDatum, ExchangeConfigLimit, ExchangeConfigMaking,
-  PaymentDatum, PlatformConfig,
+  DanogoBond, EscrowConfig, EscrowDatum, ExchangeConfigLimit,
+  ExchangeConfigMaking, PaymentDatum, PlatformConfig,
 }
 use bond/v2/constraint.{get_day_to_maturity}
 use common/time.{
@@ -131,7 +131,7 @@ pub fn get_escrow_config() -> EscrowConfig {
   dict.new()
     |> dict.insert(
          get_escrow_policy_id(),
-         get_escrow_address_hash(),
+         (get_escrow_address_hash(), DanogoBond),
          bytearray.compare,
        )
 }
@@ -377,7 +377,7 @@ pub fn get_escrow_address_unexpect() -> Address {
 
 pub fn get_input_escrow(
   address: Address,
-  escrow_policy_id: PolicyId,
+  escrow_pid: PolicyId,
   escrow_asset_name: AssetName,
   escrow_qty: Int,
   lovelace: Int,
@@ -392,7 +392,7 @@ pub fn get_input_escrow(
       address,
       value: value.add(
         value.from_lovelace(lovelace),
-        escrow_policy_id,
+        escrow_pid,
         escrow_asset_name,
         escrow_qty,
       ),

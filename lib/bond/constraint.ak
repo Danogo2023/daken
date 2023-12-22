@@ -25,15 +25,15 @@ pub fn get_escrow_ref_inputs(
     fn(i) {
       when i.output.address.payment_credential is {
         VerificationKeyCredential(_) -> False
-        ScriptCredential(k) -> {
-          let escrow_asset = value.tokens(i.output.value, cfg.escrow_policy_id)
-          k == cfg.escrow_payment_key && dict.size(escrow_asset) == 1 && when
-            list.at(dict.values(escrow_asset), 0)
-          is {
-            Some(v) -> v > 0
-            None -> False
+        ScriptCredential(k) -> and {
+            k == cfg.escrow_payment_key,
+            when
+              dict.values(value.tokens(i.output.value, cfg.escrow_policy_id))
+            is {
+              [q] if q > 0 -> True
+              _ -> False
+            },
           }
-        }
       }
     },
   )
@@ -160,21 +160,48 @@ pub fn datum_epoch_valid(
   epo_to: EpochTime,
   out_qty: Int,
 ) -> Bool {
-  (epo_to >= epo_from)? && (out_qty > 0)?
+  and {
+    (epo_to >= epo_from)?,
+    (out_qty > 0)?,
+  }
 }
 
 pub fn datum_ask_limit_compare(all: AskLimit, alr: AskLimit) {
-  (all.owner_vk == alr.owner_vk)? && (all.owner_sk == alr.owner_sk)? && (all.requested_yield == alr.requested_yield)?
+  and {
+    (all.owner_vk == alr.owner_vk)?,
+    (all.owner_sk == alr.owner_sk)?,
+    (all.requested_yield == alr.requested_yield)?,
+  }
 }
 
 pub fn datum_bid_limit_compare(bll: BidLimit, blr: BidLimit) {
-  (bll.owner_vk == blr.owner_vk)? && (bll.owner_sk == blr.owner_sk)? && (bll.from_epoch == blr.from_epoch)? && (bll.to_epoch == blr.to_epoch)? && (bll.requested_yield == blr.requested_yield)?
+  and {
+    (bll.owner_vk == blr.owner_vk)?,
+    (bll.owner_sk == blr.owner_sk)?,
+    (bll.from_epoch == blr.from_epoch)?,
+    (bll.to_epoch == blr.to_epoch)?,
+    (bll.requested_yield == blr.requested_yield)?,
+  }
 }
 
 pub fn datum_ask_making_compare(aml: AskMaking, amr: AskMaking) {
-  (aml.owner_vk == amr.owner_vk)? && (aml.owner_sk == amr.owner_sk)? && (aml.requested_yield == amr.requested_yield)? && (aml.bid_sc == amr.bid_sc)? && (aml.margin == amr.margin)?
+  and {
+    (aml.owner_vk == amr.owner_vk)?,
+    (aml.owner_sk == amr.owner_sk)?,
+    (aml.requested_yield == amr.requested_yield)?,
+    (aml.bid_sc == amr.bid_sc)?,
+    (aml.margin == amr.margin)?,
+  }
 }
 
 pub fn datum_bid_making_compare(bml: BidMaking, bmr: BidMaking) {
-  (bml.owner_vk == bmr.owner_vk)? && (bml.owner_sk == bmr.owner_sk)? && (bml.from_epoch == bmr.from_epoch)? && (bml.to_epoch == bmr.to_epoch)? && (bml.requested_yield == bmr.requested_yield)? && (bml.ask_sc == bmr.ask_sc)? && (bml.margin == bmr.margin)?
+  and {
+    (bml.owner_vk == bmr.owner_vk)?,
+    (bml.owner_sk == bmr.owner_sk)?,
+    (bml.from_epoch == bmr.from_epoch)?,
+    (bml.to_epoch == bmr.to_epoch)?,
+    (bml.requested_yield == bmr.requested_yield)?,
+    (bml.ask_sc == bmr.ask_sc)?,
+    (bml.margin == bmr.margin)?,
+  }
 }

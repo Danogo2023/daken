@@ -12,12 +12,12 @@ use aiken/transaction/credential.{
   from_verification_key,
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
-use bond/constraint.{get_day_to_maturity}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidMaking, BondConfig, ConfigLimit,
   ConfigMaking, EscrowDatum, ExchangeConfigLimit, ExchangeConfigMaking,
   PaymentDatum,
 }
+use bond/utils.{get_day_to_maturity}
 use common/time.{
   SlotConfig, get_epoch_config_mainnet, get_epoch_config_preview,
   posix_time_to_relative_epoch,
@@ -270,7 +270,7 @@ pub type EscrowFullInfo {
   interest_level_lovelace: Int,
   interest_level_epoch: Int,
   interest_at_maturity_one_bond: Int,
-  received_at_maturity_one_bond: Int,
+  value_at_maturity: Int,
   day_to_maturity: Int,
 }
 
@@ -330,7 +330,7 @@ pub fn calc_escrow_full_info(
     interest_level_epoch,
     interest_at_maturity_one_bond,
     // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
-    received_at_maturity_one_bond: interest_at_maturity_one_bond + bond_config.bond_face_value,
+    value_at_maturity: interest_at_maturity_one_bond + bond_config.bond_face_value,
     day_to_maturity: get_day_to_maturity(
       tx_posix_time,
       end_epoch,

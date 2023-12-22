@@ -110,18 +110,13 @@ pub type BondWriterDatum {
   permissioned: Option<List<ByteArray>>,
 }
 
-pub type EscrowInfoResult<a, b> {
-  OK(a)
-  Error(b)
-}
-
 pub type EscrowInfo {
   bond_symbol: PolicyId,
   token_name: AssetName,
   bond_amount: Int,
   start_epoch: Int,
   end_epoch: Int,
-  received_at_maturity_one_bond: Int,
+  value_at_maturity: Int,
   day_to_maturity: Int,
 }
 

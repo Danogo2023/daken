@@ -130,8 +130,8 @@ pub fn get_platform_config_mainnet() -> PlatformConfig {
 pub fn get_escrow_config() -> EscrowConfig {
   dict.new()
     |> dict.insert(
-         get_escrow_policy_id(),
-         (get_escrow_address_hash(), DanogoBond),
+         get_escrow_address_hash(),
+         (get_escrow_policy_id(), DanogoBond),
          bytearray.compare,
        )
 }

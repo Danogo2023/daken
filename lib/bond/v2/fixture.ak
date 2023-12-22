@@ -14,8 +14,8 @@ use aiken/transaction/credential.{
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
-  AskLimit, AskMaking, BidLimit, BidMaking, BondConfigLimit, BondConfigMaking,
-  DanogoBond, EscrowConfig, EscrowDatum, ExchangeConfigLimit,
+  AskLimit, AskMaking, BidLimit, BidLimitMulti, BidMaking, BondConfigLimit,
+  BondConfigMaking, DanogoBond, EscrowConfig, EscrowDatum, ExchangeConfigLimit,
   ExchangeConfigMaking, PaymentDatum, PlatformConfig,
 }
 use bond/v2/constraint.{get_day_to_maturity}
@@ -436,6 +436,31 @@ pub fn gen_bid_limit_datum(
     to_epoch,
     quantity,
     requested_yield,
+  }
+}
+
+pub fn gen_bid_limit_multi_datum(
+  owner: Address,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+  bond_types: List<BondType>,
+) -> BidLimitMulti {
+  BidLimitMulti {
+    owner_vk: when owner.payment_credential is {
+      VerificationKeyCredential(vk) -> vk
+      ScriptCredential(sh) -> sh
+    },
+    owner_sk: when owner.stake_credential is {
+      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
+      _ -> None
+    },
+    from_epoch,
+    to_epoch,
+    quantity,
+    requested_yield,
+    bond_types,
   }
 }
 

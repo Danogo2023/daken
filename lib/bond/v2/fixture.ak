@@ -15,8 +15,8 @@ use aiken/transaction/credential.{
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidLimitMulti, BidMaking, BondConfigLimit,
-  BondConfigMaking, DanogoBond, EscrowConfig, EscrowDatum, ExchangeConfigLimit,
-  ExchangeConfigMaking, PaymentDatum, PlatformConfig,
+  BondConfigMaking, BondType, DanogoBond, EscrowConfig, EscrowDatum,
+  ExchangeConfigLimit, ExchangeConfigMaking, PaymentDatum, PlatformConfig,
 }
 use bond/v2/constraint.{get_day_to_maturity}
 use common/time.{

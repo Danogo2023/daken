@@ -5,51 +5,37 @@ use aiken/math
 use aiken/time.{PosixTime}
 use aiken/transaction.{Input}
 use aiken/transaction/credential.{ScriptCredential, VerificationKeyCredential}
-use aiken/transaction/value.{AssetName, PolicyId}
+use aiken/transaction/value.{AssetName}
 use bond/types.{
-  AskLimit, AskMaking, BidLimit, BidMaking, Error, EscrowConfig, EscrowDatum,
-  EscrowInfo, EscrowInfoResult, OK, PlatformConfig,
+  AskLimit, AskMaking, BidLimit, BidLimitMulti, BidMaking, BondType, DanogoBond,
+  Error, EscrowConfig, EscrowDatum, EscrowInfo, EscrowInfoResult, OK, OptimBond,
+  PlatformConfig,
 }
 use common/time.{
   Basis, BasisPoints, DayNum, EpochConfig, EpochTime, get_milliseconds_of_day,
   relative_epoch_to_posix_time_start,
 } as common_time
-use common/types.{Lovelace, ScriptKeyHash} as common_types
+use common/types.{Lovelace} as common_types
+use common/util.{find_while}
 
 pub fn get_escrow_ref_inputs(
   ref_inputs: List<Input>,
   cfg: EscrowConfig,
-) -> Option<Input> {
-  let escrow_pids: List<PolicyId> = dict.keys(cfg)
-  let escrow_skhs: List<ScriptKeyHash> = dict.values(cfg)
-  list.find(
+) -> (Option<Input>, Option<BondType>) {
+  find_while(
     ref_inputs,
-    fn(i) {
+    (None, None),
+    fn(i, z) {
       when i.output.address.payment_credential is {
-        VerificationKeyCredential(_) -> False
+        VerificationKeyCredential(_) -> (False, z)
         ScriptCredential(k) ->
-          if list.has(escrow_skhs, k) {
-            let pid_diff: List<PolicyId> =
-              list.difference(escrow_pids, value.policies(i.output.value))
-            if list.length(escrow_pids) - list.length(pid_diff) == 1 {
-              when list.at(list.difference(escrow_pids, pid_diff), 0) is {
-                Some(escrow_pid) ->
-                  when
-                    list.at(
-                      dict.values(value.tokens(i.output.value, escrow_pid)),
-                      0,
-                    )
-                  is {
-                    Some(v) -> v > 0
-                    None -> False
-                  }
-                _ -> False
+          when dict.get(cfg, k) is {
+            Some((escrow_pid, bond_type)) ->
+              when dict.values(value.tokens(i.output.value, escrow_pid)) is {
+                [q] if q > 0 -> (True, (Some(i), Some(bond_type)))
+                _ -> (False, z)
               }
-            } else {
-              False
-            }
-          } else {
-            False
+            _ -> (False, z)
           }
       }
     },
@@ -177,21 +163,65 @@ pub fn datum_epoch_valid(
   epo_to: EpochTime,
   out_qty: Int,
 ) -> Bool {
-  (epo_to >= epo_from)? && (out_qty > 0)?
+  and {
+    (epo_to >= epo_from)?,
+    (out_qty > 0)?,
+  }
 }
 
 pub fn datum_ask_limit_compare(all: AskLimit, alr: AskLimit) {
-  (all.owner_vk == alr.owner_vk)? && (all.owner_sk == alr.owner_sk)? && (all.requested_yield == alr.requested_yield)?
+  and {
+    (all.owner_vk == alr.owner_vk)?,
+    (all.owner_sk == alr.owner_sk)?,
+    (all.requested_yield == alr.requested_yield)?,
+  }
 }
 
 pub fn datum_bid_limit_compare(bll: BidLimit, blr: BidLimit) {
-  (bll.owner_vk == blr.owner_vk)? && (bll.owner_sk == blr.owner_sk)? && (bll.from_epoch == blr.from_epoch)? && (bll.to_epoch == blr.to_epoch)? && (bll.requested_yield == blr.requested_yield)?
+  and {
+    (bll.owner_vk == blr.owner_vk)?,
+    (bll.owner_sk == blr.owner_sk)?,
+    (bll.from_epoch == blr.from_epoch)?,
+    (bll.to_epoch == blr.to_epoch)?,
+    (bll.requested_yield == blr.requested_yield)?,
+  }
+}
+
+pub fn datum_bid_limit_multi_compare(bll: BidLimitMulti, blr: BidLimitMulti) {
+  and {
+    (bll.owner_vk == blr.owner_vk)?,
+    (bll.owner_sk == blr.owner_sk)?,
+    (bll.from_epoch == blr.from_epoch)?,
+    (bll.to_epoch == blr.to_epoch)?,
+    (bll.requested_yield == blr.requested_yield)?,
+    (list.difference(bll.bond_types, blr.bond_types) == [])?,
+  }
+}
+
+test compare_list_1() {
+  // [DanogoBond, OptimBond] == [_ 121([]), 122([])]
+  // [OptimBond, DanogoBond] == [_ 122([]), 121([])]
+  [DanogoBond, OptimBond] != [OptimBond, DanogoBond]
 }
 
 pub fn datum_ask_making_compare(aml: AskMaking, amr: AskMaking) {
-  (aml.owner_vk == amr.owner_vk)? && (aml.owner_sk == amr.owner_sk)? && (aml.requested_yield == amr.requested_yield)? && (aml.bid_sc == amr.bid_sc)? && (aml.margin == amr.margin)?
+  and {
+    (aml.owner_vk == amr.owner_vk)?,
+    (aml.owner_sk == amr.owner_sk)?,
+    (aml.requested_yield == amr.requested_yield)?,
+    (aml.bid_sc == amr.bid_sc)?,
+    (aml.margin == amr.margin)?,
+  }
 }
 
 pub fn datum_bid_making_compare(bml: BidMaking, bmr: BidMaking) {
-  (bml.owner_vk == bmr.owner_vk)? && (bml.owner_sk == bmr.owner_sk)? && (bml.from_epoch == bmr.from_epoch)? && (bml.to_epoch == bmr.to_epoch)? && (bml.requested_yield == bmr.requested_yield)? && (bml.ask_sc == bmr.ask_sc)? && (bml.margin == bmr.margin)?
+  and {
+    (bml.owner_vk == bmr.owner_vk)?,
+    (bml.owner_sk == bmr.owner_sk)?,
+    (bml.from_epoch == bmr.from_epoch)?,
+    (bml.to_epoch == bmr.to_epoch)?,
+    (bml.requested_yield == bmr.requested_yield)?,
+    (bml.ask_sc == bmr.ask_sc)?,
+    (bml.margin == bmr.margin)?,
+  }
 }

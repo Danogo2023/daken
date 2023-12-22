@@ -52,9 +52,9 @@ pub type ConfigMaking {
 }
 
 // Dict<escrow_pid, escrow_skh>
-// { escrow_skh: ScriptKeyHash, escrow_pid: PolicyId }
+// { escrow_pid: PolicyId, escrow_skh: ScriptKeyHash }
 pub type EscrowConfig =
-  Dict<PolicyId, ScriptKeyHash>
+  Dict<ScriptKeyHash, (PolicyId, BondType)>
 
 pub type PlatformConfig {
   slot: SlotConfig,
@@ -169,8 +169,8 @@ pub type AskLimit {
 }
 
 pub type BondType {
-  Danogo
-  Optim
+  DanogoBond
+  OptimBond
 }
 
 pub type BidLimitMulti {

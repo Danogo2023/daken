@@ -18,7 +18,7 @@ use bond/types.{
   BondConfigMaking, BondType, DanogoBond, EscrowConfig, EscrowDatum,
   ExchangeConfigLimit, ExchangeConfigMaking, PaymentDatum, PlatformConfig,
 }
-use bond/v2/constraint.{get_day_to_maturity}
+use bond/utils.{get_day_to_maturity}
 use common/time.{
   Basis, DayNum, EpochTime, SlotConfig, get_basis_points_config,
   get_epoch_config_mainnet, get_epoch_config_preview,
@@ -279,7 +279,7 @@ pub type EscrowFullInfo {
   interest_level_lovelace: Lovelace,
   interest_level_epoch: EpochTime,
   interest_at_maturity_one_bond: Lovelace,
-  received_at_maturity_one_bond: Lovelace,
+  value_at_maturity: Lovelace,
   day_to_maturity: DayNum,
 }
 
@@ -334,7 +334,7 @@ pub fn calc_escrow_full_info(
     interest_level_epoch,
     interest_at_maturity_one_bond: interest_at_maturity,
     // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
-    received_at_maturity_one_bond: interest_at_maturity + cfg.bond_face_value,
+    value_at_maturity: interest_at_maturity + cfg.bond_face_value,
     day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch),
   }
 }

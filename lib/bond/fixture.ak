@@ -1,4 +1,3 @@
-use aiken/bytearray
 use aiken/dict.{Dict}
 use aiken/hash.{Blake2b_256, Hash}
 use aiken/interval.{

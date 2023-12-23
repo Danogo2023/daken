@@ -229,7 +229,12 @@ fn find_escrow_ref_finalize(
       Error(s) -> (True, Error(s))
     }
   } else {
-    (True, Error(bconcat_1(@"bond ", bond_unit, @" datum invalid")))
+    (
+      True,
+      Error(
+        bconcat_3(@"bond ", bytearray.to_string(bond_unit), @" datum invalid"),
+      ),
+    )
   }
 }
 
@@ -281,7 +286,7 @@ pub fn get_escrow_info(
       epo_curr > escrow_epo_end,
       closable_in <= 0,
     } {
-      Error(bconcat_1(@"Bond ", bond_unit, @" closable"))
+      Error(bconcat_3(@"Bond ", bytearray.to_string(bond_unit), @" closable"))
     } else {
       // Tien phi Optim thu cua Borrower 3%
       let lender_rate: Basis = platform_cfg.basis.base - escrow_dt.otm_fee
@@ -310,7 +315,9 @@ pub fn get_escrow_info(
       )
     }
   } else {
-    Error(bconcat_1(@"Bond ", bond_unit, @" missing interest"))
+    Error(
+      bconcat_3(@"Bond ", bytearray.to_string(bond_unit), @" missing interest"),
+    )
   }
 }
 

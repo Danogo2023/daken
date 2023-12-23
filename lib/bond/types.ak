@@ -1,5 +1,5 @@
 use aiken/dict.{Dict}
-use aiken/transaction.{Output, OutputReference}
+use aiken/transaction.{Input, Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use common/time.{BasisPoints, EpochConfig, SlotConfig}
@@ -51,10 +51,21 @@ pub type ConfigMaking {
   slot: SlotConfig,
 }
 
+pub type BondType {
+  DanogoBond
+  OptimBond
+}
+
 // Dict<escrow_pid, escrow_skh>
 // { escrow_pid: PolicyId, escrow_skh: ScriptKeyHash }
 pub type EscrowConfig =
   Dict<ScriptKeyHash, (PolicyId, BondType)>
+
+pub type EscrowRef =
+  Dict<ByteArray, (Input, EscrowDatum, BondType)>
+
+pub type EscrowKey =
+  ByteArray
 
 pub type PlatformConfig {
   slot: SlotConfig,
@@ -161,11 +172,6 @@ pub type AskLimit {
   owner_vk: PublicKeyHash,
   owner_sk: Option<PublicKeyHash>,
   requested_yield: Int,
-}
-
-pub type BondType {
-  DanogoBond
-  OptimBond
 }
 
 pub type BidLimitMulti {

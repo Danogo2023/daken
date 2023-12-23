@@ -160,27 +160,19 @@ pub fn get_config_making_mainnet() -> ConfigMaking {
 }
 
 pub fn get_bond_policy_id() -> PolicyId {
-  bytearray.from_string(
-    @"53fb41609e208f1cd3cae467c0b9abfc69f1a552bf9a90d51665a4d6",
-  )
+  #"53fb41609e208f1cd3cae467c0b9abfc69f1a552bf9a90d51665a4d6"
 }
 
 pub fn get_not_bond_policy_id() -> PolicyId {
-  bytearray.from_string(
-    @"4b9ae3978af62cf98dcc3b9aecc3dbbd2f59fa06b55e1f443e3c7c81",
-  )
+  #"4b9ae3978af62cf98dcc3b9aecc3dbbd2f59fa06b55e1f443e3c7c81"
 }
 
 pub fn get_escrow_policy_id() -> PolicyId {
-  bytearray.from_string(
-    @"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f",
-  )
+  #"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f"
 }
 
 pub fn get_not_escrow_policy_id() -> PolicyId {
-  bytearray.from_string(
-    @"87aa0c11bb8f94d523a74fe7badded9c4908d1a65c8a6443e9f98db4",
-  )
+  #"87aa0c11bb8f94d523a74fe7badded9c4908d1a65c8a6443e9f98db4"
 }
 
 pub fn get_fraud_address() -> Address {
@@ -236,21 +228,15 @@ pub fn get_exchange_address_hash() -> ByteArray {
 }
 
 pub fn get_bond_id_1() -> AssetName {
-  bytearray.from_string(
-    @"97b2efcc14587d6bd648252b17108ba3cb628273fa45080572d920df1f53e934",
-  )
+  #"97b2efcc14587d6bd648252b17108ba3cb628273fa45080572d920df1f53e934"
 }
 
 pub fn get_bond_id_2() -> AssetName {
-  bytearray.from_string(
-    @"b66d1cef461fb3a0616737ebe8056985a659129292215ef7484f0d37fcafb93e",
-  )
+  #"b66d1cef461fb3a0616737ebe8056985a659129292215ef7484f0d37fcafb93e"
 }
 
 pub fn get_og_lender_1() -> ByteArray {
-  bytearray.from_string(
-    @"e7e620338c24165d8496444f91b949f45372d9f60dc8a79bbbdd063c",
-  )
+  #"e7e620338c24165d8496444f91b949f45372d9f60dc8a79bbbdd063c"
 }
 
 pub type EscrowFullInfo {

@@ -335,6 +335,17 @@ pub fn get_day_to_maturity(
   }
 }
 
+pub fn get_price_of_bond(
+  received_at_maturity: Lovelace,
+  day_to_maturity: DayNum,
+  yield: Basis,
+  base: Basis,
+) -> Lovelace {
+  received_at_maturity * base * base / (
+    base * base + yield * base * day_to_maturity / 365
+  )
+}
+
 pub fn bond_assets(
   left: Dict<AssetName, Int>,
   right: Dict<AssetName, Int>,

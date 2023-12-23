@@ -9,7 +9,7 @@ use aiken/transaction/value.{AssetName}
 use bond/types.{
   BondType, EscrowConfig, EscrowDatum, EscrowInfo, EscrowRef, PlatformConfig,
 } as bond_types
-use common/string.{bconcat_1, bconcat_3, to_unit} as common_string
+use common/string.{bconcat_1, bconcat_3, to_unit_3} as common_string
 use common/time.{
   Basis, DayNum, EpochConfig, EpochTime, Milliseconds, get_milliseconds_of_day,
   relative_epoch_to_posix_time_start,
@@ -117,7 +117,7 @@ fn find_escrow_ref_with(
                             with(
                               escrow_ref,
                               bytearray.from_string(
-                                to_unit(
+                                to_unit_3(
                                   escrow_dt.bond_symbol,
                                   @".",
                                   escrow_dt.token_name,
@@ -152,7 +152,7 @@ fn find_escrow_ref_with(
                         Error(
                           bconcat_3(
                             @"escrow asset ",
-                            to_unit(escrow_nft_pid, @".", n),
+                            to_unit_3(escrow_nft_pid, @".", n),
                             bconcat_3(
                               @" qty invalid (expected: 1, actual: ",
                               string.from_int(q),
@@ -286,7 +286,7 @@ pub fn get_escrow_info(
       epo_curr > escrow_epo_end,
       closable_in <= 0,
     } {
-      Error(bconcat_3(@"Bond ", bytearray.to_string(bond_unit), @" closable"))
+      Error(bconcat_3(@"bond ", bytearray.to_string(bond_unit), @" closable"))
     } else {
       // Tien phi Optim thu cua Borrower 3%
       let lender_rate: Basis = platform_cfg.basis.base - escrow_dt.otm_fee
@@ -316,7 +316,7 @@ pub fn get_escrow_info(
     }
   } else {
     Error(
-      bconcat_3(@"Bond ", bytearray.to_string(bond_unit), @" missing interest"),
+      bconcat_3(@"bond ", bytearray.to_string(bond_unit), @" missing interest"),
     )
   }
 }

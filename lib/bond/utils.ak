@@ -1,90 +1,105 @@
 use aiken/bytearray
 use aiken/dict.{Dict}
+use aiken/hash
+use aiken/list
 use aiken/time.{PosixTime} as aiken_time
-use aiken/transaction.{DatumHash, InlineDatum, Input, NoDatum, Transaction}
+use aiken/transaction.{DatumHash, InlineDatum, Input, NoDatum}
 use aiken/transaction/credential.{ScriptCredential}
 use aiken/transaction/value.{AssetName}
-use bond/types.{BondType, EscrowConfig, EscrowDatum, EscrowInfo, PlatformConfig}
+use bond/types.{
+  BondType, EscrowConfig, EscrowDatum, EscrowInfo, EscrowKey, EscrowRef,
+  PlatformConfig,
+}
 use common/time.{
   Basis, DayNum, EpochConfig, EpochTime, get_milliseconds_of_day,
   relative_epoch_to_posix_time_start,
 } as common_time
-use common/types.{Error, Lovelace, OK, Result} as common_types
+use common/types.{Datums, Error, Lovelace, OK, Result} as common_types
 use common/util.{find_while}
 
 pub fn head_escrow_ref(
-  ref_inputs: List<Input>,
   cfg: EscrowConfig,
-) -> (Option<Input>, Option<BondType>) {
-  find_while(
-    ref_inputs,
-    (None, None),
-    fn(i, z) {
-      when i.output.address.payment_credential is {
-        ScriptCredential(k) ->
-          when dict.get(cfg, k) is {
-            Some((escrow_pid, bond_type)) ->
-              when dict.values(value.tokens(i.output.value, escrow_pid)) is {
-                [q] if q > 0 -> (True, (Some(i), Some(bond_type)))
-                _ -> (False, z)
-              }
-            _ -> (False, z)
-          }
-        _ -> (False, z)
-      }
+  tx_ref_inputs: List<Input>,
+  tx_datums: Datums,
+  bond_types: List<BondType>,
+) -> Result<EscrowRef, String> {
+  find_escrow_ref_with(
+    cfg,
+    tx_ref_inputs,
+    tx_datums,
+    bond_types,
+    fn(r, k, dt, i, b) {
+      (True, OK(dict.insert(r, k, (i, dt, b), bytearray.compare)))
     },
   )
 }
 
 pub fn list_escrow_ref(
   cfg: EscrowConfig,
-  tx: Transaction,
-) -> Result<Dict<ByteArray, (Input, EscrowDatum, BondType)>, String> {
+  tx_ref_inputs: List<Input>,
+  tx_datums: Datums,
+  bond_types: List<BondType>,
+) -> Result<EscrowRef, String> {
+  find_escrow_ref_with(
+    cfg,
+    tx_ref_inputs,
+    tx_datums,
+    bond_types,
+    fn(r, k, dt, i, b) {
+      if !dict.has_key(r, k) {
+        (False, OK(dict.insert(r, k, (i, dt, b), bytearray.compare)))
+      } else {
+        (True, Error(@"Escrow reference input is duplicate"))
+      }
+    },
+  )
+}
+
+fn find_escrow_ref_with(
+  cfg: EscrowConfig,
+  tx_ref_inputs: List<Input>,
+  tx_datums: Datums,
+  bond_types: List<BondType>,
+  with: fn(EscrowRef, EscrowKey, EscrowDatum, Input, BondType) ->
+    (Bool, Result<EscrowRef, String>),
+) -> Result<EscrowRef, String> {
   find_while(
-    tx.reference_inputs,
+    tx_ref_inputs,
     OK(dict.new()),
     fn(i, z) {
       when i.output.address.payment_credential is {
         ScriptCredential(k) ->
           when dict.get(cfg, k) is {
             Some((escrow_pid, bond_type)) ->
-              when dict.values(value.tokens(i.output.value, escrow_pid)) is {
-                [q] if q > 0 -> {
-                  expect OK(r) = z
-                  let data =
-                    when i.output.datum is {
-                      NoDatum -> None
-                      DatumHash(h) -> dict.get(tx.datums, h)
-                      InlineDatum(d) -> Some(d)
-                    }
-                  when data is {
-                    Some(dt) -> {
-                      expect escrow_dt: EscrowDatum = dt
-                      let escrow_key =
-                        bytearray.concat(
-                          escrow_dt.bond_symbol,
-                          escrow_dt.bond_symbol,
-                        )
-                      if !dict.has_key(r, escrow_key) {
-                        (
-                          False,
-                          OK(
-                            dict.insert(
-                              r,
-                              escrow_key,
-                              (i, escrow_dt, bond_type),
-                              bytearray.compare,
-                            ),
-                          ),
-                        )
-                      } else {
-                        (True, Error(@"Escrow reference input is duplicate"))
+              if list.has(bond_types, bond_type) {
+                when dict.values(value.tokens(i.output.value, escrow_pid)) is {
+                  [q] if q > 0 -> {
+                    expect OK(r) = z
+                    let data =
+                      when i.output.datum is {
+                        NoDatum -> None
+                        DatumHash(h) -> dict.get(tx_datums, h)
+                        InlineDatum(d) -> Some(d)
                       }
+                    when data is {
+                      Some(dt) -> {
+                        expect escrow_dt: EscrowDatum = dt
+                        let escrow_key =
+                          hash.blake2b_256(
+                            bytearray.concat(
+                              escrow_dt.bond_symbol,
+                              escrow_dt.token_name,
+                            ),
+                          )
+                        with(r, escrow_key, escrow_dt, i, bond_type)
+                      }
+                      _ -> (True, Error(@"Escrow datum can't be None"))
                     }
-                    _ -> (True, Error(@"Escrow datum can't be None"))
                   }
+                  _ -> (False, z)
                 }
-                _ -> (False, z)
+              } else {
+                (False, z)
               }
             _ -> (False, z)
           }
@@ -156,17 +171,6 @@ pub fn get_escrow_info(
       },
     )
   }
-}
-
-pub fn get_price_of_bond(
-  value_at_maturity: Lovelace,
-  day_to_maturity: DayNum,
-  yield: Basis,
-  base: Basis,
-) -> Lovelace {
-  value_at_maturity * base * base / (
-    base * base + yield * base * day_to_maturity / 365
-  )
 }
 
 pub fn get_day_to_maturity(

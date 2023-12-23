@@ -27,33 +27,47 @@ pub fn head_escrow_ref(
   bond_types: List<BondType>,
   tx_time: PosixTime,
   epo_curr: EpochTime,
-  epo_start: EpochTime,
-  epo_end: EpochTime,
 ) -> Result<EscrowRef, String> {
   find_escrow_ref_with(
+    platform_cfg,
     escrow_cfg,
     tx_ref_inputs,
     tx_datums,
     bond_types,
-    fn(r, k, dt, i, b) {
-      let escrow_bal: Lovelace = value.lovelace_of(i.output.value)
+    fn(
+      escrow_ref,
+      escrow_key,
+      escrow_dt,
+      escrow_input,
+      bond_type,
+      escrow_bal,
+      epo_start,
+      epo_end,
+    ) {
       when
         get_escrow_info(
           platform_cfg,
           escrow_bal,
-          dt,
+          escrow_dt,
           tx_time,
           epo_curr,
           epo_start,
           epo_end,
         )
       is {
-        OK(e) ->
+        OK(escrow_info) ->
           (
             True,
-            OK(dict.insert(r, k, (i, dt, b, escrow_bal, e), bytearray.compare)),
+            OK(
+              dict.insert(
+                escrow_ref,
+                escrow_key,
+                (escrow_input, escrow_dt, bond_type, escrow_bal, escrow_info),
+                bytearray.compare,
+              ),
+            ),
           )
-        Error(s) -> (True, Error(s))
+        Error(e) -> (True, Error(e))
       }
     },
   )
@@ -67,33 +81,45 @@ pub fn list_escrow_ref(
   bond_types: List<BondType>,
   tx_time: PosixTime,
   epo_curr: EpochTime,
-  epo_start: EpochTime,
-  epo_end: EpochTime,
 ) -> Result<EscrowRef, String> {
   find_escrow_ref_with(
+    platform_cfg,
     escrow_cfg,
     tx_ref_inputs,
     tx_datums,
     bond_types,
-    fn(r, k, dt, i, b) {
-      if !dict.has_key(r, k) {
-        let escrow_bal: Lovelace = value.lovelace_of(i.output.value)
+    fn(
+      escrow_ref,
+      escrow_key,
+      escrow_dt,
+      escrow_input,
+      bond_type,
+      escrow_bal,
+      epo_start,
+      epo_end,
+    ) {
+      if !dict.has_key(escrow_ref, escrow_key) {
         when
           get_escrow_info(
             platform_cfg,
             escrow_bal,
-            dt,
+            escrow_dt,
             tx_time,
             epo_curr,
             epo_start,
             epo_end,
           )
         is {
-          OK(e) ->
+          OK(escrow_info) ->
             (
               False,
               OK(
-                dict.insert(r, k, (i, dt, b, escrow_bal, e), bytearray.compare),
+                dict.insert(
+                  escrow_ref,
+                  escrow_key,
+                  (escrow_input, escrow_dt, bond_type, escrow_bal, escrow_info),
+                  bytearray.compare,
+                ),
               ),
             )
           Error(s) -> (True, Error(s))
@@ -106,11 +132,21 @@ pub fn list_escrow_ref(
 }
 
 fn find_escrow_ref_with(
+  platform_cfg: PlatformConfig,
   escrow_cfg: EscrowConfig,
   tx_ref_inputs: List<Input>,
   tx_datums: Datums,
   bond_types: List<BondType>,
-  with: fn(EscrowRef, EscrowKey, EscrowDatum, Input, BondType) ->
+  with: fn(
+    EscrowRef,
+    EscrowKey,
+    EscrowDatum,
+    Input,
+    BondType,
+    Lovelace,
+    EpochTime,
+    EpochTime,
+  ) ->
     (Bool, Result<EscrowRef, String>),
 ) -> Result<EscrowRef, String> {
   find_while(
@@ -127,7 +163,7 @@ fn find_escrow_ref_with(
                 is {
                   [(n, q)] ->
                     if q == 1 {
-                      expect OK(r) = z
+                      expect OK(escrow_ref) = z
                       let data =
                         when i.output.datum is {
                           NoDatum -> None
@@ -145,8 +181,10 @@ fn find_escrow_ref_with(
                             //       escrow_dt.token_name,
                             //     ),
                             //   )
+                            let epo_start: EpochTime =
+                              escrow_dt.start + platform_cfg.epoch.epoch_boundary_as_epoch
                             with(
-                              r,
+                              escrow_ref,
                               bytearray.from_string(
                                 to_unit(
                                   escrow_dt.bond_symbol,
@@ -157,6 +195,9 @@ fn find_escrow_ref_with(
                               escrow_dt,
                               i,
                               bond_type,
+                              value.lovelace_of(i.output.value),
+                              epo_start,
+                              epo_start + escrow_dt.duration,
                             )
                           } else {
                             (

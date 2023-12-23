@@ -220,7 +220,7 @@ fn find_escrow_ref_finalize(
               escrow_ref,
               bond_unit,
               (escrow_input, escrow_dt, bond_type, escrow_bal, escrow_info),
-              bytearray.compare,
+              common_string.compare,
             ),
           ),
         )

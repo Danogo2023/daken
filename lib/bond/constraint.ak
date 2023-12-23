@@ -65,12 +65,18 @@ pub fn get_escrow_info(
   let interest_max: Lovelace = escrow_dt.duration * epoch_rewards
   // So epoch con lai cho den khi bond se duoc phep dong
   let closable_in: EpochTime =
-    if due_paid_epo >= escrow_dt.duration || escrow_bal >= interest_max {
+    if or {
+      due_paid_epo >= escrow_dt.duration,
+      escrow_bal >= interest_max,
+    } {
       epo_end - epo_curr
     } else {
       interest_level - escrow_dt.buffer + 1
     }
-  if epo_curr > epo_end || closable_in <= 0 {
+  if or {
+    epo_curr > epo_end,
+    closable_in <= 0,
+  } {
     Error(@"Bond closable")
   } else {
     // Tien phi Optim thu cua Borrower 3%

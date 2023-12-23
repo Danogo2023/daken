@@ -1,7 +1,8 @@
 use aiken/bytearray
 use aiken/dict.{Dict}
-use aiken/hash
+// use aiken/hash
 use aiken/list
+use aiken/string
 use aiken/time.{PosixTime} as aiken_time
 use aiken/transaction.{DatumHash, InlineDatum, Input, NoDatum}
 use aiken/transaction/credential.{ScriptCredential}
@@ -10,44 +11,93 @@ use bond/types.{
   BondType, EscrowConfig, EscrowDatum, EscrowInfo, EscrowKey, EscrowRef,
   PlatformConfig,
 }
+use common/string.{bconcat_1, bconcat_3, to_unit} as common_string
 use common/time.{
-  Basis, DayNum, EpochConfig, EpochTime, get_milliseconds_of_day,
+  Basis, DayNum, EpochConfig, EpochTime, Milliseconds, get_milliseconds_of_day,
   relative_epoch_to_posix_time_start,
 } as common_time
 use common/types.{Datums, Error, Lovelace, OK, Result} as common_types
 use common/util.{find_while}
 
 pub fn head_escrow_ref(
-  cfg: EscrowConfig,
+  platform_cfg: PlatformConfig,
+  escrow_cfg: EscrowConfig,
   tx_ref_inputs: List<Input>,
   tx_datums: Datums,
   bond_types: List<BondType>,
+  tx_time: PosixTime,
+  epo_curr: EpochTime,
+  epo_start: EpochTime,
+  epo_end: EpochTime,
 ) -> Result<EscrowRef, String> {
   find_escrow_ref_with(
-    cfg,
+    escrow_cfg,
     tx_ref_inputs,
     tx_datums,
     bond_types,
     fn(r, k, dt, i, b) {
-      (True, OK(dict.insert(r, k, (i, dt, b), bytearray.compare)))
+      let escrow_bal: Lovelace = value.lovelace_of(i.output.value)
+      when
+        get_escrow_info(
+          platform_cfg,
+          escrow_bal,
+          dt,
+          tx_time,
+          epo_curr,
+          epo_start,
+          epo_end,
+        )
+      is {
+        OK(e) ->
+          (
+            True,
+            OK(dict.insert(r, k, (i, dt, b, escrow_bal, e), bytearray.compare)),
+          )
+        Error(s) -> (True, Error(s))
+      }
     },
   )
 }
 
 pub fn list_escrow_ref(
-  cfg: EscrowConfig,
+  platform_cfg: PlatformConfig,
+  escrow_cfg: EscrowConfig,
   tx_ref_inputs: List<Input>,
   tx_datums: Datums,
   bond_types: List<BondType>,
+  tx_time: PosixTime,
+  epo_curr: EpochTime,
+  epo_start: EpochTime,
+  epo_end: EpochTime,
 ) -> Result<EscrowRef, String> {
   find_escrow_ref_with(
-    cfg,
+    escrow_cfg,
     tx_ref_inputs,
     tx_datums,
     bond_types,
     fn(r, k, dt, i, b) {
       if !dict.has_key(r, k) {
-        (False, OK(dict.insert(r, k, (i, dt, b), bytearray.compare)))
+        let escrow_bal: Lovelace = value.lovelace_of(i.output.value)
+        when
+          get_escrow_info(
+            platform_cfg,
+            escrow_bal,
+            dt,
+            tx_time,
+            epo_curr,
+            epo_start,
+            epo_end,
+          )
+        is {
+          OK(e) ->
+            (
+              False,
+              OK(
+                dict.insert(r, k, (i, dt, b, escrow_bal, e), bytearray.compare),
+              ),
+            )
+          Error(s) -> (True, Error(s))
+        }
       } else {
         (True, Error(@"Escrow reference input is duplicate"))
       }
@@ -56,7 +106,7 @@ pub fn list_escrow_ref(
 }
 
 fn find_escrow_ref_with(
-  cfg: EscrowConfig,
+  escrow_cfg: EscrowConfig,
   tx_ref_inputs: List<Input>,
   tx_datums: Datums,
   bond_types: List<BondType>,
@@ -69,34 +119,91 @@ fn find_escrow_ref_with(
     fn(i, z) {
       when i.output.address.payment_credential is {
         ScriptCredential(k) ->
-          when dict.get(cfg, k) is {
+          when dict.get(escrow_cfg, k) is {
             Some((escrow_pid, bond_type)) ->
               if list.has(bond_types, bond_type) {
-                when dict.values(value.tokens(i.output.value, escrow_pid)) is {
-                  [q] if q > 0 -> {
-                    expect OK(r) = z
-                    let data =
-                      when i.output.datum is {
-                        NoDatum -> None
-                        DatumHash(h) -> dict.get(tx_datums, h)
-                        InlineDatum(d) -> Some(d)
+                when
+                  value.tokens(i.output.value, escrow_pid) |> dict.to_list
+                is {
+                  [(n, q)] ->
+                    if q == 1 {
+                      expect OK(r) = z
+                      let data =
+                        when i.output.datum is {
+                          NoDatum -> None
+                          DatumHash(h) -> dict.get(tx_datums, h)
+                          InlineDatum(d) -> Some(d)
+                        }
+                      when data is {
+                        Some(dt) -> {
+                          expect escrow_dt: EscrowDatum = dt
+                          if n == escrow_dt.token_name {
+                            // let escrow_key =
+                            //   hash.blake2b_256(
+                            //     bytearray.concat(
+                            //       escrow_dt.bond_symbol,
+                            //       escrow_dt.token_name,
+                            //     ),
+                            //   )
+                            with(
+                              r,
+                              bytearray.from_string(
+                                to_unit(
+                                  escrow_dt.bond_symbol,
+                                  @".",
+                                  escrow_dt.token_name,
+                                ),
+                              ),
+                              escrow_dt,
+                              i,
+                              bond_type,
+                            )
+                          } else {
+                            (
+                              True,
+                              Error(
+                                bconcat_1(
+                                  bconcat_1(
+                                    @"escrow policy id ",
+                                    escrow_pid,
+                                    @" asset name invalid (expected: ",
+                                  ),
+                                  escrow_dt.token_name,
+                                  bconcat_1(@", actual: ", n, @")"),
+                                ),
+                              ),
+                            )
+                          }
+                        }
+                        _ -> (True, Error(@"Escrow datum can't be None"))
                       }
-                    when data is {
-                      Some(dt) -> {
-                        expect escrow_dt: EscrowDatum = dt
-                        let escrow_key =
-                          hash.blake2b_256(
-                            bytearray.concat(
-                              escrow_dt.bond_symbol,
-                              escrow_dt.token_name,
+                    } else {
+                      (
+                        True,
+                        Error(
+                          bconcat_3(
+                            @"escrow asset ",
+                            to_unit(escrow_pid, @".", n),
+                            bconcat_3(
+                              @" qty invalid (expected: 1, actual: ",
+                              string.from_int(q),
+                              @")",
                             ),
-                          )
-                        with(r, escrow_key, escrow_dt, i, bond_type)
-                      }
-                      _ -> (True, Error(@"Escrow datum can't be None"))
+                          ),
+                        ),
+                      )
                     }
-                  }
-                  _ -> (False, z)
+                  _ ->
+                    (
+                      True,
+                      Error(
+                        bconcat_1(
+                          @"escrow policy id ",
+                          escrow_pid,
+                          @" asset invalid",
+                        ),
+                      ),
+                    )
                 }
               } else {
                 (False, z)
@@ -110,7 +217,7 @@ fn find_escrow_ref_with(
 }
 
 pub fn get_escrow_info(
-  cfg: PlatformConfig,
+  platform_cfg: PlatformConfig,
   escrow_bal: Lovelace,
   escrow_dt: EscrowDatum,
   tx_time: PosixTime,
@@ -121,7 +228,7 @@ pub fn get_escrow_info(
   // Tong tien lai moi epoch Borrower phai tra
   let epoch_rewards: Lovelace = value.lovelace_of(escrow_dt.epo_rewards)
   // Tien goc cua toan bo bond phat hanh
-  let principal: Lovelace = escrow_dt.bond_amount * cfg.bond_face_value
+  let principal: Lovelace = escrow_dt.bond_amount * platform_cfg.bond_face_value
   // Tong tien lai tich luy hien tai cho toan bo bond phat hanh
   let premium_paid: Lovelace = escrow_bal - principal
   // Tong tien lai tich luy hien tai tinh theo epoch cho toan bo bond phat hanh
@@ -147,16 +254,22 @@ pub fn get_escrow_info(
       interest_level - escrow_dt.buffer + 1
     }
   if epo_curr > epo_end || closable_in <= 0 {
-    Error(@"Bond closable")
+    Error(
+      bconcat_3(
+        @"Bond ",
+        to_unit(escrow_dt.bond_symbol, @".", escrow_dt.token_name),
+        @" closable",
+      ),
+    )
   } else {
     // Tien phi Optim thu cua Borrower 3%
-    let lender_rate: Basis = cfg.basis.base - escrow_dt.otm_fee
+    let lender_rate: Basis = platform_cfg.basis.base - escrow_dt.otm_fee
     // Tong tien lai lender nhan duoc cua tat ca bond phat hanh khi ket thuc chu ky dao han
     let lender_interest: Lovelace =
       epoch_rewards * escrow_dt.duration * lender_rate
     // Tong tien lai lender nhan duoc khi den ky dao han cua 1 bond da tru phi cua Optim 3%
     let interest_at_maturity: Lovelace =
-      lender_interest / cfg.basis.base / escrow_dt.bond_amount
+      lender_interest / platform_cfg.basis.base / escrow_dt.bond_amount
     OK(
       EscrowInfo {
         bond_symbol: escrow_dt.bond_symbol,
@@ -165,9 +278,13 @@ pub fn get_escrow_info(
         start_epoch: epo_start,
         end_epoch: epo_end,
         // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
-        value_at_maturity: interest_at_maturity + cfg.bond_face_value,
+        value_at_maturity: interest_at_maturity + platform_cfg.bond_face_value,
         // So ngay den ky dao han cua bond
-        day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch),
+        day_to_maturity: get_day_to_maturity(
+          tx_time,
+          epo_end,
+          platform_cfg.epoch,
+        ),
       },
     )
   }
@@ -183,9 +300,9 @@ pub fn get_day_to_maturity(
   if tx_time > maturity_time {
     0
   } else {
-    let time_of_day = get_milliseconds_of_day(cfg)
-    let diff_time = maturity_time - tx_time
-    let maturity_day = diff_time / time_of_day
+    let time_of_day: Milliseconds = get_milliseconds_of_day(cfg)
+    let diff_time: Milliseconds = maturity_time - tx_time
+    let maturity_day: DayNum = diff_time / time_of_day
     if diff_time % time_of_day == 0 {
       maturity_day
     } else {

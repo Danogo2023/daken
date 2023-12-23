@@ -15,7 +15,7 @@ pub type Lovelace =
   Int
 
 pub type AssetUnit =
-  ByteArray
+  String
 
 pub type Result<a, b> {
   OK(a)

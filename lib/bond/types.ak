@@ -3,7 +3,7 @@ use aiken/transaction.{Input, Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use common/time.{BasisPoints, EpochConfig, SlotConfig}
-use common/types.{Lovelace, PublicKeyHash, ScriptKeyHash}
+use common/types.{AssetUnit, Lovelace, PublicKeyHash, ScriptKeyHash}
 
 pub type BondConfig {
   escrow_payment_key: ScriptKeyHash,
@@ -56,19 +56,16 @@ pub type BondType {
   OptimBond
 }
 
-// Dict<escrow_skh, (escrow_pid, escrow_type)>
-// { escrow_skh: ScriptKeyHash, escrow_pid: PolicyId, escrow_type: BondType }
+// Dict<escrow_skh, (escrow_nft_pid, escrow_type)>
+// { escrow_skh: ScriptKeyHash, escrow_nft_pid: PolicyId, escrow_type: BondType }
 pub type EscrowConfig =
   Dict<ScriptKeyHash, (PolicyId, BondType)>
 
 pub type EscrowBalance =
   Lovelace
 
-pub type EscrowKey =
-  ByteArray
-
 pub type EscrowRef =
-  Dict<EscrowKey, (Input, EscrowDatum, BondType, EscrowBalance, EscrowInfo)>
+  Dict<AssetUnit, (Input, EscrowDatum, BondType, EscrowBalance, EscrowInfo)>
 
 pub type PlatformConfig {
   slot: SlotConfig,

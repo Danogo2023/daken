@@ -14,6 +14,9 @@ pub type Datums =
 pub type Lovelace =
   Int
 
+pub type AssetUnit =
+  ByteArray
+
 pub type Result<a, b> {
   OK(a)
   Error(b)

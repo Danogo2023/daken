@@ -213,7 +213,9 @@ pub type BidMaking {
 }
 
 pub type UniqAskLimit {
-  // order_id = hash_out_ref_salt(input_ref, output_index)
+  // uniq_id = hash_out_ref_salt(input_ref, first_output_index)
+  uniq_id: ByteArray,
+  // ref_id = hash_out_ref_salt(input_ref, output_index)
   order_id: ByteArray,
   input_ref: OutputReference,
   owner_vk: PublicKeyHash,
@@ -222,6 +224,9 @@ pub type UniqAskLimit {
 }
 
 pub type UniqBidLimit {
+  // uniq_id = hash_out_ref_salt(input_ref, first_output_index)
+  uniq_id: ByteArray,
+  // ref_id = hash_out_ref_salt(input_ref, output_index)
   order_id: ByteArray,
   input_ref: OutputReference,
   owner_vk: PublicKeyHash,
@@ -233,7 +238,9 @@ pub type UniqBidLimit {
 }
 
 pub type UniqBidLimitMulti {
-  // order_id = hash_out_ref_salt(input_ref, output_index)
+  // uniq_id = hash_out_ref_salt(input_ref, first_output_index)
+  uniq_id: ByteArray,
+  // ref_id = hash_out_ref_salt(input_ref, output_index)
   order_id: ByteArray,
   input_ref: OutputReference,
   owner_vk: PublicKeyHash,
@@ -246,6 +253,9 @@ pub type UniqBidLimitMulti {
 }
 
 pub type UniqAskMaking {
+  // uniq_id = hash_out_ref_salt(input_ref, first_output_index)
+  uniq_id: ByteArray,
+  // ref_id = hash_out_ref_salt(input_ref, output_index)
   order_id: ByteArray,
   input_ref: OutputReference,
   owner_vk: PublicKeyHash,
@@ -256,6 +266,9 @@ pub type UniqAskMaking {
 }
 
 pub type UniqBidMaking {
+  // uniq_id = hash_out_ref_salt(input_ref, first_output_index)
+  uniq_id: ByteArray,
+  // ref_id = hash_out_ref_salt(input_ref, output_index)
   order_id: ByteArray,
   input_ref: OutputReference,
   owner_vk: PublicKeyHash,

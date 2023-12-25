@@ -216,6 +216,7 @@ pub fn tx_validity_valid(
   v: ValidityRange,
   slot_length: Milliseconds,
   ttl: Option<Seconds>,
+  tx_end_must_set: Bool,
 ) -> Result<PosixTime, String> {
   when v.lower_bound.bound_type is {
     Finite(tx_start) -> {
@@ -227,7 +228,12 @@ pub fn tx_validity_valid(
       let tx_end =
         when v.upper_bound.bound_type is {
           Finite(x) -> x
-          _ -> tx_start + expire
+          _ ->
+            if tx_end_must_set {
+              0
+            } else {
+              tx_start + expire
+            }
         }
       if and {
         (tx_start > 0)?,

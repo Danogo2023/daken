@@ -174,6 +174,15 @@ pub type AskLimit {
   requested_yield: Int,
 }
 
+pub type BidLimit {
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<PublicKeyHash>,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+}
+
 pub type BidLimitMulti {
   owner_vk: PublicKeyHash,
   owner_sk: Option<PublicKeyHash>,
@@ -182,15 +191,6 @@ pub type BidLimitMulti {
   quantity: Int,
   requested_yield: Int,
   bond_types: List<BondType>,
-}
-
-pub type BidLimit {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
-  from_epoch: Int,
-  to_epoch: Int,
-  quantity: Int,
-  requested_yield: Int,
 }
 
 pub type AskMaking {
@@ -204,6 +204,62 @@ pub type AskMaking {
 pub type BidMaking {
   owner_vk: PublicKeyHash,
   owner_sk: Option<PublicKeyHash>,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+  ask_sc: ScriptKeyHash,
+  margin: Int,
+}
+
+pub type UniqAskLimit {
+  // order_id = hash_out_ref_salt(input_ref, output_index)
+  order_id: ByteArray,
+  input_ref: OutputReference,
+  owner_vk: PublicKeyHash,
+  receive_addr: Address,
+  requested_yield: Int,
+}
+
+pub type UniqBidLimit {
+  order_id: ByteArray,
+  input_ref: OutputReference,
+  owner_vk: PublicKeyHash,
+  receive_addr: Address,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+}
+
+pub type UniqBidLimitMulti {
+  // order_id = hash_out_ref_salt(input_ref, output_index)
+  order_id: ByteArray,
+  input_ref: OutputReference,
+  owner_vk: PublicKeyHash,
+  receive_addr: Address,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+  bond_types: List<BondType>,
+}
+
+pub type UniqAskMaking {
+  order_id: ByteArray,
+  input_ref: OutputReference,
+  owner_vk: PublicKeyHash,
+  receive_addr: Address,
+  requested_yield: Int,
+  bid_sc: ScriptKeyHash,
+  margin: Int,
+}
+
+pub type UniqBidMaking {
+  order_id: ByteArray,
+  input_ref: OutputReference,
+  owner_vk: PublicKeyHash,
+  receive_addr: Address,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,

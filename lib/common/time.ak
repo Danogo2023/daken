@@ -223,16 +223,15 @@ pub fn tx_validity_valid(
       Finite(x) -> x
       _ -> fail
     }
-  let ttl_default = 3 * 60 * slot_length
+  let expire =
+    when ttl is {
+      Some(x) -> x
+      None -> 3 * 60
+    } * slot_length
   let tx_end =
     when v.upper_bound.bound_type is {
       Finite(x) -> x
-      _ -> tx_start + ttl_default
-    }
-  let expire =
-    when ttl is {
-      Some(x) -> x * slot_length
-      None -> ttl_default
+      _ -> tx_start + expire
     }
   if and {
     (tx_start > 0)?,

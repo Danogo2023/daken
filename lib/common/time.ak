@@ -3,6 +3,7 @@ use aiken/interval.{
 }
 use aiken/time.{PosixTime}
 use aiken/transaction.{ValidityRange}
+use common/types.{Error, OK, Result}
 
 pub type Basis =
   Int
@@ -198,10 +199,8 @@ pub fn get_current_epoch_with_ttl(
   ttl: Seconds,
   slot_length: Milliseconds,
 ) -> EpochTime {
-  posix_time_to_relative_epoch(
-    tx_validity_valid(v, slot_length, Some(ttl)),
-    cfg,
-  )
+  expect OK(tx_time) = tx_validity_valid(v, slot_length, Some(ttl))
+  posix_time_to_relative_epoch(tx_time, cfg)
 }
 
 test posix_time_to_relative_epoch_test1() {
@@ -217,29 +216,29 @@ pub fn tx_validity_valid(
   v: ValidityRange,
   slot_length: Milliseconds,
   ttl: Option<Seconds>,
-) -> PosixTime {
-  let tx_start =
-    when v.lower_bound.bound_type is {
-      Finite(x) -> x
-      _ -> fail
+) -> Result<PosixTime, String> {
+  when v.lower_bound.bound_type is {
+    Finite(tx_start) -> {
+      let expire =
+        when ttl is {
+          Some(x) -> x
+          None -> 3 * 60
+        } * slot_length
+      let tx_end =
+        when v.upper_bound.bound_type is {
+          Finite(x) -> x
+          _ -> tx_start + expire
+        }
+      if and {
+        (tx_start > 0)?,
+        (tx_end >= tx_start)?,
+        (tx_end - tx_start <= expire)?,
+      } {
+        OK(tx_start)
+      } else {
+        Error(@"tx time invalid")
+      }
     }
-  let expire =
-    when ttl is {
-      Some(x) -> x
-      None -> 3 * 60
-    } * slot_length
-  let tx_end =
-    when v.upper_bound.bound_type is {
-      Finite(x) -> x
-      _ -> tx_start + expire
-    }
-  if and {
-    (tx_start > 0)?,
-    (tx_end >= tx_start)?,
-    (tx_end - tx_start <= expire)?,
-  } {
-    tx_start
-  } else {
-    fail
+    _ -> Error(@"tx time not set")
   }
 }

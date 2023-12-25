@@ -199,7 +199,7 @@ pub fn get_current_epoch_with_ttl(
   ttl: Seconds,
   slot_length: Milliseconds,
 ) -> EpochTime {
-  expect OK(tx_time) = tx_validity_valid(v, slot_length, Some(ttl))
+  expect OK(tx_time) = tx_validity_valid(v, slot_length, Some(ttl), True)
   posix_time_to_relative_epoch(tx_time, cfg)
 }
 

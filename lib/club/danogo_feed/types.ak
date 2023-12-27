@@ -45,6 +45,9 @@ pub type ProtocolParams {
   // minimum lovelace that LP can withdraw
   min_withdraw_amount: Int,
   fee_withdraw_amount: Int,
+  // max pool number in an epoch, default 1, if assign 0, no pool will be created
+  max_deposit_pool_per_epoch: Int,
+  max_withdraw_pool_per_epoch: Int,
   // ttl of tx, unit by slot
   tx_ttl: Int,
 }
@@ -112,6 +115,8 @@ pub fn base_protocol_params() -> ProtocolParams {
     min_deposit_amount: 100_000_000,
     min_withdraw_amount: 100_000_000,
     fee_withdraw_amount: 2_000_000,
+    max_deposit_pool_per_epoch: 1,
+    max_withdraw_pool_per_epoch: 1,
     // 5 minutes
     tx_ttl: 5 * 60 * 1000,
   }

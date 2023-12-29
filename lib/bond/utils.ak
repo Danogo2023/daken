@@ -3,11 +3,14 @@ use aiken/dict.{Dict}
 use aiken/list
 use aiken/string
 use aiken/time.{PosixTime} as aiken_time
-use aiken/transaction.{DatumHash, InlineDatum, Input, NoDatum}
+use aiken/transaction.{
+  DatumHash, InlineDatum, Input, NoDatum, Spend, Transaction,
+}
 use aiken/transaction/credential.{ScriptCredential}
-use aiken/transaction/value.{AssetName}
+use aiken/transaction/value.{AssetName, Value}
 use bond/types.{
-  BondType, EscrowConfig, EscrowDatum, EscrowInfo, EscrowRef, PlatformConfig,
+  BondType, Buy, EscrowConfig, EscrowDatum, EscrowInfo, EscrowRef,
+  GarbageCollector, PlatformConfig, Sell, TradeAction, Update, Upgrade,
 } as bond_types
 use common/string.{bconcat_1, bconcat_3, to_unit_3} as common_string
 use common/time.{
@@ -453,4 +456,42 @@ pub fn get_escrow_info_1(
       },
     )
   }
+}
+
+pub fn get_garbage_collector_value(tx: Transaction) -> (Int, Value) {
+  let garbage_out_refs =
+    dict.foldr(
+      tx.redeemers,
+      [],
+      fn(k, v, z) {
+        when k is {
+          Spend(r) -> {
+            expect ac: TradeAction = v
+            when ac is {
+              GarbageCollector ->
+                [r, ..z]
+              Update { .. } -> fail @"Update found"
+              Buy { .. } -> fail @"Buy found"
+              Sell { .. } -> fail @"Sell found"
+              Upgrade { .. } -> fail @"Upgrade found"
+            }
+          }
+          _ -> z
+        }
+      },
+    )
+  list.foldr(
+    tx.inputs,
+    (0, value.zero()),
+    fn(i, z) {
+      if list.has(garbage_out_refs, i.output_reference) {
+        (
+          z.1st + value.lovelace_of(i.output.value),
+          value.merge(z.2nd, value.without_lovelace(i.output.value)),
+        )
+      } else {
+        z
+      }
+    },
+  )
 }

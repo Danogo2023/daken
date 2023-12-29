@@ -20,23 +20,25 @@ pub type BondConfig {
 }
 
 pub type ExchangeConfigLimit {
-  address: Address,
+  fee_addr: Address,
   // value in range 0001 -> 9999 default: 1% per yield == 100
   buyer_fee: Int,
   // value in range 0001 -> 9999 default: 1% per yield == 100
   seller_fee: Int,
   // Khoảng thời gian giao dịch sell hợp lệ, giá trị tính theo slot
   tx_buy_ttl: Option<Int>,
+  garbage_addr: Address,
 }
 
 pub type ExchangeConfigMaking {
-  address: Address,
+  fee_addr: Address,
   // value in range 0001 -> 9999 default: 1% per yield == 100
   maker_fee: Int,
   // value in range 0001 -> 9999 default: 1% per yield == 100
   taker_fee: Int,
   // Time frame for valid transaction, value represent slot
   tx_buy_ttl: Option<Int>,
+  garbage_addr: Address,
 }
 
 pub type ConfigLimit {

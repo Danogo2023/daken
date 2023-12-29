@@ -128,6 +128,60 @@ pub fn find_while(
   }
 }
 
+fn found_break_char(b: ByteArray) -> Bool {
+  // ["'", "h'", "(", ")", ",", ":", "[", "]", "_", "{", "}"]
+  or {
+    when bytearray.index_of(b, " ") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "h'") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "'") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "(") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, ")") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, ",") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, ":") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "[") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "]") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "_") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "{") is {
+      Some(_) -> True
+      _ -> False
+    },
+    when bytearray.index_of(b, "}") is {
+      Some(_) -> True
+      _ -> False
+    },
+  }
+}
+
 pub fn data_valid(
   s: ByteArray,
   h: ByteArray,
@@ -138,25 +192,26 @@ pub fn data_valid(
     Some((si, e)) ->
       if si == 0 {
         let r =
-          list.foldl(
+          find_while(
             b,
             bytearray.drop(s, e + 1),
             fn(p, z) {
               when bytearray.index_of(z, p) is {
-                Some((_, e1)) -> bytearray.drop(z, e1 + 1)
-                _ -> #""
+                Some((si1, e1)) ->
+                  if found_break_char(bytearray.slice(z, 0, si1 - 1)) {
+                    (True, z)
+                  } else {
+                    (False, bytearray.drop(z, e1 + 1))
+                  }
+                _ -> (True, z)
               }
             },
           )
-        if r == #"" {
-          False
-        } else {
-          let l = bytearray.length(r)
-          let i = l - bytearray.length(t)
-          when bytearray.index_of(bytearray.take(r, i), ", ") is {
-            Some(_) -> False
-            _ -> bytearray.slice(r, i, l) == t
-          }
+        let l = bytearray.length(r)
+        let i = l - bytearray.length(t)
+        and {
+          bytearray.slice(r, i, l) == t,
+          !found_break_char(bytearray.take(r, i)),
         }
       } else {
         False

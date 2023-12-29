@@ -304,4 +304,5 @@ pub type TradeAction {
   Buy
   Sell
   Upgrade
+  GarbageCollector,
 }

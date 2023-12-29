@@ -128,6 +128,43 @@ pub fn find_while(
   }
 }
 
+pub fn data_valid(
+  s: ByteArray,
+  h: ByteArray,
+  b: List<ByteArray>,
+  t: ByteArray,
+) -> Bool {
+  when bytearray.index_of(s, h) is {
+    Some((si, e)) ->
+      if si == 0 {
+        let r =
+          list.foldl(
+            b,
+            bytearray.drop(s, e + 1),
+            fn(p, z) {
+              when bytearray.index_of(z, p) is {
+                Some((_, e1)) -> bytearray.drop(z, e1 + 1)
+                _ -> #""
+              }
+            },
+          )
+        if r == #"" {
+          False
+        } else {
+          let l = bytearray.length(r)
+          let i = l - bytearray.length(t)
+          when bytearray.index_of(bytearray.take(r, i), ", ") is {
+            Some(_) -> False
+            _ -> bytearray.slice(r, i, l) == t
+          }
+        }
+      } else {
+        False
+      }
+    _ -> False
+  }
+}
+
 pub fn is_burned_nft(tx: Transaction, policy_id: PolicyId, nft_name: ByteArray) {
   (
     tx.mint

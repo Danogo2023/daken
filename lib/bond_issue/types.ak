@@ -40,7 +40,7 @@ pub type PlatformConfig {
   // value in range 0001 -> 9999 default: 500 (5%) per apr 
   fee: Int,
   // fee receive address
-  address: Address,
+  fee_addr: Address,
   // Khoảng thời gian giao dịch hợp lệ, giá trị tính theo slot
   tx_ttl: Int,
   // default: 6 epoch
@@ -53,4 +53,5 @@ pub type PlatformConfig {
   min_apr: Int,
   // default: 6 epoch
   min_duration: Int,
+  garbage_addr: Address,
 }

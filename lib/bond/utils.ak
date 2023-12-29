@@ -458,40 +458,61 @@ pub fn get_escrow_info_1(
   }
 }
 
-pub fn get_garbage_collector_value(tx: Transaction) -> (Int, Value) {
-  let garbage_out_refs =
-    dict.foldr(
-      tx.redeemers,
-      [],
-      fn(k, v, z) {
+pub fn get_garbage_collector_value(
+  tx: Transaction,
+) -> Result<(Int, Value), String> {
+  when
+    find_while(
+      tx.redeemers |> dict.to_list,
+      OK([]),
+      fn(e, z) {
+        let (k, v) = e
         when k is {
           Spend(r) -> {
             expect ac: TradeAction = v
             when ac is {
               GarbageCollector ->
-                [r, ..z]
-              Update { .. } -> fail @"Update found"
-              Buy { .. } -> fail @"Buy found"
-              Sell { .. } -> fail @"Sell found"
-              Upgrade { .. } -> fail @"Upgrade found"
+                (
+                  False,
+                  OK(
+                    [
+                      r,
+                      ..when z is {
+                        OK(i) -> i
+                        _ ->
+                          []
+                      }
+                    ],
+                  ),
+                )
+              Update { .. } -> (True, Error(@"Update found"))
+              Buy { .. } -> (True, Error(@"Buy found"))
+              Sell { .. } -> (True, Error(@"Sell found"))
+              Upgrade { .. } -> (True, Error(@"Upgrade found"))
             }
           }
-          _ -> z
+          _ -> (False, z)
         }
       },
     )
-  list.foldr(
-    tx.inputs,
-    (0, value.zero()),
-    fn(i, z) {
-      if list.has(garbage_out_refs, i.output_reference) {
-        (
-          z.1st + value.lovelace_of(i.output.value),
-          value.merge(z.2nd, value.without_lovelace(i.output.value)),
-        )
-      } else {
-        z
-      }
-    },
-  )
+  is {
+    OK(garbage_out_refs) ->
+      OK(
+        list.foldr(
+          tx.inputs,
+          (0, value.zero()),
+          fn(i, z) {
+            if list.has(garbage_out_refs, i.output_reference) {
+              (
+                z.1st + value.lovelace_of(i.output.value),
+                value.merge(z.2nd, value.without_lovelace(i.output.value)),
+              )
+            } else {
+              z
+            }
+          },
+        ),
+      )
+    Error(e) -> Error(e)
+  }
 }

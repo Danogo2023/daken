@@ -110,19 +110,21 @@ fn get_bond_config_mainnet() -> BondConfig {
 
 fn get_exchange_config() -> ExchangeConfigLimit {
   ExchangeConfigLimit {
-    address: get_exchange_address(),
+    fee_addr: get_exchange_address(),
     buyer_fee: 100,
     seller_fee: 100,
     tx_buy_ttl: Some(3 * 60),
+    garbage_addr: get_garbage_address(),
   }
 }
 
 fn get_exchange_making_config() -> ExchangeConfigMaking {
   ExchangeConfigMaking {
-    address: get_exchange_address(),
+    fee_addr: get_exchange_address(),
     maker_fee: 50,
     taker_fee: 100,
     tx_buy_ttl: Some(3 * 60),
+    garbage_addr: get_garbage_address(),
   }
 }
 
@@ -224,6 +226,14 @@ pub fn get_exchange_address() -> Address {
 
 pub fn get_exchange_address_hash() -> ByteArray {
   #"040507"
+}
+
+pub fn get_garbage_address() -> Address {
+  from_verification_key(get_garbage_address_hash())
+}
+
+pub fn get_garbage_address_hash() -> ByteArray {
+  #"040508"
 }
 
 pub fn get_bond_id_1() -> AssetName {

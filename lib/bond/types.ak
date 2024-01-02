@@ -3,7 +3,9 @@ use aiken/transaction.{Input, Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use common/time.{BasisPoints, EpochConfig, SlotConfig}
-use common/types.{AssetUnit, Lovelace, PublicKeyHash, ScriptKeyHash}
+use common/types.{
+  AssetUnit, Error, Lovelace, OK, PublicKeyHash, Result, ScriptKeyHash,
+}
 
 pub type BondConfig {
   escrow_payment_key: ScriptKeyHash,
@@ -215,11 +217,22 @@ pub type AskMaking {
   margin: Int,
 }
 
+pub type BidMaking {
+  owner_vk: PublicKeyHash,
+  owner_sk: Option<PublicKeyHash>,
+  from_epoch: Int,
+  to_epoch: Int,
+  quantity: Int,
+  requested_yield: Int,
+  ask_sc: ScriptKeyHash,
+  margin: Int,
+}
+
 pub type BidMakingData =
   Data
 
 pub type BidMakingDatum {
-  BidMaking {
+  BidMakingStruct {
     owner_vk: PublicKeyHash,
     owner_sk: Option<PublicKeyHash>,
     from_epoch: Int,
@@ -230,6 +243,34 @@ pub type BidMakingDatum {
     margin: Int,
   }
   BidMakingData
+}
+
+pub fn convert_datum_bid_making(dt: BidMakingDatum) -> Result<BidMaking, String> {
+  when dt is {
+    BidMakingStruct {
+      owner_vk: l1,
+      owner_sk: l2,
+      from_epoch: l3,
+      to_epoch: l4,
+      quantity: l5,
+      requested_yield: l6,
+      ask_sc: l7,
+      margin: l8,
+    } ->
+      OK(
+        BidMaking {
+          owner_vk: l1,
+          owner_sk: l2,
+          from_epoch: l3,
+          to_epoch: l4,
+          quantity: l5,
+          requested_yield: l6,
+          ask_sc: l7,
+          margin: l8,
+        },
+      )
+    _ -> Error(@"unknow datum")
+  }
 }
 
 pub type UniqAskLimit {

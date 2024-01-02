@@ -15,9 +15,9 @@ use aiken/transaction/credential.{
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
   AskLimit, AskLimitDatum, AskMaking, BidLimit, BidLimitDatum, BidLimitMulti,
-  BidMaking, BidMakingDatum, BondConfigLimit, BondConfigMaking, BondType,
-  DanogoBond, EscrowConfig, EscrowDatum, ExchangeConfigLimit,
-  ExchangeConfigMaking, PaymentDatum, PlatformConfig,
+  BidMaking, BondConfigLimit, BondConfigMaking, BondType, DanogoBond,
+  EscrowConfig, EscrowDatum, ExchangeConfigLimit, ExchangeConfigMaking,
+  PaymentDatum, PlatformConfig,
 }
 use bond/utils.{get_day_to_maturity}
 use common/time.{
@@ -505,7 +505,7 @@ pub fn gen_bid_making_datum(
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
-) -> BidMakingDatum {
+) -> BidMaking {
   BidMaking {
     owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
@@ -530,7 +530,7 @@ pub fn gen_tampered_bid_making_datum(
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
-) -> BidMakingDatum {
+) -> BidMaking {
   BidMaking {
     owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk

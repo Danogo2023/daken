@@ -12,7 +12,7 @@ use aiken/transaction/credential.{
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
-  AskLimit, AskLimitDatum, AskMaking, BidLimit, BidLimitDatum, BidMaking,BidMakingDatum,
+  AskLimit, AskLimitDatum, AskMaking, BidLimit, BidLimitDatum, BidMaking,
   BondConfig, ConfigLimit, ConfigMaking, EscrowDatum, ExchangeConfigLimit,
   ExchangeConfigMaking, PaymentDatum,
 }
@@ -478,7 +478,7 @@ pub fn gen_bid_making_datum(
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
-) -> BidMakingDatum {
+) -> BidMaking {
   BidMaking {
     owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
@@ -503,7 +503,7 @@ pub fn gen_tampered_bid_making_datum(
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
-) -> BidMakingDatum {
+) -> BidMaking {
   BidMaking {
     owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk

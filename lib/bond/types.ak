@@ -215,15 +215,21 @@ pub type AskMaking {
   margin: Int,
 }
 
-pub type BidMaking {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
-  from_epoch: Int,
-  to_epoch: Int,
-  quantity: Int,
-  requested_yield: Int,
-  ask_sc: ScriptKeyHash,
-  margin: Int,
+pub type BidMakingData =
+  Data
+
+pub type BidMakingDatum {
+  BidMaking {
+    owner_vk: PublicKeyHash,
+    owner_sk: Option<PublicKeyHash>,
+    from_epoch: Int,
+    to_epoch: Int,
+    quantity: Int,
+    requested_yield: Int,
+    ask_sc: ScriptKeyHash,
+    margin: Int,
+  }
+  BidMakingData
 }
 
 pub type UniqAskLimit {

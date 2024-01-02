@@ -7,7 +7,8 @@ use aiken/transaction/credential.{ScriptCredential}
 use aiken/transaction/value
 use bond/types.{
   AskLimit, AskLimitDatum, AskMaking, BidLimit, BidLimitDatum, BidLimitMulti,
-  BidMaking, BondConfig, ConfigLimit, ConfigMaking, EscrowDatum, EscrowInfo,
+  BidMaking, BidMakingDatum, BondConfig, ConfigLimit, ConfigMaking, EscrowDatum,
+  EscrowInfo,
 }
 use bond/utils.{get_day_to_maturity}
 use common/time.{Basis, BasisPoints, EpochTime}
@@ -174,16 +175,51 @@ pub fn ask_making_valid(left: AskMaking, right: AskMaking) -> Bool {
   }
 }
 
-pub fn bid_making_valid(left: BidMaking, right: BidMaking) -> Bool {
+pub fn bid_making_valid(
+  left_dt: BidMakingDatum,
+  right_dt: BidMakingDatum,
+) -> Bool {
+  // expect left: BidMaking = left_dt
+  // expect right: BidMaking = right_dt
+  expect BidMaking {
+    owner_vk: l1,
+    owner_sk: l2,
+    from_epoch: l3,
+    to_epoch: l4,
+    quantity: l5,
+    requested_yield: l6,
+    ask_sc: l7,
+    margin: l8,
+  } = left_dt
+  expect BidMaking {
+    owner_vk: r1,
+    owner_sk: r2,
+    from_epoch: r3,
+    to_epoch: r4,
+    quantity: r5,
+    requested_yield: r6,
+    ask_sc: r7,
+    margin: r8,
+  } = right_dt
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
-    (left.from_epoch == right.from_epoch)?,
-    (left.to_epoch == right.to_epoch)?,
-    (left.requested_yield == right.requested_yield)?,
-    (left.ask_sc == right.ask_sc)?,
-    (left.margin == right.margin)?,
+    (l1 == r1)?,
+    (l2 == r2)?,
+    (l3 == r3)?,
+    (l4 == r4)?,
+    (l5 == r5)?,
+    (l6 == r6)?,
+    (l7 == r7)?,
+    (l8 == r8)?,
   }
+  // and {
+  //   (left.owner_vk == right.owner_vk)?,
+  //   (left.owner_sk == right.owner_sk)?,
+  //   (left.from_epoch == right.from_epoch)?,
+  //   (left.to_epoch == right.to_epoch)?,
+  //   (left.requested_yield == right.requested_yield)?,
+  //   (left.ask_sc == right.ask_sc)?,
+  //   (left.margin == right.margin)?,
+  // }
 }
 
 pub fn yield_valid(basis: BasisPoints, v: Int) -> Bool {

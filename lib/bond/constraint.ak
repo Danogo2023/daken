@@ -6,8 +6,8 @@ use aiken/transaction.{Input}
 use aiken/transaction/credential.{ScriptCredential}
 use aiken/transaction/value
 use bond/types.{
-  AskLimit, AskMaking, BidLimit, BidLimitMulti, BidMaking, BondConfig,
-  ConfigLimit, ConfigMaking, EscrowDatum, EscrowInfo,
+  AskLimit, AskLimitDatum, AskMaking, BidLimit, BidLimitDatum, BidLimitMulti,
+  BidMaking, BondConfig, ConfigLimit, ConfigMaking, EscrowDatum, EscrowInfo,
 }
 use bond/utils.{get_day_to_maturity}
 use common/time.{Basis, BasisPoints, EpochTime}
@@ -118,21 +118,49 @@ pub fn epoch_valid(epo_from: EpochTime, epo_to: EpochTime, out_qty: Int) -> Bool
   }
 }
 
-pub fn ask_limit_valid(left: AskLimit, right: AskLimit) -> Bool {
+pub fn ask_limit_valid(left: AskLimitDatum, right: AskLimitDatum) -> Bool {
+  expect AskLimit { owner_vk: l1, owner_sk: l2, requested_yield: l3 } = left
+  expect AskLimit { owner_vk: r1, owner_sk: r2, requested_yield: r3 } = right
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
-    (left.requested_yield == right.requested_yield)?,
+    // (left.owner_vk == right.owner_vk)?,
+    // (left.owner_sk == right.owner_sk)?,
+    // (left.requested_yield == right.requested_yield)?,
+    (l1 == r1)?,
+    (l2 == r2)?,
+    (l3 == r3)?,
   }
 }
 
-pub fn bid_limit_valid(left: BidLimit, right: BidLimit) -> Bool {
+pub fn bid_limit_valid(left: BidLimitDatum, right: BidLimitDatum) -> Bool {
+  expect BidLimit {
+    owner_vk: l1,
+    owner_sk: l2,
+    from_epoch: l3,
+    to_epoch: l4,
+    quantity: l5,
+    requested_yield: l6,
+  } = left
+  expect BidLimit {
+    owner_vk: r1,
+    owner_sk: r2,
+    from_epoch: r3,
+    to_epoch: r4,
+    quantity: r5,
+    requested_yield: r6,
+  } = right
+
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
-    (left.from_epoch == right.from_epoch)?,
-    (left.to_epoch == right.to_epoch)?,
-    (left.requested_yield == right.requested_yield)?,
+    // (left.owner_vk == right.owner_vk)?,
+    // (left.owner_sk == right.owner_sk)?,
+    // (left.from_epoch == right.from_epoch)?,
+    // (left.to_epoch == right.to_epoch)?,
+    // (left.requested_yield == right.requested_yield)?,
+    (l1 == r1)?,
+    (l2 == r2)?,
+    (l3 == r3)?,
+    (l4 == r4)?,
+    (l5 == r5)?,
+    (l6 == r6)?,
   }
 }
 

@@ -12,9 +12,9 @@ use aiken/transaction/credential.{
 }
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
-  AskLimit, AskMaking, BidLimit, BidMaking, BondConfig, ConfigLimit,
-  ConfigMaking, EscrowDatum, ExchangeConfigLimit, ExchangeConfigMaking,
-  PaymentDatum,
+  AskLimit, AskLimitDatum, AskMaking, BidLimit, BidLimitDatum, BidMaking,
+  BondConfig, ConfigLimit, ConfigMaking, EscrowDatum, ExchangeConfigLimit,
+  ExchangeConfigMaking, PaymentDatum,
 }
 use bond/utils.{get_day_to_maturity}
 use common/time.{
@@ -397,7 +397,10 @@ pub fn get_input_escrow(
   }
 }
 
-pub fn gen_ask_limit_datum(owner: Address, requested_yield: Int) -> AskLimit {
+pub fn gen_ask_limit_datum(
+  owner: Address,
+  requested_yield: Int,
+) -> AskLimitDatum {
   AskLimit {
     owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk
@@ -417,7 +420,7 @@ pub fn gen_bid_limit_datum(
   to_epoch: Int,
   quantity: Int,
   requested_yield: Int,
-) -> BidLimit {
+) -> BidLimitDatum {
   BidLimit {
     owner_vk: when owner.payment_credential is {
       VerificationKeyCredential(vk) -> vk

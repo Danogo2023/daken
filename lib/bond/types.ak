@@ -170,19 +170,31 @@ pub type PaymentDatum {
   output_reference: OutputReference,
 }
 
-pub type AskLimit {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
-  requested_yield: Int,
+pub type AskLimitData =
+  Data
+
+pub type AskLimitDatum {
+  AskLimit {
+    owner_vk: PublicKeyHash,
+    owner_sk: Option<PublicKeyHash>,
+    requested_yield: Int,
+  }
+  AskLimitData
 }
 
-pub type BidLimit {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
-  from_epoch: Int,
-  to_epoch: Int,
-  quantity: Int,
-  requested_yield: Int,
+pub type BidLimitData =
+  Data
+
+pub type BidLimitDatum {
+  BidLimit {
+    owner_vk: PublicKeyHash,
+    owner_sk: Option<PublicKeyHash>,
+    from_epoch: Int,
+    to_epoch: Int,
+    quantity: Int,
+    requested_yield: Int,
+  }
+  BidLimitData
 }
 
 pub type BidLimitMulti {

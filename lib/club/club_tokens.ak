@@ -93,10 +93,11 @@ pub fn get_deposit_request_token_name(
     |> bytearray.concat(number_to_bytearray_hex(lowerbound, 6))
 }
 
-// <prefixes><poolid - 2bytes><epoch mint member token - 2bytes><timestamp - 6bytes>
+// <prefixes><poolid - 2bytes><epoch mint member token - 2bytes><issue_price: 8 bytes><timestamp - 6bytes>
 pub fn get_withdraw_request_token_name(
   pool_id: Int,
   epoch_mint_token: Int,
+  issue_price: Int,
   validity_range: ValidityRange,
   _slot_config: SlotConfig,
 ) -> ByteArray {
@@ -108,7 +109,15 @@ pub fn get_withdraw_request_token_name(
   get_withdraw_request_token_prefix()
     |> bytearray.concat(number_to_bytearray_hex(pool_id, 2))
     |> bytearray.concat(number_to_bytearray_hex(epoch_mint_token, 2))
+    |> bytearray.concat(number_to_bytearray_hex(issue_price, 8))
     |> bytearray.concat(number_to_bytearray_hex(lowerbound, 6))
+}
+
+// withdraw request token name = <prefixes><poolid - 2bytes><epoch mint member token - 2bytes><issue_price: 8 bytes><timestamp - 6bytes>
+pub fn get_epoch_price_from_withdraw_request_token_name(name: ByteArray) {
+  let epoch = get_number_from_hex_string(bytearray.slice(name, 7, 8))
+  let issue_price = get_number_from_hex_string(bytearray.slice(name, 9, 16))
+  (epoch, issue_price)
 }
 
 // =================== check token by name ==================
@@ -162,6 +171,20 @@ test correct_epoch_price_share_token_name_2() {
   epoch == 440 && price == 100_000_000
 }
 
+test correct_epoch_price_from_withdraw_request_token_name_1() {
+  let (epoch, price) =
+    get_epoch_price_from_withdraw_request_token_name(
+      get_withdraw_request_token_name(
+        2,
+        440,
+        100_000_000,
+        interval.between(1698809450000, 1698809450001),
+        time.get_slot_config_network_mainnet(),
+      ),
+    )
+  epoch == 440 && price == 100_000_000
+}
+
 test get_share_token_name_2() {
   get_share_token_name(#"", 440, 100_000_001) == #"01b80000000005f5e101"
 }
@@ -196,11 +219,12 @@ test get_withdraw_request_token_name_1() {
   get_withdraw_request_token_name(
     2,
     440,
+    100_000_000,
     interval.between(1698809450000, 1698809450001),
     time.get_slot_config_network_mainnet(),
   ) == bytearray.concat(
     get_withdraw_request_token_prefix(),
-    #"000201b8018b88ef0e10",
+    #"000201b80000000005f5e100018b88ef0e10",
   )
 }
 
@@ -208,11 +232,12 @@ test get_withdraw_request_token_name_2() {
   get_withdraw_request_token_name(
     0,
     0,
+    0,
     interval.between(0, 0),
     time.get_slot_config_network_mainnet(),
   ) == bytearray.concat(
     get_withdraw_request_token_prefix(),
-    #"00000000000000000000",
+    #"000000000000000000000000000000000000",
   )
 }
 
@@ -220,11 +245,12 @@ test get_withdraw_request_token_name_3() fail {
   get_withdraw_request_token_name(
     0,
     0,
+    0,
     interval.everything(),
     time.get_slot_config_network_mainnet(),
   ) == bytearray.concat(
     get_withdraw_request_token_prefix(),
-    #"00000000000000000000",
+    #"000000000000000000000000000000000000",
   )
 }
 
@@ -268,6 +294,7 @@ test is_deposit_request_token_in_pool_3() {
     get_withdraw_request_token_name(
       2,
       440,
+      100_000_000,
       interval.between(1698809450000, 1698809450001),
       time.get_slot_config_network_mainnet(),
     ),
@@ -284,6 +311,7 @@ test is_withdraw_request_token_in_pool_1() {
     get_withdraw_request_token_name(
       2,
       440,
+      100_000_000,
       interval.between(1698809450000, 1698809450001),
       time.get_slot_config_network_mainnet(),
     ),
@@ -296,6 +324,7 @@ test is_withdraw_request_token_in_pool_2() {
     get_withdraw_request_token_name(
       2,
       440,
+      100_000_000,
       interval.between(1698809450000, 1698809450001),
       time.get_slot_config_network_mainnet(),
     ),

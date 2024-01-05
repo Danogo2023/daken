@@ -13,6 +13,7 @@ pub type WithdrawPoolDatum {
   early_withdraw_penalty: Int,
   hurdle_rate: Int,
   performance_bonus_rate: Int,
+  lockup_period: Int,
 }
 
 // gives base object, used for testing
@@ -26,5 +27,6 @@ pub fn base_withdraw_pool_datum() -> WithdrawPoolDatum {
     early_withdraw_penalty: -1,
     hurdle_rate: -1,
     performance_bonus_rate: -1,
+    lockup_period: -1,
   }
 }

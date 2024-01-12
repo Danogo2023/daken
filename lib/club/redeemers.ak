@@ -175,5 +175,17 @@ pub const redeemer_pool_upgrade_version = 57
 /// (Vault State) Vault State Calc NAV
 pub const vault_state_calc_nav = 58
 
+/// (Vault State) Vault State Calc NAV
+pub const vault_state_close = 59
+
+/// (Deposit State) Deposit Update
+pub const deposit_state_update = 68
+
+/// (Operator Fee) Operator Fee Op Claim
+pub const operator_fee_op_claim = 69
+
+/// (Withdraw Pool) Withdraw Pool Club Close
+pub const withdraw_pool_close = 70
+
 /// (Operator Fee) Operator Fee Calc NAV
 pub const operator_fee_calc_nav = 78

@@ -70,6 +70,24 @@ pub fn get_share_token_name(
     |> bytearray.concat(number_to_bytearray_hex(price_issue, 8))
 }
 
+pub fn get_operator_share_token_name(
+  epoch_mint_token: Int,
+  price_issue: Int,
+) -> ByteArray {
+  get_operator_share_token_prefix()
+    |> bytearray.concat(number_to_bytearray_hex(epoch_mint_token, 2))
+    |> bytearray.concat(number_to_bytearray_hex(price_issue, 8))
+}
+
+pub fn get_member_share_token_name(
+  epoch_mint_token: Int,
+  price_issue: Int,
+) -> ByteArray {
+  get_member_share_token_prefix()
+    |> bytearray.concat(number_to_bytearray_hex(epoch_mint_token, 2))
+    |> bytearray.concat(number_to_bytearray_hex(price_issue, 8))
+}
+
 // token name = <prefixes: 5 bytes><epoch: 2 bytes><issue_price: 8 bytes> -> (epoch, issue_price)
 pub fn get_epoch_price_from_share_token_name(name: ByteArray) {
   let epoch = get_number_from_hex_string(bytearray.slice(name, 5, 6))

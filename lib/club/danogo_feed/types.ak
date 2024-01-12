@@ -1,4 +1,5 @@
 use aiken/dict.{Dict}
+use aiken/math/rational.{Rational}
 use aiken/transaction/credential.{
   Address, Pointer, StakeCredential, from_verification_key,
 }
@@ -59,7 +60,7 @@ pub type PriceFeedDatum {
   // created <= transaction validity range <= expired
   expired: Int,
   // prices: {policyId: {name: price (in lovelace)}}
-  token_prices: Dict<PolicyId, Dict<AssetName, Int>>,
+  token_prices: Dict<PolicyId, Dict<AssetName, Rational>>,
 }
 
 pub type StakeKeyFeedDatum {

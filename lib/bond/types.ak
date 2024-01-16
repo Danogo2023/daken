@@ -27,7 +27,6 @@ pub type ExchangeConfigLimit {
   seller_fee: Int,
   // Khoảng thời gian giao dịch sell hợp lệ, giá trị tính theo slot
   tx_buy_ttl: Option<Int>,
-  garbage_addr: Address,
 }
 
 pub type ExchangeConfigMaking {
@@ -38,7 +37,6 @@ pub type ExchangeConfigMaking {
   taker_fee: Int,
   // Time frame for valid transaction, value represent slot
   tx_buy_ttl: Option<Int>,
-  garbage_addr: Address,
 }
 
 pub type ConfigLimit {

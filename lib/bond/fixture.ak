@@ -114,7 +114,6 @@ fn get_exchange_config() -> ExchangeConfigLimit {
     buyer_fee: 100,
     seller_fee: 100,
     tx_buy_ttl: Some(3 * 60),
-    garbage_addr: get_garbage_address(),
   }
 }
 
@@ -124,7 +123,6 @@ fn get_exchange_making_config() -> ExchangeConfigMaking {
     maker_fee: 50,
     taker_fee: 100,
     tx_buy_ttl: Some(3 * 60),
-    garbage_addr: get_garbage_address(),
   }
 }
 

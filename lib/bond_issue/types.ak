@@ -53,5 +53,4 @@ pub type PlatformConfig {
   min_apr: Int,
   // default: 6 epoch
   min_duration: Int,
-  garbage_addr: Address,
 }

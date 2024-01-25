@@ -7,11 +7,8 @@ pub const club_create = 1
 /// (Club Policy) Club Close
 pub const club_close = 2
 
-/// (Club Policy) Club Force
-pub const club_force = 3
-
-/// (Club Policy) Deposit Create
-pub const deposit_create = 4
+/// (Club Policy) Deposit Create With State
+pub const deposit_create_with_state = 4
 
 /// (Club Policy) Deposit Update
 pub const deposit_update = 5
@@ -19,14 +16,14 @@ pub const deposit_update = 5
 /// (Club Policy) Deposit Convert
 pub const deposit_convert = 6
 
-/// (Club Policy) Withdraw Create
-pub const withdraw_create = 7
+/// (Club Policy) Withdraw Create With State
+pub const withdraw_create_with_state = 7
 
 /// (Club Policy) Withdraw Update
 pub const withdraw_update = 8
 
-/// (Club Policy) Withdraw Convert
-pub const withdraw_convert = 9
+/// (Club Policy) Withdraw Redeem
+pub const withdraw_redeem = 9
 
 /// (Club Policy) Calculate NAV
 pub const calculate_nav = 10
@@ -57,9 +54,6 @@ pub const trading_state_close = 18
 
 /// (Trading State) Trading State Liquidation
 pub const trading_state_liquidation = 19
-
-/// (Trading State) Trading State Force
-pub const trading_state_force = 20
 
 /// (Trading State) Trading State Staking
 pub const trading_state_staking = 21
@@ -118,9 +112,6 @@ pub const withdraw_state_calc_nav = 38
 /// (Withdraw State) Withdraw State Close
 pub const withdraw_state_close = 39
 
-/// (Withdraw State) Withdraw State Force
-pub const withdraw_state_force = 40
-
 /// (Withdraw State) Withdraw State Platform Garbage Collect
 pub const withdraw_state_platform_garbage_collect = 41
 
@@ -178,6 +169,30 @@ pub const vault_state_calc_nav = 58
 /// (Vault State) Vault State Calc NAV
 pub const vault_state_close = 59
 
+/// (Vault State) Vault State Upgrade Version
+pub const vault_state_upgrade_version = 60
+
+/// (Vault State) Vault State Platform Garbage Collect
+pub const vault_state_platform_garbage_collect = 61
+
+/// (Vault State) Vault State Staking
+pub const vault_state_staking = 62
+
+/// (Vault State) Vault State Invest Danogo Bond Ask Limit
+pub const vault_state_invest_danogo_bond_ask_limit = 63
+
+/// (Vault State) Vault State Invest Danogo Bond Ask Making
+pub const vault_state_invest_danogo_bond_ask_making = 64
+
+/// (Vault State) Vault State Invest Danogo Bond Bid Limit
+pub const vault_state_invest_danogo_bond_bid_limit = 65
+
+/// (Vault State) Vault State Invest Danogo Bond Bid Making
+pub const vault_state_invest_danogo_bond_bid_making = 66
+
+/// (Vault Asset) Vault Asset Platform Garbage Collect
+pub const vault_asset_platform_garbage_collect = 67
+
 /// (Deposit State) Deposit Update
 pub const deposit_state_update = 68
 
@@ -187,5 +202,41 @@ pub const operator_fee_op_claim = 69
 /// (Withdraw Pool) Withdraw Pool Club Close
 pub const withdraw_pool_close = 70
 
+/// (Operator Fee) Operator Fee System Force Redeem
+pub const operator_fee_system_force_redeem = 71
+
+/// (Club Policy) Deposit Create With Pool
+pub const deposit_create_with_pool = 72
+
+/// (Club Policy) System Force Redeem
+pub const system_force_redeem = 73
+
+/// (Club Policy) Withdraw Create With Pool
+pub const withdraw_create_with_pool = 75
+
 /// (Operator Fee) Operator Fee Calc NAV
 pub const operator_fee_calc_nav = 78
+
+/// (Withdraw State) Withdraw Update
+pub const withdraw_state_update = 79
+
+/// (Club Policy) Force Close when LIQUIDATED
+pub const club_force_close_when_liquidated = 80
+
+/// (Trading State) Trading State Force Close when LIQUIDATED
+pub const trading_state_force_close_when_liquidated = 81
+
+/// (Nav State) Nav State Force Close when LIQUIDATED
+pub const nav_state_force_close_when_liquidated = 82
+
+/// (Withdraw State) Withdraw State Force Close when LIQUIDATED
+pub const withdraw_state_force_close_when_liquidated = 83
+
+/// (Withdraw Pool) Withdraw Pool Force Close when LIQUIDATED
+pub const withdraw_pool_force_close_when_liquidated = 84
+
+/// (Vault State) Vault State Force Close when LIQUIDATED
+pub const vault_state_force_close_when_liquidated = 85
+
+/// (Operator Fee) Operator Fee Force Close when LIQUIDATED
+pub const operator_fee_force_close_when_liquidated = 86

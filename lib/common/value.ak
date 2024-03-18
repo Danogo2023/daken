@@ -1,8 +1,5 @@
 use aiken/transaction/value.{Value}
 
-pub type Lovelace =
-  Int
-
 /// check both value have same assets, excluding lovelace
 pub fn same_assets(v1: Value, v2: Value) -> Bool {
   let negated =

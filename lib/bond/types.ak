@@ -1,7 +1,8 @@
 use aiken/dict.{Dict}
 use aiken/transaction.{Input, Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
-use aiken/transaction/value.{AssetName, PolicyId, Value}
+use aiken/transaction/value.{AssetName, PolicyId}
+use common/pvalue.{PValue} as common_value
 use common/time.{BasisPoints, EpochConfig, SlotConfig}
 use common/types.{AssetUnit, Lovelace, PublicKeyHash, ScriptKeyHash}
 
@@ -90,7 +91,7 @@ pub type BondConfigMaking {
 
 pub type EscrowDatum {
   // PValue 'Sorted 'NoGuarantees: monthly lovelace value gain promised
-  epo_rewards: Value,
+  epo_rewards: PValue,
   // PEpochTime: duration of the loan in epochs
   duration: Int,
   // PCurrencySymbol
@@ -110,7 +111,7 @@ pub type EscrowDatum {
 }
 
 pub type BondWriterDatum {
-  epo_rewards: Value,
+  epo_rewards: PValue,
   duration: Int,
   bond_symbol: PolicyId,
   token_name: AssetName,

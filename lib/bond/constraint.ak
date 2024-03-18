@@ -10,6 +10,7 @@ use bond/types.{
   ConfigLimit, ConfigMaking, EscrowDatum, EscrowInfo,
 }
 use bond/utils.{get_day_to_maturity}
+use common/pvalue
 use common/time.{Basis, BasisPoints, EpochTime}
 use common/types.{Error, Lovelace, OK, Result} as common_types
 
@@ -43,7 +44,8 @@ pub fn get_escrow_info(
   epo_end: EpochTime,
 ) -> Result<EscrowInfo, String> {
   // Tong tien lai moi epoch Borrower phai tra
-  let epoch_rewards: Lovelace = value.lovelace_of(escrow_dt.epo_rewards)
+  let epoch_rewards: Lovelace =
+    value.lovelace_of(pvalue.to_value(escrow_dt.epo_rewards))
   // Tien goc cua toan bo bond phat hanh
   let principal: Lovelace = escrow_dt.bond_amount * cfg.bond_face_value
   // Tong tien lai tich luy hien tai cho toan bo bond phat hanh

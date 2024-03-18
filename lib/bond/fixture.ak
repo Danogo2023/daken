@@ -17,6 +17,7 @@ use bond/types.{
   PaymentDatum,
 }
 use bond/utils.{get_day_to_maturity}
+use common/pvalue
 use common/time.{
   SlotConfig, get_epoch_config_mainnet, get_epoch_config_preview,
   posix_time_to_relative_epoch,
@@ -284,7 +285,8 @@ pub fn calc_escrow_full_info(
   // Tong tien lai dang giu trong escrow
   let premium_paid_lovelace = escrow_lovelace - principal_lovelace
   // So tien lai borrower phai tra moi epoch cho tong so bond phat hanh
-  let epoch_rewards_lovelace = value.lovelace_of(escrow_datum.epo_rewards)
+  let epoch_rewards_lovelace =
+    value.lovelace_of(pvalue.to_value(escrow_datum.epo_rewards))
   // Tong so tien lai borrower phai tra den current epoch
   let interest_due_paid_lovelace =
     if current_epoch >= end_epoch {
@@ -340,7 +342,7 @@ pub fn get_escrow_datum(
   start: Int,
 ) -> EscrowDatum {
   EscrowDatum {
-    epo_rewards: value.from_lovelace(epo_rewards),
+    epo_rewards: value.from_lovelace(epo_rewards) |> pvalue.from_value,
     duration,
     bond_symbol: get_bond_policy_id(),
     token_name: asset_name,

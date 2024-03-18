@@ -12,6 +12,7 @@ use bond/types.{
   BondType, Buy, EscrowConfig, EscrowDatum, EscrowInfo, EscrowRef,
   GarbageCollector, PlatformConfig, Sell, TradeAction, Update, Upgrade,
 } as bond_types
+use common/pvalue
 use common/string.{bconcat_1, bconcat_3, to_unit_3} as common_string
 use common/time.{
   Basis, DayNum, EpochConfig, EpochTime, Milliseconds, get_milliseconds_of_day,
@@ -198,7 +199,8 @@ fn find_escrow_ref_finalize(
   break: Bool,
 ) -> (Bool, Result<EscrowRef, String>) {
   // Tong tien lai moi epoch Borrower phai tra
-  let escrow_epo_rewards = value.lovelace_of(escrow_dt.epo_rewards)
+  let escrow_epo_rewards =
+    value.lovelace_of(pvalue.to_value(escrow_dt.epo_rewards))
   if and {
     (escrow_dt.bond_amount > 0)?,
     (escrow_epo_rewards > 0)?,
@@ -394,7 +396,8 @@ pub fn get_escrow_info_1(
   epo_end: EpochTime,
 ) -> Result<EscrowInfo, String> {
   // Tong tien lai moi epoch Borrower phai tra
-  let epoch_rewards: Lovelace = value.lovelace_of(escrow_dt.epo_rewards)
+  let epoch_rewards: Lovelace =
+    value.lovelace_of(pvalue.to_value(escrow_dt.epo_rewards))
   // Tien goc cua toan bo bond phat hanh
   let principal: Lovelace = escrow_dt.bond_amount * platform_cfg.bond_face_value
   // Tong tien lai tich luy hien tai cho toan bo bond phat hanh

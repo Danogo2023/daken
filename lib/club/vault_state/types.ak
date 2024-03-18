@@ -1,4 +1,5 @@
-use aiken/transaction/value.{PolicyId, Value}
+use aiken/transaction/value.{PolicyId}
+use common/pvalue.{PValue}
 
 pub type VaultStateDatum {
   // owner of this utxo
@@ -10,7 +11,7 @@ pub type VaultStateDatum {
   // last epoch invest/divest
   last_active_epoch: Int,
   // assets that is in club vault
-  assets: Value,
+  assets: PValue,
   // vault utxos
   count_utxo: Int,
   // id of vault
@@ -29,7 +30,7 @@ pub fn base_vault_state_datum() -> VaultStateDatum {
     is_default: True,
     min_vault_asset_ada: 0,
     last_active_epoch: 440,
-    assets: value.zero(),
+    assets: pvalue.from_value(value.zero()),
     count_utxo: 0,
     vault_id: 0,
   }

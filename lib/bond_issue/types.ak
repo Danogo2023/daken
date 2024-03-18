@@ -1,5 +1,6 @@
 use aiken/transaction/credential.{Address}
-use aiken/transaction/value.{AssetName, PolicyId, Value}
+use aiken/transaction/value.{AssetName, PolicyId}
+use common/pvalue.{PValue}
 use common/time.{BasisPoints, EpochConfig, SlotConfig}
 
 pub type RequestDatum {
@@ -16,7 +17,7 @@ pub type RequestDatum {
 }
 
 pub type BondDatum {
-  epo_rewards: Value,
+  epo_rewards: PValue,
   duration: Int,
   bond_symbol: PolicyId,
   token_name: AssetName,

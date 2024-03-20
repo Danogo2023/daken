@@ -1,5 +1,5 @@
-use aiken/math/rational.{Rational}
 use aiken/transaction/value.{PolicyId}
+use common/prational.{PRational}
 
 pub type DepositPoolDatum {
   // dùng để giới hạn theo các thao tác spending theo club
@@ -10,7 +10,7 @@ pub type DepositPoolDatum {
   // giá token đại diện 1 cổ phần của quỹ tại lần tính NAV gần nhất. share_token_price < 0 thì là chưa tính tính NAV lần nào
   share_token_price: Int,
   // Tỉ lệ chuyển đổi cho deposit, Operator luôn là 100% còn Member phụ thuộc vào tỉ lệ góp của Operator. convert_percent < 0 thì là chưa tính tính NAV lần nào
-  convert_percent: Rational,
+  convert_percent: PRational,
 }
 
 // gives base object, used for testing
@@ -21,6 +21,6 @@ pub fn base_deposit_pool_datum() -> DepositPoolDatum {
     is_operator: False,
     pool_id: 0,
     share_token_price: 0,
-    convert_percent: rational.from_int(-1),
+    convert_percent: PRational { numerator: -1, denominator: 1 },
   }
 }

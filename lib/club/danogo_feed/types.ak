@@ -1,9 +1,8 @@
-use aiken/dict.{Dict}
-use aiken/math/rational.{Rational}
 use aiken/transaction/credential.{
   Address, Pointer, StakeCredential, from_verification_key,
 }
 use aiken/transaction/value.{AssetName, PolicyId}
+use common/prational.{PRational}
 use common/types.{PublicKeyHash, ScriptKeyHash}
 
 pub type ProtocolParams {
@@ -53,6 +52,9 @@ pub type ProtocolParams {
   tx_ttl: Int,
 }
 
+pub type PTokenPrices =
+  List<(PolicyId, List<(AssetName, PRational)>)>
+
 pub type PriceFeedDatum {
   // in ms
   created: Int,
@@ -60,7 +62,7 @@ pub type PriceFeedDatum {
   // created <= transaction validity range <= expired
   expired: Int,
   // prices: {policyId: {name: price (in lovelace)}}
-  token_prices: Dict<PolicyId, Dict<AssetName, Rational>>,
+  token_prices: PTokenPrices,
 }
 
 pub type StakeKeyFeedDatum {
@@ -126,7 +128,7 @@ pub fn base_protocol_params() -> ProtocolParams {
 
 // gives base object, used for testing
 pub fn base_price_feed_datum() -> PriceFeedDatum {
-  PriceFeedDatum { created: 0, expired: 1, token_prices: dict.new() }
+  PriceFeedDatum { created: 0, expired: 1, token_prices: [] }
 }
 
 // gives base object, used for testing

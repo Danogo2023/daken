@@ -1,3 +1,4 @@
+use aiken/bytearray
 use aiken/dict.{Dict}
 use aiken/transaction.{Input, Output, OutputReference}
 use aiken/transaction/credential.{Address, StakeCredential}
@@ -59,6 +60,9 @@ pub type BondType {
 
 // Dict<escrow_skh, (escrow_nft_pid, escrow_type)>
 // { escrow_skh: ScriptKeyHash, escrow_nft_pid: PolicyId, escrow_type: BondType }
+pub type EscrowConfigRaw =
+  List<(ScriptKeyHash, (PolicyId, BondType))>
+
 pub type EscrowConfig =
   Dict<ScriptKeyHash, (PolicyId, BondType)>
 
@@ -83,10 +87,38 @@ pub type BondConfigLimit {
   exchange: ExchangeConfigLimit,
 }
 
+pub type BondConfigLimitRaw {
+  platform: PlatformConfig,
+  escrow: EscrowConfigRaw,
+  exchange: ExchangeConfigLimit,
+}
+
+pub fn bond_config_limit_from_raw(self: BondConfigLimitRaw) {
+  BondConfigLimit {
+    platform: self.platform,
+    exchange: self.exchange,
+    escrow: dict.from_ascending_list(self.escrow, bytearray.compare),
+  }
+}
+
 pub type BondConfigMaking {
   platform: PlatformConfig,
   escrow: EscrowConfig,
   exchange: ExchangeConfigMaking,
+}
+
+pub type BondConfigMakingRaw {
+  platform: PlatformConfig,
+  escrow: EscrowConfigRaw,
+  exchange: ExchangeConfigMaking,
+}
+
+pub fn bond_config_making_from_raw(self: BondConfigMakingRaw) {
+  BondConfigMaking {
+    platform: self.platform,
+    exchange: self.exchange,
+    escrow: dict.from_ascending_list(self.escrow, bytearray.compare),
+  }
 }
 
 pub type EscrowDatum {

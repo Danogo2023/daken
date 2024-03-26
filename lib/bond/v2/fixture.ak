@@ -115,6 +115,7 @@ pub fn get_platform_config_preview() -> PlatformConfig {
     basis: get_basis_points_config(),
     one_ada_2_lovelace: 1_000_000,
     bond_face_value: 100_000_000,
+    min_ada: 2,
   }
 }
 
@@ -125,6 +126,7 @@ pub fn get_platform_config_mainnet() -> PlatformConfig {
     basis: get_basis_points_config(),
     one_ada_2_lovelace: 1_000_000,
     bond_face_value: 100_000_000,
+    min_ada: 2,
   }
 }
 

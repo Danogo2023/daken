@@ -12,8 +12,6 @@ pub type VaultStateDatum {
   last_active_epoch: Int,
   // assets that is in club vault
   assets: PValue,
-  // vault utxos
-  count_utxo: Int,
   // id of vault
   vault_id: Int,
 }
@@ -31,7 +29,6 @@ pub fn base_vault_state_datum() -> VaultStateDatum {
     min_vault_asset_ada: 0,
     last_active_epoch: 440,
     assets: pvalue.from_value(value.zero()),
-    count_utxo: 0,
     vault_id: 0,
   }
 }

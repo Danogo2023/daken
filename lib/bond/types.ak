@@ -79,6 +79,7 @@ pub type PlatformConfig {
   one_ada_2_lovelace: Int,
   // 1 bond = 100 ADA = 100_000_000 lovelace. default: 100 ADA = 100_000_000 lovelace
   bond_face_value: Int,
+  min_ada: Int,
 }
 
 pub type BondConfigLimit {
@@ -333,7 +334,11 @@ pub type DatumOf {
 pub type TradeAction {
   Update
   Buy
-  Sell
+  Sell {
+    exchange_fee: Lovelace,
+    offers: List<(PolicyId, AssetName, Int)>,
+    cont_idx: Option<Int>,
+  }
   Upgrade
   GarbageCollector
 }

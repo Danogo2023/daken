@@ -334,12 +334,7 @@ pub type DatumOf {
 pub type TradeAction {
   Update
   Buy
-  Sell {
-    exchange_fee: Lovelace,
-    seller_receive: Lovelace,
-    offers: List<(PolicyId, AssetName, Int)>,
-    cont_idx: Option<Int>,
-  }
+  Sell
   Upgrade
   GarbageCollector
 }

@@ -54,4 +54,6 @@ pub type PlatformConfig {
   min_apr: Int,
   // default: 6 epoch
   min_duration: Int,
+  // ada deposit addtionally to create borrow request, would be back to borrower when cancel
+  min_ada: Int,
 }

@@ -214,6 +214,9 @@ pub const system_force_redeem = 73
 /// (Club Policy) Withdraw Create With Pool
 pub const withdraw_create_with_pool = 75
 
+/// (Club Policy) Deposit Pool Cancel
+pub const deposit_pool_cancel = 77
+
 /// (Operator Fee) Operator Fee Calc NAV
 pub const operator_fee_calc_nav = 78
 

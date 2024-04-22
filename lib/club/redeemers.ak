@@ -55,7 +55,7 @@ pub const trading_state_close = 18
 /// (Trading State) Trading State Liquidation
 pub const trading_state_liquidation = 19
 
-/// (Trading State) Trading State Staking
+/// (Trading State) Trading State Staking Delegate
 pub const trading_state_staking = 21
 
 /// (Trading State) Trading State Calc NAV
@@ -175,7 +175,7 @@ pub const vault_state_upgrade_version = 60
 /// (Vault State) Vault State Platform Garbage Collect
 pub const vault_state_platform_garbage_collect = 61
 
-/// (Vault State) Vault State Staking
+/// (Vault State) Vault State Staking Delegate
 pub const vault_state_staking = 62
 
 /// (Vault State) Vault State Invest Danogo Bond Ask Limit
@@ -243,3 +243,18 @@ pub const vault_state_force_close_when_liquidated = 85
 
 /// (Operator Fee) Operator Fee Force Close when LIQUIDATED
 pub const operator_fee_force_close_when_liquidated = 86
+
+/// (Club Policy) Club Staking Delegate
+pub const policy_club_delegate = 87
+
+/// (Vault State) Club Staking Withdraw
+pub const vault_state_club_withdraw = 88
+
+/// (Trading State) Club Staking Withdraw
+pub const trading_state_club_withdraw = 89
+
+/// (Stake Account) Stake Publish Cert
+pub const stake_publish = 90
+
+/// (Club Policy) Stake Withdraw
+pub const stake_withdraw = 91

@@ -55,8 +55,8 @@ pub const trading_state_close = 18
 /// (Trading State) Trading State Liquidation
 pub const trading_state_liquidation = 19
 
-/// (Trading State) Trading State Staking Delegate
-pub const trading_state_staking = 21
+/// (Trading State) Trading State Club Delegate
+pub const trading_state_club_delegate = 21
 
 /// (Trading State) Trading State Calc NAV
 pub const trading_state_calc_nav = 22
@@ -175,8 +175,8 @@ pub const vault_state_upgrade_version = 60
 /// (Vault State) Vault State Platform Garbage Collect
 pub const vault_state_platform_garbage_collect = 61
 
-/// (Vault State) Vault State Staking Delegate
-pub const vault_state_staking = 62
+/// (Vault State) Vault State Club Delegate
+pub const vault_state_club_delegate = 62
 
 /// (Vault State) Vault State Invest Danogo Bond Ask Limit
 pub const vault_state_invest_danogo_bond_ask_limit = 63

@@ -208,8 +208,7 @@ pub type AskLimit {
 }
 
 pub type BidLimit {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
+  owner_addr: Address,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,
@@ -217,7 +216,7 @@ pub type BidLimit {
 }
 
 pub type BidLimitMulti {
-  owner_address: Address,
+  owner_addr: Address,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,

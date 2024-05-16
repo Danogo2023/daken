@@ -96,7 +96,7 @@ pub fn get_escrow_info(
         bond_amount: escrow_dt.bond_amount,
         start_epoch: epo_start,
         end_epoch: epo_end,
-        // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
+        // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc
         value_at_maturity: interest_at_maturity + cfg.bond_face_value,
         // So ngay den ky dao han cua bond
         day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch_config),
@@ -122,8 +122,7 @@ pub fn epoch_valid(epo_from: EpochTime, epo_to: EpochTime, out_qty: Int) -> Bool
 
 pub fn ask_limit_valid(left: AskLimit, right: AskLimit) -> Bool {
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
+    (left.owner_addr == right.owner_addr)?,
     (left.requested_yield == right.requested_yield)?,
   }
 }

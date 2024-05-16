@@ -331,7 +331,7 @@ pub fn calc_escrow_full_info(
     interest_level_lovelace: interest_level,
     interest_level_epoch,
     interest_at_maturity_one_bond: interest_at_maturity,
-    // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc 
+    // Tong tien goc + lai cua 1 bond theo lai suat Optim ma lender nhan duoc
     value_at_maturity: interest_at_maturity + cfg.bond_face_value,
     day_to_maturity: get_day_to_maturity(tx_time, epo_end, cfg.epoch),
   }
@@ -401,17 +401,7 @@ pub fn get_input_escrow(
 }
 
 pub fn gen_ask_limit_datum(owner: Address, requested_yield: Int) -> AskLimit {
-  AskLimit {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sc) -> sc
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
-    requested_yield,
-  }
+  AskLimit { owner_addr: owner, requested_yield }
 }
 
 pub fn gen_bid_limit_datum(

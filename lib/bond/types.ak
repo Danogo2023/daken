@@ -226,8 +226,7 @@ pub type BidLimitMulti {
 }
 
 pub type AskMaking {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
+  owner_addr: Address,
   requested_yield: Int,
   bid_sc: ScriptKeyHash,
   margin: Int,

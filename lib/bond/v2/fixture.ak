@@ -8,10 +8,7 @@ use aiken/time.{PosixTime}
 use aiken/transaction.{
   Datum, Input, Output, OutputReference, Transaction, TransactionId,
 }
-use aiken/transaction/credential.{
-  Address, Inline, ScriptCredential, VerificationKeyCredential, from_script,
-  from_verification_key,
-}
+use aiken/transaction/credential.{Address, from_script, from_verification_key}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidLimitMulti, BidMaking, BondConfigLimit,
@@ -133,10 +130,10 @@ pub fn get_platform_config_mainnet() -> PlatformConfig {
 pub fn get_escrow_config() -> EscrowConfig {
   dict.new()
     |> dict.insert(
-        get_escrow_address_hash(),
-        (get_escrow_policy_id(), DanogoBond),
-        bytearray.compare,
-      )
+         get_escrow_address_hash(),
+         (get_escrow_policy_id(), DanogoBond),
+         bytearray.compare,
+       )
 }
 
 pub fn get_config_limit_preview() -> BondConfigLimit {
@@ -467,14 +464,7 @@ pub fn gen_bid_making_datum(
   requested_yield: Int,
 ) -> BidMaking {
   BidMaking {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     from_epoch,
     to_epoch,
     quantity,
@@ -492,14 +482,7 @@ pub fn gen_tampered_bid_making_datum(
   requested_yield: Int,
 ) -> BidMaking {
   BidMaking {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     from_epoch,
     to_epoch,
     quantity,

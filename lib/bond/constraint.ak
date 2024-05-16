@@ -147,8 +147,7 @@ pub fn ask_making_valid(left: AskMaking, right: AskMaking) -> Bool {
 
 pub fn bid_making_valid(left: BidMaking, right: BidMaking) -> Bool {
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
+    (left.owner_addr == right.owner_addr)?,
     (left.from_epoch == right.from_epoch)?,
     (left.to_epoch == right.to_epoch)?,
     (left.requested_yield == right.requested_yield)?,

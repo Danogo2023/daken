@@ -70,6 +70,7 @@ pub type StakeKeyFeedDatum {
   stake_keys: List<ScriptKeyHash>,
   batcher_address: Address,
   total_deposit_pool_supply: Int,
+  club_closed_at_epoch: Int,
 }
 
 pub type DefiProtocolActionFeedDatum {
@@ -138,6 +139,7 @@ pub fn base_stake_key_datum() -> StakeKeyFeedDatum {
     stake_keys: [],
     batcher_address: from_verification_key(""),
     total_deposit_pool_supply: 0,
+    club_closed_at_epoch: -1,
   }
 }
 

@@ -166,8 +166,7 @@ pub fn yield_valid(basis: BasisPoints, v: Int) -> Bool {
 
 pub fn bid_limit_multi_valid(left: BidLimitMulti, right: BidLimitMulti) -> Bool {
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
+    (left.owner_address == right.owner_address)?,
     (left.from_epoch == right.from_epoch)?,
     (left.to_epoch == right.to_epoch)?,
     (left.requested_yield == right.requested_yield)?,

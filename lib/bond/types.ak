@@ -232,8 +232,7 @@ pub type AskMaking {
 }
 
 pub type BidMaking {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
+  owner_addr: Address,
   from_epoch: Int,
   to_epoch: Int,
   quantity: Int,

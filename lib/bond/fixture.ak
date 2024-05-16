@@ -6,10 +6,7 @@ use aiken/interval.{
 use aiken/transaction.{
   Datum, Input, Output, OutputReference, Transaction, TransactionId,
 }
-use aiken/transaction/credential.{
-  Address, Inline, ScriptCredential, VerificationKeyCredential, from_script,
-  from_verification_key,
-}
+use aiken/transaction/credential.{Address, from_script, from_verification_key}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidMaking, BondConfig, ConfigLimit,
@@ -446,14 +443,7 @@ pub fn gen_bid_making_datum(
   requested_yield: Int,
 ) -> BidMaking {
   BidMaking {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     from_epoch,
     to_epoch,
     quantity,
@@ -471,14 +461,7 @@ pub fn gen_tampered_bid_making_datum(
   requested_yield: Int,
 ) -> BidMaking {
   BidMaking {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     from_epoch,
     to_epoch,
     quantity,

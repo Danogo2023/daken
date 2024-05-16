@@ -215,6 +215,11 @@ pub type BidLimit {
   requested_yield: Int,
 }
 
+pub type EpochType {
+  Absolute
+  RelativeToCurrentEpoch
+}
+
 pub type BidLimitMulti {
   owner_addr: Address,
   from_epoch: Int,
@@ -222,6 +227,7 @@ pub type BidLimitMulti {
   quantity: Int,
   requested_yield: Int,
   bond_types: List<BondType>,
+  epoch_type: EpochType,
 }
 
 pub type AskMaking {

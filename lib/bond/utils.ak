@@ -9,8 +9,9 @@ use aiken/transaction.{
 use aiken/transaction/credential.{ScriptCredential}
 use aiken/transaction/value.{AssetName, Value}
 use bond/types.{
-  BondType, Buy, EscrowConfig, EscrowDatum, EscrowInfo, EscrowRef,
-  GarbageCollector, PlatformConfig, Sell, TradeAction, Update, Upgrade,
+  Absolute, BondType, Buy, EpochType, EscrowConfig, EscrowDatum, EscrowInfo,
+  EscrowRef, GarbageCollector, PlatformConfig, RelativeToCurrentEpoch, Sell,
+  TradeAction, Update, Upgrade,
 } as bond_types
 use common/pvalue
 use common/string.{bconcat_1, bconcat_3, to_unit_3} as common_string
@@ -517,5 +518,18 @@ pub fn get_garbage_collector_value(
         ),
       )
     Error(e) -> Error(e)
+  }
+}
+
+pub fn get_maturity_range_by_epoch_type(
+  epoch_type: EpochType,
+  current_epoch: EpochTime,
+  from_epoch: Int,
+  to_epoch: Int,
+) {
+  when epoch_type is {
+    Absolute -> (from_epoch, to_epoch)
+    RelativeToCurrentEpoch ->
+      (current_epoch + from_epoch, current_epoch + to_epoch)
   }
 }

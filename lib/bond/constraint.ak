@@ -115,6 +115,7 @@ pub fn yield_making_valid(conf: ConfigMaking, val: Basis) -> Bool {
 
 pub fn epoch_valid(epo_from: EpochTime, epo_to: EpochTime, out_qty: Int) -> Bool {
   and {
+    (epo_from >= 0)?, 
     (epo_to >= epo_from)?,
     (out_qty > 0)?,
   }
@@ -167,5 +168,6 @@ pub fn bid_limit_multi_valid(left: BidLimitMulti, right: BidLimitMulti) -> Bool 
     (left.to_epoch == right.to_epoch)?,
     (left.requested_yield == right.requested_yield)?,
     (list.difference(left.bond_types, right.bond_types) == [])?,
+    (left.epoch_type == right.epoch_type)?,
   }
 }

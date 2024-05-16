@@ -12,7 +12,7 @@ use aiken/transaction/credential.{Address, from_script, from_verification_key}
 use aiken/transaction/value.{AssetName, PolicyId, Value}
 use bond/types.{
   AskLimit, AskMaking, BidLimit, BidLimitMulti, BidMaking, BondConfigLimit,
-  BondConfigMaking, BondType, DanogoBond, EscrowConfig, EscrowDatum,
+  BondConfigMaking, BondType, DanogoBond, EpochType, EscrowConfig, EscrowDatum,
   ExchangeConfigLimit, ExchangeConfigMaking, PaymentDatum, PlatformConfig,
 }
 use bond/utils.{get_day_to_maturity}
@@ -424,6 +424,7 @@ pub fn gen_bid_limit_multi_datum(
   quantity: Int,
   requested_yield: Int,
   bond_types: List<BondType>,
+  epoch_type: EpochType,
 ) -> BidLimitMulti {
   BidLimitMulti {
     owner_addr: owner,
@@ -432,6 +433,7 @@ pub fn gen_bid_limit_multi_datum(
     quantity,
     requested_yield,
     bond_types,
+    epoch_type,
   }
 }
 

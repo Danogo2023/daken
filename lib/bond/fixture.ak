@@ -409,14 +409,7 @@ pub fn gen_bid_limit_datum(
   requested_yield: Int,
 ) -> BidLimit {
   BidLimit {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     from_epoch,
     to_epoch,
     quantity,

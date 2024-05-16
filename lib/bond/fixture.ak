@@ -426,14 +426,7 @@ pub fn gen_bid_limit_datum(
 
 pub fn gen_ask_making_datum(owner: Address, requested_yield: Int) -> AskMaking {
   AskMaking {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     requested_yield,
     bid_sc: get_bid_sc_address_hash(),
     margin: 1,
@@ -445,14 +438,7 @@ pub fn gen_tampered_ask_making_datum(
   requested_yield: Int,
 ) -> AskMaking {
   AskMaking {
-    owner_vk: when owner.payment_credential is {
-      VerificationKeyCredential(vk) -> vk
-      ScriptCredential(sh) -> sh
-    },
-    owner_sk: when owner.stake_credential is {
-      Some(Inline(VerificationKeyCredential(vk))) -> Some(vk)
-      _ -> None
-    },
+    owner_addr: owner,
     requested_yield,
     bid_sc: get_fraud_address_hash(),
     margin: 1,

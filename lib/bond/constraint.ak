@@ -139,8 +139,7 @@ pub fn bid_limit_valid(left: BidLimit, right: BidLimit) -> Bool {
 
 pub fn ask_making_valid(left: AskMaking, right: AskMaking) -> Bool {
   and {
-    (left.owner_vk == right.owner_vk)?,
-    (left.owner_sk == right.owner_sk)?,
+    (left.owner_addr == right.owner_addr)?,
     (left.requested_yield == right.requested_yield)?,
     (left.bid_sc == right.bid_sc)?,
     (left.margin == right.margin)?,

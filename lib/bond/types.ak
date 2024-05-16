@@ -203,8 +203,7 @@ pub type PaymentDatum {
 }
 
 pub type AskLimit {
-  owner_vk: PublicKeyHash,
-  owner_sk: Option<PublicKeyHash>,
+  owner_addr: Address,
   requested_yield: Int,
 }
 

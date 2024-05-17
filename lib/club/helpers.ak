@@ -101,6 +101,13 @@ pub fn get_withdraw_state_address(pp: ProtocolParams) -> Address {
   }
 }
 
+pub fn get_danogo_feed_address(pp: ProtocolParams) -> Address {
+  Address {
+    payment_credential: ScriptCredential(pp.danogo_feed_skh),
+    stake_credential: Some(pp.default_stake_key),
+  }
+}
+
 pub fn get_withdraw_pool_address(pp: ProtocolParams) -> Address {
   Address {
     payment_credential: ScriptCredential(pp.withdraw_pool_skh),

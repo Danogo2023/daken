@@ -7,6 +7,8 @@ use common/types.{PublicKeyHash, ScriptKeyHash}
 
 pub type ProtocolParams {
   platform_halt: Bool,
+  // Danogo Feed
+  danogo_feed_skh: ScriptKeyHash,
   // === club addresses ===
   // club states
   general_state_skh: ScriptKeyHash,
@@ -87,6 +89,8 @@ pub type DefiProtocolActionFeedDatum {
 // gives base object, used for testing
 pub fn base_protocol_params() -> ProtocolParams {
   ProtocolParams {
+    // Danogo Feed
+    danogo_feed_skh: "",
     platform_halt: False,
     // === club addresses ===
     // club states

@@ -38,6 +38,10 @@ pub fn get_redeem_pool_nft_name() -> ByteArray {
   bytearray.concat(constants.prefix_nft, #"09")
 }
 
+pub fn get_stake_key_nft_name() -> ByteArray {
+  bytearray.concat(constants.prefix_nft, #"0a")
+}
+
 pub fn get_operator_share_token_prefix() -> ByteArray {
   bytearray.concat(constants.prefix_ft, #"10")
 }

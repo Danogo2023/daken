@@ -11,11 +11,6 @@ pub fn get_price_feed_token_name() -> ByteArray {
   bytearray.concat(constants.prefix_ft, "pDGC")
 }
 
-// Danogo Club Stake Key
-pub fn get_stake_key_token_name() -> ByteArray {
-  bytearray.concat(constants.prefix_ft, "sDGC")
-}
-
 // Danogo Club Defi Protocol Feed
 pub fn get_defi_protocol_token_name() -> ByteArray {
   bytearray.concat(constants.prefix_ft, "dDGC")

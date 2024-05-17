@@ -19,8 +19,8 @@ pub type TradingStateDatum {
   total_vault_supply: Int,
   // increment id
   vault_id: Int,
-  // index of stake keys this club has delegated
-  delegated_idx_stake_keys: List<Int>,
+  // how many stake key this club has registered
+  registered_stake_key_count: Int,
   // last time this club withdraw rewards from staking
   last_rewards_withdrawal_at_epoch: Int,
 }
@@ -35,7 +35,7 @@ pub fn base_trading_state_datum() -> TradingStateDatum {
     force_closed_at_epoch: 440,
     total_vault_supply: 0,
     vault_id: 0,
-    delegated_idx_stake_keys: [],
+    registered_stake_key_count: 0,
     last_rewards_withdrawal_at_epoch: 0,
   }
 }

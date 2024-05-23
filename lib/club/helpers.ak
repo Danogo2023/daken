@@ -204,6 +204,10 @@ pub fn get_vault_asset_pkey(pp: ProtocolParams) -> PaymentCredential {
   ScriptCredential(pp.vault_state_skh)
 }
 
+pub fn get_danogo_feed_pkey(pp: ProtocolParams) -> PaymentCredential {
+  ScriptCredential(pp.danogo_feed_skh)
+}
+
 pub fn get_dict_ref_inputs(
   club_pid: PolicyId,
   pp: ProtocolParams,

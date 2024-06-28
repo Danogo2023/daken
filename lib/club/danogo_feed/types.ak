@@ -75,15 +75,20 @@ pub type StakeKeyFeedDatum {
   club_closed_at_epoch: Int,
 }
 
-pub type DefiProtocolActionFeedDatum {
+pub type DefiProtocolFeedDatum {
   // defi protocol id
-  id: Int,
-  // action key
-  action_key: ByteArray,
-  // valid defi addresses
-  addresses: List<Address>,
-  // batcher corresponding to this action
-  batcher_address: Option<Address>,
+  defi_protocol_id: Int,
+  // withdraw_skh: withdraw-zero used to fully check the whole trading txn
+  withdraw_skh: ByteArray,
+  // action_key: define redeemer needed to supply withdraw_skh to do action
+  action_key: Int,
+}
+
+pub type DefiWithdrawRedeemer {
+  // used to specify which club to do action
+  club_policy_id: PolicyId,
+  // action_key: define redeemer needed to supply withdraw_skh to do action
+  action_key: Int,
 }
 
 // gives base object, used for testing
@@ -148,11 +153,10 @@ pub fn base_stake_key_datum() -> StakeKeyFeedDatum {
 }
 
 // gives base object, used for testing
-pub fn base_defi_protocol_action_feed_datum() -> DefiProtocolActionFeedDatum {
-  DefiProtocolActionFeedDatum {
-    id: 0,
-    action_key: "",
-    addresses: [],
-    batcher_address: None,
+pub fn base_defi_protocol_action_feed_datum() -> DefiProtocolFeedDatum {
+  DefiProtocolFeedDatum {
+    defi_protocol_id: 0,
+    withdraw_skh: "",
+    action_key: 0,
   }
 }

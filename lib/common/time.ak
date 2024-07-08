@@ -203,6 +203,17 @@ pub fn get_current_epoch_with_ttl(
   posix_time_to_relative_epoch(tx_time, cfg)
 }
 
+pub fn get_current_epoch_and_boundaries_with_ttl(
+  v: ValidityRange,
+  cfg: EpochConfig,
+  ttl: Seconds,
+  slot_length: Milliseconds,
+) -> (EpochTime, PosixTime, PosixTime) {
+  expect OK((start_time, end_time)) =
+    tx_validity_valid_with_boundaries(v, slot_length, Some(ttl), True)
+  (posix_time_to_relative_epoch(start_time, cfg), start_time, end_time)
+}
+
 test posix_time_to_relative_epoch_test1() {
   posix_time_to_relative_epoch(1700553368000, get_epoch_config_preview()) == 29580
 }
@@ -241,6 +252,43 @@ pub fn tx_validity_valid(
         (tx_end - tx_start <= expire)?,
       } {
         OK(tx_start)
+      } else {
+        Error(@"tx time invalid")
+      }
+    }
+    _ -> Error(@"tx time not set")
+  }
+}
+
+pub fn tx_validity_valid_with_boundaries(
+  v: ValidityRange,
+  slot_length: Milliseconds,
+  ttl: Option<Seconds>,
+  tx_end_must_set: Bool,
+) -> Result<(PosixTime, PosixTime), String> {
+  when v.lower_bound.bound_type is {
+    Finite(tx_start) -> {
+      let expire =
+        when ttl is {
+          Some(x) -> x
+          None -> 3 * 60
+        } * slot_length
+      let tx_end =
+        when v.upper_bound.bound_type is {
+          Finite(x) -> x
+          _ ->
+            if tx_end_must_set {
+              0
+            } else {
+              tx_start + expire
+            }
+        }
+      if and {
+        (tx_start > 0)?,
+        (tx_end >= tx_start)?,
+        (tx_end - tx_start <= expire)?,
+      } {
+        OK((tx_start, tx_end))
       } else {
         Error(@"tx time invalid")
       }

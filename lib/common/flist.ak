@@ -11,6 +11,14 @@ pub fn get(self: List<a>, at: Int) -> a {
   head
 }
 
+pub fn oget(self: List<a>, at: Int) -> Option<a> {
+  expect at >= 0
+  when advance(self, at) is {
+    [] -> None
+    [head, ..] -> Some(head)
+  }
+}
+
 fn advance(self: List<a>, idx: Int) -> List<a> {
   if idx >= 10 {
     advance(
@@ -91,4 +99,18 @@ test get_8() fail {
 // empty array
 test get_9() fail {
   get([], 0) == 0
+}
+
+// out of range expect None
+test oget_1() {
+  oget([0, 1], 2) == None
+}
+
+test oget_2() {
+  oget([0, 1], 1) == Some(1)
+}
+
+// empty array
+test oget_3() fail {
+  oget([], 0) == Some(0)
 }

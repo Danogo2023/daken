@@ -1,7 +1,7 @@
 name = "danogo2023/daken"
-version = "1.1.1"
-compiler = "v1.0.29-alpha"
-plutus = "v2"
+version = "2.0.0"
+compiler = "v1.1.2"
+plutus = "v3"
 license = "Apache-2.0"
 description = "Danogo Aiken Library"
 
@@ -12,5 +12,7 @@ platform = "github"
 
 [[dependencies]]
 name = "aiken-lang/stdlib"
-version = "1.9.0"
+version = "v2.1.0"
 source = "github"
+
+[config]

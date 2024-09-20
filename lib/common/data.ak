@@ -1,4 +1,4 @@
-use aiken/transaction.{InlineDatum, Input, Output}
+use cardano/transaction.{InlineDatum, Input, Output}
 
 pub fn input_datum(possible_input: Input) -> Data {
   expect InlineDatum(inbound_datum) = possible_input.output.datum

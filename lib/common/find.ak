@@ -1,5 +1,5 @@
-use aiken/pairs
-use aiken/transaction.{OutputReference, Redeemer, ScriptPurpose, Spend}
+use aiken/collection/pairs
+use cardano/transaction.{OutputReference, Redeemer, ScriptPurpose, Spend}
 
 pub fn redeemer_by_ref(
   redeemers: Pairs<ScriptPurpose, Redeemer>,

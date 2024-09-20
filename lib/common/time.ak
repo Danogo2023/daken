@@ -1,9 +1,8 @@
 use aiken/interval.{
   Finite, Interval, IntervalBound, PositiveInfinity, entirely_between,
 }
-use aiken/time.{PosixTime}
-use aiken/transaction.{ValidityRange}
-use common/types.{Error, OK, Result}
+use cardano/transaction.{ValidityRange}
+use common/types.{Error, OK, PosixTime, Result}
 
 pub type Basis =
   Int

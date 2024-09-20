@@ -1,6 +1,6 @@
-use aiken/list
-use aiken/transaction.{Input, Output, OutputReference}
-use aiken/transaction/credential.{ScriptCredential}
+use aiken/collection/list
+use cardano/address.{Script}
+use cardano/transaction.{Input, Output, OutputReference}
 use common/types.{ScriptKeyHash}
 
 pub fn own_validator_script_address_hash(
@@ -9,7 +9,7 @@ pub fn own_validator_script_address_hash(
 ) -> ScriptKeyHash {
   expect Some(input) =
     list.find(inputs, fn(input) { input.output_reference == output_reference })
-  expect ScriptCredential(hash) = input.output.address.payment_credential
+  expect Script(hash) = input.output.address.payment_credential
 
   hash
 }
@@ -30,7 +30,7 @@ pub fn any_output_contains_own_validator_address(
       outputs,
       fn(o) {
         when o.address.payment_credential is {
-          ScriptCredential(_) -> True
+          Script(_) -> True
           _ -> False
         }
       },
@@ -39,8 +39,7 @@ pub fn any_output_contains_own_validator_address(
   list.any(
     script_creds,
     fn(output) {
-      expect ScriptCredential(output_script_hash) =
-        output.address.payment_credential
+      expect Script(output_script_hash) = output.address.payment_credential
 
       output_script_hash == validator_hash
     },

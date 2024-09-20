@@ -1,5 +1,5 @@
-use aiken/transaction/credential.{Address}
-use aiken/transaction/value.{AssetName, PolicyId}
+use cardano/address.{Address}
+use cardano/assets.{AssetName, PolicyId}
 use common/pvalue.{PValue}
 use common/time.{BasisPoints, EpochConfig, SlotConfig}
 

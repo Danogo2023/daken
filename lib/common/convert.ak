@@ -1,5 +1,5 @@
 use aiken/builtin
-use aiken/bytearray
+use aiken/primitive/bytearray
 
 /// convert a number into its bytearray's representative
 /// e.g: 0xABCD1, 5 -> #"00 00 0A BC D1"

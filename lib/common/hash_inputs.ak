@@ -1,9 +1,9 @@
-use aiken/bytearray
-use aiken/hash.{Blake2b_256, Hash, blake2b_256}
-use aiken/list
-use aiken/transaction.{Input, NoDatum, Output, OutputReference, TransactionId}
-use aiken/transaction/credential
-use aiken/transaction/value
+use aiken/collection/list
+use aiken/crypto.{Blake2b_256, Hash, blake2b_256}
+use aiken/primitive/bytearray
+use cardano/address
+use cardano/assets
+use cardano/transaction.{Input, NoDatum, Output, OutputReference}
 use common/convert
 
 pub fn inputs_contain_outref(
@@ -19,10 +19,10 @@ pub fn hash_inputs(inputs: List<Input>) -> Hash<Blake2b_256, ByteArray> {
       inputs,
       #"",
       fn(i: Input, ret: ByteArray) -> ByteArray {
-        i.output_reference.transaction_id.hash
+        i.output_reference.transaction_id
           |> bytearray.concat(
-               convert.int_to_digit(i.output_reference.output_index),
-             )
+              convert.int_to_digit(i.output_reference.output_index),
+            )
           |> bytearray.concat(ret, _)
       },
     ),
@@ -52,18 +52,18 @@ pub fn quicksort_asc_inputs(inputs: List<Input>) -> List<Input> {
       let before =
         tail
           |> list.filter(
-               fn(x) {
-                 x.output_reference.output_index <= p.output_reference.output_index
-               },
-             )
+              fn(x) {
+                x.output_reference.output_index <= p.output_reference.output_index
+              },
+            )
           |> quicksort_asc_inputs
       let after =
         tail
           |> list.filter(
-               fn(x) {
-                 x.output_reference.output_index > p.output_reference.output_index
-               },
-             )
+              fn(x) {
+                x.output_reference.output_index > p.output_reference.output_index
+              },
+            )
           |> quicksort_asc_inputs
       list.concat(before, [p, ..after])
     }
@@ -84,12 +84,12 @@ test succ_hash_inputs_not_sort() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -97,12 +97,12 @@ test succ_hash_inputs_not_sort() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "mid" },
+        transaction_id: "mid",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -110,12 +110,12 @@ test succ_hash_inputs_not_sort() {
   let utxo3 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -123,12 +123,12 @@ test succ_hash_inputs_not_sort() {
   let utxo4 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -136,12 +136,12 @@ test succ_hash_inputs_not_sort() {
   let utxo5 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -151,7 +151,7 @@ test succ_hash_inputs_not_sort() {
   //     [utxo1, utxo2, utxo3, utxo4, utxo5],
   //     #"",
   //     fn(outref: Input, ret: ByteArray) -> ByteArray {
-  //       outref.output_reference.transaction_id.hash
+  //       outref.output_reference.transaction_id
   //         |> bytearray.concat(convert.int_to_digit(outref.output_reference.output_index))
   //         |> bytearray.concat(ret, _)
   //     },
@@ -164,12 +164,12 @@ test succ_hash_inputs_sort_asc() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -177,12 +177,12 @@ test succ_hash_inputs_sort_asc() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "mid" },
+        transaction_id: "mid",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -190,12 +190,12 @@ test succ_hash_inputs_sort_asc() {
   let utxo3 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -203,12 +203,12 @@ test succ_hash_inputs_sort_asc() {
   let utxo4 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -216,12 +216,12 @@ test succ_hash_inputs_sort_asc() {
   let utxo5 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -231,7 +231,7 @@ test succ_hash_inputs_sort_asc() {
   //     [utxo3, utxo2, utxo1, utxo5, utxo4, utxo4],
   //     #"",
   //     fn(outref: Input, ret: ByteArray) -> ByteArray {
-  //       outref.output_reference.transaction_id.hash
+  //       outref.output_reference.transaction_id
   //         |> bytearray.concat(convert.int_to_digit(outref.output_reference.output_index))
   //         |> bytearray.concat(ret, _)
   //     },
@@ -244,12 +244,12 @@ test succ_hash_inputs_quicksort_asc() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -257,12 +257,12 @@ test succ_hash_inputs_quicksort_asc() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "mid" },
+        transaction_id: "mid",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -270,12 +270,12 @@ test succ_hash_inputs_quicksort_asc() {
   let utxo3 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -283,12 +283,12 @@ test succ_hash_inputs_quicksort_asc() {
   let utxo4 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -296,12 +296,12 @@ test succ_hash_inputs_quicksort_asc() {
   let utxo5 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -311,7 +311,7 @@ test succ_hash_inputs_quicksort_asc() {
   //     [utxo3, utxo2, utxo1, utxo5, utxo4, utxo4],
   //     #"",
   //     fn(outref: Input, ret: ByteArray) -> ByteArray {
-  //       outref.output_reference.transaction_id.hash
+  //       outref.output_reference.transaction_id
   //         |> bytearray.concat(convert.int_to_digit(outref.output_reference.output_index))
   //         |> bytearray.concat(ret, _)
   //     },
@@ -322,7 +322,7 @@ test succ_hash_inputs_quicksort_asc() {
 
 pub fn hash_input(i: Input) -> Hash<Blake2b_256, ByteArray> {
   blake2b_256(
-    i.output_reference.transaction_id.hash
+    i.output_reference.transaction_id
       |> bytearray.concat(convert.int_to_digit(i.output_reference.output_index)),
   )
 }
@@ -331,14 +331,12 @@ test succ_hash_input() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId {
-          hash: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
-        },
+        transaction_id: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -365,12 +363,12 @@ test succ_hash_inputs_head_sort_asc() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 1,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -378,14 +376,12 @@ test succ_hash_inputs_head_sort_asc() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId {
-          hash: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
-        },
+        transaction_id: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -393,12 +389,12 @@ test succ_hash_inputs_head_sort_asc() {
   let utxo3 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 1,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -406,12 +402,12 @@ test succ_hash_inputs_head_sort_asc() {
   let utxo4 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -419,12 +415,12 @@ test succ_hash_inputs_head_sort_asc() {
   let utxo5 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -451,12 +447,12 @@ test succ_hash_inputs_last_sort_asc() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -464,12 +460,12 @@ test succ_hash_inputs_last_sort_asc() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "mid" },
+        transaction_id: "mid",
         output_index: 2,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -477,12 +473,12 @@ test succ_hash_inputs_last_sort_asc() {
   let utxo3 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 1,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -490,12 +486,12 @@ test succ_hash_inputs_last_sort_asc() {
   let utxo4 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -503,12 +499,12 @@ test succ_hash_inputs_last_sort_asc() {
   let utxo5 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -524,7 +520,7 @@ pub fn hash_input_salt(
   salt: ByteArray,
 ) -> Hash<Blake2b_256, ByteArray> {
   blake2b_256(
-    i.output_reference.transaction_id.hash
+    i.output_reference.transaction_id
       |> bytearray.concat(convert.int_to_digit(i.output_reference.output_index))
       |> bytearray.concat(salt),
   )
@@ -535,14 +531,12 @@ test succ_hash_input_salt() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId {
-          hash: #"23850612667a59e236ceeea412440b446fa697f2b988eb05e070aaa18c8cad0f",
-        },
+        transaction_id: #"23850612667a59e236ceeea412440b446fa697f2b988eb05e070aaa18c8cad0f",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -568,12 +562,12 @@ test succ_hash_inputs_head_salt_sort_asc() {
   let utxo1 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 1,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -581,14 +575,12 @@ test succ_hash_inputs_head_salt_sort_asc() {
   let utxo2 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId {
-          hash: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
-        },
+        transaction_id: #"2b405c773982c6cddf1d8b8a80769a84851f3ce21febbb227777b3ba43be14f1",
         output_index: 0,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -596,12 +588,12 @@ test succ_hash_inputs_head_salt_sort_asc() {
   let utxo3 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 1,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -609,12 +601,12 @@ test succ_hash_inputs_head_salt_sort_asc() {
   let utxo4 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "lastTxn" },
+        transaction_id: "lastTxn",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },
@@ -622,12 +614,12 @@ test succ_hash_inputs_head_salt_sort_asc() {
   let utxo5 =
     Input {
       output_reference: OutputReference {
-        transaction_id: TransactionId { hash: "beg" },
+        transaction_id: "beg",
         output_index: 3,
       },
       output: Output {
-        address: credential.from_script(#""),
-        value: value.zero(),
+        address: address.from_script(#""),
+        value: assets.zero,
         datum: NoDatum,
         reference_script: None,
       },

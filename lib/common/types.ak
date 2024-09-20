@@ -1,6 +1,5 @@
-use aiken/dict.{Dict}
-use aiken/hash.{Blake2b_224, Blake2b_256, Hash}
-use aiken/transaction/credential.{Script, VerificationKey}
+use aiken/collection/dict.{Dict}
+use aiken/crypto.{Blake2b_224, Blake2b_256, Hash, Script, VerificationKey}
 
 pub type PublicKeyHash =
   Hash<Blake2b_224, VerificationKey>
@@ -21,3 +20,6 @@ pub type Result<a, b> {
   OK(a)
   Error(b)
 }
+
+pub type PosixTime =
+  Int

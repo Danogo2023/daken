@@ -1,5 +1,5 @@
 use aiken/builtin.{mod_integer}
-use aiken/int
+use aiken/primitive/int
 
 /// Returns a min of two elements.
 ///

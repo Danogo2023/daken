@@ -1,7 +1,6 @@
-use aiken/bytearray
-use aiken/cbor
-use aiken/string
-use aiken/transaction/value.{AssetName, PolicyId}
+use aiken/primitive/bytearray
+use aiken/primitive/string
+use cardano/assets.{AssetName, PolicyId}
 
 pub fn compare(left: String, right: String) -> Ordering {
   bytearray.compare(string.to_bytearray(left), string.to_bytearray(right))
@@ -16,7 +15,7 @@ test to_unit_1_test() {
   let n = #"f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
   let r = to_unit_1(p, @".", n)
   trace r
-  r == @"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f.f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
+  r == @"5F1DD3192CBDAA2C1A91560A6147466EFB18D33A5D6516B266CE6B6F.F64C5F8EBA3B5A60AFF7B4068D0F321F5560DB242E56345B8BD04017EBE47BEF"
 }
 
 pub fn to_unit_2(pid: PolicyId, sep: String, a: AssetName) -> ByteArray {
@@ -28,7 +27,7 @@ test to_unit_2_test() {
   let n = #"f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
   let r = bytearray.to_hex(to_unit_2(p, @".", n))
   trace r
-  r == @"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f2ef64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
+  r == @"5F1DD3192CBDAA2C1A91560A6147466EFB18D33A5D6516B266CE6B6F2EF64C5F8EBA3B5A60AFF7B4068D0F321F5560DB242E56345B8BD04017EBE47BEF"
 }
 
 pub fn to_unit_3(pid: PolicyId, sep: String, a: AssetName) -> String {
@@ -42,16 +41,16 @@ test to_unit_3_test_1() {
   let n = #"f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
   let r = to_unit_3(p, @".", n)
   trace r
-  r == @"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f.f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
+  r == @"5F1DD3192CBDAA2C1A91560A6147466EFB18D33A5D6516B266CE6B6F.F64C5F8EBA3B5A60AFF7B4068D0F321F5560DB242E56345B8BD04017EBE47BEF"
 }
 
 test to_unit_3_test_2() {
   let p = #"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f"
   let n = #"f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
   let r = bytearray.from_string(to_unit_3(p, @".", n))
-  trace cbor.diagnostic(r)
+  trace r
   trace bytearray.to_string(r)
-  bytearray.to_string(r) == @"5f1dd3192cbdaa2c1a91560a6147466efb18d33a5d6516b266ce6b6f.f64c5f8eba3b5a60aff7b4068d0f321f5560db242e56345b8bd04017ebe47bef"
+  bytearray.to_string(r) == @"5F1DD3192CBDAA2C1A91560A6147466EFB18D33A5D6516B266CE6B6F.F64C5F8EBA3B5A60AFF7B4068D0F321F5560DB242E56345B8BD04017EBE47BEF"
 }
 
 pub fn print_compare(

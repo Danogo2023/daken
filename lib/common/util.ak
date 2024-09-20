@@ -1,18 +1,16 @@
-use aiken/bytearray
-use aiken/dict
-use aiken/list
-use aiken/transaction.{
-  Datum, DatumHash, InlineDatum, Input, NoDatum, ScriptContext, Spend,
-  Transaction,
+use aiken/collection/dict
+use aiken/collection/list
+use aiken/primitive/bytearray
+use cardano/address.{Address, Script, VerificationKey}
+use cardano/assets.{PolicyId}
+use cardano/script_context.{ScriptContext, Spending}
+use cardano/transaction.{
+  Datum, DatumHash, InlineDatum, Input, NoDatum, Transaction,
 }
-use aiken/transaction/credential.{
-  Address, ScriptCredential, VerificationKeyCredential,
-}
-use aiken/transaction/value.{PolicyId}
 use common/types.{Datums, PublicKeyHash}
 
 pub fn get_spending_input(ctx: ScriptContext) -> Input {
-  expect Spend(output_reference) = ctx.purpose
+  expect Spending(output_reference, _datum) = ctx.info
   expect Some(input) =
     list.find(
       ctx.transaction.inputs,
@@ -36,8 +34,8 @@ pub fn get_data(datums: Datums, datum: Datum) -> Option<Data> {
 
 pub fn get_payment_key(a: Address) -> ByteArray {
   when a.payment_credential is {
-    VerificationKeyCredential(v) -> v
-    ScriptCredential(s) -> s
+    VerificationKey(v) -> v
+    Script(s) -> s
   }
 }
 
@@ -52,8 +50,8 @@ pub fn must_be_signed_by(pkhs: List<PublicKeyHash>, a: Address) -> Bool {
   list.has(
     pkhs,
     when a.payment_credential is {
-      VerificationKeyCredential(v) -> v
-      ScriptCredential(_) -> fail @"Invalid PublicKeyHash"
+      VerificationKey(v) -> v
+      Script(_) -> fail @"Invalid PublicKeyHash"
     },
   )
 }
@@ -223,7 +221,6 @@ pub fn data_valid(
 pub fn is_burned_nft(tx: Transaction, policy_id: PolicyId, nft_name: ByteArray) {
   (
     tx.mint
-      |> value.from_minted_value
-      |> value.quantity_of(policy_id, nft_name)
+      |> assets.quantity_of(policy_id, nft_name)
   ) == -1
 }

@@ -1,4 +1,4 @@
-use common/time.{EpochConfig}
+use daken/time.{EpochConfig}
 
 pub fn get_epoch_config_mainnet() -> EpochConfig {
   EpochConfig {

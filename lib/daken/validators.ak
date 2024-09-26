@@ -1,7 +1,7 @@
 use aiken/collection/list
 use cardano/address.{Script}
 use cardano/transaction.{Input, Output, OutputReference}
-use common/types.{ScriptKeyHash}
+use daken/types.{ScriptKeyHash}
 
 pub fn own_validator_script_address_hash(
   inputs: List<Input>,

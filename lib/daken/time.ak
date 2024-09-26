@@ -2,10 +2,7 @@ use aiken/interval.{
   Finite, Interval, IntervalBound, PositiveInfinity, entirely_between,
 }
 use cardano/transaction.{ValidityRange}
-use common/types.{Error, OK, PosixTime, Result}
-
-pub type Basis =
-  Int
+use daken/types.{Basis, Error, OK, PosixTime, Result}
 
 pub type BasisPoints {
   // basis_points reference value, default: 10_000
@@ -40,26 +37,6 @@ pub type SlotConfig {
   slot_length: Milliseconds,
 }
 
-pub fn get_epoch_config_preview() -> EpochConfig {
-  EpochConfig {
-    year_to_epoch: 73,
-    epoch_boundary: 1647899091000,
-    epoch_boundary_as_epoch: 328,
-    epoch_length: 1800000,
-    epoch_length_base: 432000000,
-  }
-}
-
-pub fn get_epoch_config_mainnet() -> EpochConfig {
-  EpochConfig {
-    year_to_epoch: 73,
-    epoch_boundary: 1647899091000,
-    epoch_boundary_as_epoch: 328,
-    epoch_length: 432000000,
-    epoch_length_base: 432000000,
-  }
-}
-
 pub fn get_slot_config_network_preview() -> SlotConfig {
   SlotConfig { zero_time: 1666656000000, zero_slot: 0, slot_length: 1000 }
 }
@@ -83,6 +60,26 @@ pub type EpochConfig {
   epoch_length: Milliseconds,
   // base is 5 days = 432_000_000
   epoch_length_base: Milliseconds,
+}
+
+pub fn get_epoch_config_preview() -> EpochConfig {
+  EpochConfig {
+    year_to_epoch: 73,
+    epoch_boundary: 1647899091000,
+    epoch_boundary_as_epoch: 328,
+    epoch_length: 1800000,
+    epoch_length_base: 432000000,
+  }
+}
+
+pub fn get_epoch_config_mainnet() -> EpochConfig {
+  EpochConfig {
+    year_to_epoch: 73,
+    epoch_boundary: 1647899091000,
+    epoch_boundary_as_epoch: 328,
+    epoch_length: 432000000,
+    epoch_length_base: 432000000,
+  }
 }
 
 pub fn slot_to_begin_posix_time(t: SlotTime, cfg: SlotConfig) -> PosixTime {

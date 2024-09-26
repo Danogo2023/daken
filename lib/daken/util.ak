@@ -7,7 +7,7 @@ use cardano/script_context.{ScriptContext, Spending}
 use cardano/transaction.{
   Datum, DatumHash, InlineDatum, Input, NoDatum, Transaction,
 }
-use common/types.{Datums, PublicKeyHash}
+use daken/types.{Datums, PublicKeyHash}
 
 pub fn get_spending_input(ctx: ScriptContext) -> Input {
   expect Spending(output_reference, _datum) = ctx.info

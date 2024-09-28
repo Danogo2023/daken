@@ -5,11 +5,10 @@ use daken/convert
 use daken/types.{Blake2b224Hash, Blake2b256Hash}
 
 pub fn blake2b_256(i: OutputReference) -> Blake2b256Hash {
-  blake2b_256_salt(i, #"")
-  // crypto.blake2b_256(
-  //   i.transaction_id
-  //     |> bytearray.concat(convert.int_to_digit(i.output_index)),
-  // )
+  crypto.blake2b_256(
+    i.transaction_id
+      |> bytearray.concat(convert.int_to_digit(i.output_index)),
+  )
 }
 
 test succ_blake2b_256() {
@@ -43,11 +42,10 @@ test succ_blake2b_256_salt() {
 }
 
 pub fn blake2b_224(i: OutputReference) -> Blake2b224Hash {
-  blake2b_224_salt(i, #"")
-  // crypto.blake2b_224(
-  //   i.transaction_id
-  //     |> bytearray.concat(convert.int_to_digit(i.output_index)),
-  // )
+  crypto.blake2b_224(
+    i.transaction_id
+      |> bytearray.concat(convert.int_to_digit(i.output_index)),
+  )
 }
 
 test succ_blake2b_224() {

@@ -1,4 +1,5 @@
 use aiken/builtin
+use aiken/collection/list
 
 // @TODO: Add tests
 /// Gets an element from a list without destructuring more than once
@@ -19,7 +20,53 @@ pub fn oget(self: List<a>, at: Int) -> Option<a> {
   }
 }
 
-fn advance(self: List<a>, idx: Int) -> List<a> {
+pub fn get_with_tail(self: List<a>, at: Int) -> (Option<a>, List<a>) {
+  expect at >= 0
+  when advance(self, at) is {
+    [] -> (None, [])
+    [head, ..rest] -> (Some(head), rest)
+  }
+}
+
+test get_with_tail_1() {
+  get_with_tail([1, 2, 3, 4], 0) == (Some(1), [2, 3, 4])
+}
+
+test get_with_tail_2() {
+  get_with_tail([1, 2, 3, 4], 1) == (Some(2), [3, 4])
+}
+
+test get_with_tail_3() {
+  get_with_tail([1, 2, 3, 4], 3) == (Some(4), [])
+}
+
+const l =
+  [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+  ]
+
+test get_with_tail_4() {
+  get_with_tail(l, 117) == (Some(59), [])
+}
+
+test get_with_tail_5() {
+  get(l, 117) == 59
+}
+
+test get_with_tail_6() {
+  oget(l, 117) == Some(59)
+}
+
+test get_with_tail_7() {
+  list.at(l, 117) == Some(59)
+}
+
+pub fn advance(self: List<a>, idx: Int) -> List<a> {
   if idx >= 10 {
     advance(
       self

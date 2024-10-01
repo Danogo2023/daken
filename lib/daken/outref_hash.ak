@@ -4,11 +4,12 @@ use cardano/transaction.{OutputReference}
 use daken/convert
 use daken/types.{Blake2b224Hash, Blake2b256Hash}
 
-pub fn blake2b_256(i: OutputReference) -> Blake2b256Hash {
-  crypto.blake2b_256(
-    i.transaction_id
-      |> bytearray.concat(convert.int_to_digit(i.output_index)),
-  )
+pub fn blake2b_256(
+  OutputReference { transaction_id, output_index }: OutputReference,
+) -> Blake2b256Hash {
+  convert.int_to_digit(output_index)
+    |> bytearray.concat(transaction_id, _)
+    |> crypto.blake2b_256
 }
 
 test succ_blake2b_256() {
@@ -20,12 +21,14 @@ test succ_blake2b_256() {
   blake2b_256(out_ref_1) == #"060f4c8b63d168305c5b020708cac4e7befe6063f83f68255cb9c207860c4410"
 }
 
-pub fn blake2b_256_salt(i: OutputReference, salt: ByteArray) -> Blake2b256Hash {
-  crypto.blake2b_256(
-    i.transaction_id
-      |> bytearray.concat(convert.int_to_digit(i.output_index))
-      |> bytearray.concat(salt),
-  )
+pub fn blake2b_256_salt(
+  OutputReference { transaction_id, output_index }: OutputReference,
+  salt: ByteArray,
+) -> Blake2b256Hash {
+  convert.int_to_digit(output_index)
+    |> bytearray.concat(transaction_id, _)
+    |> bytearray.concat(salt)
+    |> crypto.blake2b_256
 }
 
 test succ_blake2b_256_salt() {
@@ -41,11 +44,12 @@ test succ_blake2b_256_salt() {
   blake2b_256_salt(out_ref_1, salt) == #"79b18aded9e04c72f38e5fa8c4b31a0f3dc83d47f9ad5cdc2eed3f22f477247e"
 }
 
-pub fn blake2b_224(i: OutputReference) -> Blake2b224Hash {
-  crypto.blake2b_224(
-    i.transaction_id
-      |> bytearray.concat(convert.int_to_digit(i.output_index)),
-  )
+pub fn blake2b_224(
+  OutputReference { transaction_id, output_index }: OutputReference,
+) -> Blake2b224Hash {
+  convert.int_to_digit(output_index)
+    |> bytearray.concat(transaction_id, _)
+    |> crypto.blake2b_224
 }
 
 test succ_blake2b_224() {
@@ -57,12 +61,14 @@ test succ_blake2b_224() {
   blake2b_224(out_ref_1) == #"678cbdecaf56ed9a528555ca1a31decdd4cc35d385956905b2eff9fc"
 }
 
-pub fn blake2b_224_salt(i: OutputReference, salt: ByteArray) -> Blake2b224Hash {
-  crypto.blake2b_224(
-    i.transaction_id
-      |> bytearray.concat(convert.int_to_digit(i.output_index))
-      |> bytearray.concat(salt),
-  )
+pub fn blake2b_224_salt(
+  OutputReference { transaction_id, output_index }: OutputReference,
+  salt: ByteArray,
+) -> Blake2b224Hash {
+  convert.int_to_digit(output_index)
+    |> bytearray.concat(transaction_id, _)
+    |> bytearray.concat(salt)
+    |> crypto.blake2b_224
 }
 
 test succ_blake2b_224_salt() {

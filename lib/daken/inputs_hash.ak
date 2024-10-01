@@ -10,19 +10,22 @@ use daken/sort
 use daken/types.{Blake2b224Hash, Blake2b256Hash}
 
 pub fn blake2b_256(inputs: List<Input>) -> Blake2b256Hash {
-  crypto.blake2b_256(
-    list.foldl(
-      inputs,
-      #"",
-      fn(i: Input, ret: ByteArray) -> ByteArray {
-        i.output_reference.transaction_id
-          |> bytearray.concat(
-              convert.int_to_digit(i.output_reference.output_index),
-            )
-          |> bytearray.concat(ret, _)
-      },
-    ),
-  )
+  inputs
+    |> list.foldl(
+        #"",
+        fn(
+          Input {
+            output_reference: OutputReference { transaction_id, output_index },
+            ..
+          }: Input,
+          ret: ByteArray,
+        ) -> ByteArray {
+          convert.int_to_digit(output_index)
+            |> bytearray.concat(transaction_id, _)
+            |> bytearray.concat(ret, _)
+        },
+      )
+    |> crypto.blake2b_256
 }
 
 test succ_blake2b_256() {
@@ -106,7 +109,7 @@ test succ_blake2b_256() {
 }
 
 pub fn blake2b_256_sort_asc(inputs: List<Input>) -> Blake2b256Hash {
-  blake2b_256(sort.inputs_sort_asc(inputs))
+  inputs |> sort.inputs_sort_asc |> blake2b_256
 }
 
 test succ_blake2b_256_sort_asc() {
@@ -190,7 +193,7 @@ test succ_blake2b_256_sort_asc() {
 }
 
 pub fn blake2b_256_quicksort_asc(inputs: List<Input>) -> Blake2b256Hash {
-  blake2b_256(sort.inputs_quicksort_asc(inputs))
+  inputs |> sort.inputs_quicksort_asc |> blake2b_256
 }
 
 test succ_blake2b_256_quicksort_asc() {
@@ -274,7 +277,7 @@ test succ_blake2b_256_quicksort_asc() {
 }
 
 pub fn blake2b_256_head_sort_asc(inputs: List<Input>) -> Blake2b256Hash {
-  when list.head(sort.inputs_sort_asc(inputs)) is {
+  when inputs |> sort.inputs_sort_asc |> list.head is {
     Some(i) -> input_hash.blake2b_256(i)
     _ -> #""
   }
@@ -356,7 +359,7 @@ test succ_blake2b_256_head_sort_asc() {
 }
 
 pub fn blake2b_256_last_sort_asc(inputs: List<Input>) -> Blake2b256Hash {
-  when list.last(sort.inputs_sort_asc(inputs)) is {
+  when inputs |> sort.inputs_sort_asc |> list.last is {
     Some(i) -> input_hash.blake2b_256(i)
     _ -> #""
   }
@@ -438,7 +441,7 @@ pub fn blake2b_256_salt_head_sort_asc(
   inputs: List<Input>,
   salt: ByteArray,
 ) -> Blake2b256Hash {
-  when list.head(sort.inputs_sort_asc(inputs)) is {
+  when inputs |> sort.inputs_sort_asc |> list.head is {
     Some(i) -> input_hash.blake2b_256_salt(i, salt)
     _ -> #""
   }
@@ -520,19 +523,22 @@ test succ_blake2b_256_salt_head_sort_asc() {
 }
 
 pub fn blake2b_224(inputs: List<Input>) -> Blake2b224Hash {
-  crypto.blake2b_224(
-    list.foldl(
-      inputs,
-      #"",
-      fn(i: Input, ret: ByteArray) -> ByteArray {
-        i.output_reference.transaction_id
-          |> bytearray.concat(
-              convert.int_to_digit(i.output_reference.output_index),
-            )
-          |> bytearray.concat(ret, _)
-      },
-    ),
-  )
+  inputs
+    |> list.foldl(
+        #"",
+        fn(
+          Input {
+            output_reference: OutputReference { transaction_id, output_index },
+            ..
+          }: Input,
+          ret: ByteArray,
+        ) -> ByteArray {
+          convert.int_to_digit(output_index)
+            |> bytearray.concat(transaction_id, _)
+            |> bytearray.concat(ret, _)
+        },
+      )
+    |> crypto.blake2b_224
 }
 
 test succ_blake2b_224() {
@@ -616,7 +622,7 @@ test succ_blake2b_224() {
 }
 
 pub fn blake2b_224_sort_asc(inputs: List<Input>) -> Blake2b224Hash {
-  blake2b_224(sort.inputs_sort_asc(inputs))
+  inputs |> sort.inputs_sort_asc |> blake2b_224
 }
 
 test succ_blake2b_224_sort_asc() {
@@ -700,7 +706,7 @@ test succ_blake2b_224_sort_asc() {
 }
 
 pub fn blake2b_224_quicksort_asc(inputs: List<Input>) -> Blake2b224Hash {
-  blake2b_224(sort.inputs_quicksort_asc(inputs))
+  inputs |> sort.inputs_quicksort_asc |> blake2b_224
 }
 
 test succ_blake2b_224_quicksort_asc() {
@@ -784,7 +790,7 @@ test succ_blake2b_224_quicksort_asc() {
 }
 
 pub fn blake2b_224_head_sort_asc(inputs: List<Input>) -> Blake2b224Hash {
-  when list.head(sort.inputs_sort_asc(inputs)) is {
+  when inputs |> sort.inputs_sort_asc |> list.head is {
     Some(i) -> input_hash.blake2b_224(i)
     _ -> #""
   }
@@ -866,7 +872,7 @@ test succ_blake2b_224_head_sort_asc() {
 }
 
 pub fn blake2b_224_last_sort_asc(inputs: List<Input>) -> Blake2b224Hash {
-  when list.last(sort.inputs_sort_asc(inputs)) is {
+  when inputs |> sort.inputs_sort_asc |> list.last is {
     Some(i) -> input_hash.blake2b_224(i)
     _ -> #""
   }
@@ -948,7 +954,7 @@ pub fn blake2b_224_salt_head_sort_asc(
   inputs: List<Input>,
   salt: ByteArray,
 ) -> Blake2b224Hash {
-  when list.head(sort.inputs_sort_asc(inputs)) is {
+  when inputs |> sort.inputs_sort_asc |> list.head is {
     Some(i) -> input_hash.blake2b_224_salt(i, salt)
     _ -> #""
   }

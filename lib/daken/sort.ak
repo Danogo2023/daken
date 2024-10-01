@@ -2,42 +2,69 @@ use aiken/collection/list
 use cardano/transaction.{Input, OutputReference}
 
 pub fn inputs_sort_asc(inputs: List<Input>) -> List<Input> {
-  list.sort(
-    inputs,
-    fn(a: Input, b: Input) -> Ordering {
-      if a.output_reference.output_index < b.output_reference.output_index {
-        Less
-      } else if a.output_reference.output_index == b.output_reference.output_index {
-        Equal
-      } else {
-        Greater
-      }
-    },
-  )
+  inputs
+    |> list.sort(
+        fn(
+          Input {
+            output_reference: OutputReference { output_index: a_idx, .. },
+            ..
+          },
+          Input {
+            output_reference: OutputReference { output_index: b_idx, .. },
+            ..
+          },
+        ) -> Ordering {
+          if a_idx < b_idx {
+            Less
+          } else if a_idx == b_idx {
+            Equal
+          } else {
+            Greater
+          }
+        },
+      )
 }
 
 pub fn inputs_quicksort_asc(inputs: List<Input>) -> List<Input> {
   when inputs is {
-    [] ->
-      []
+    [] -> []
     [p, ..tail] -> {
-      let before =
-        tail
-          |> list.filter(
-              fn(x) {
-                x.output_reference.output_index <= p.output_reference.output_index
+      let Input {
+        output_reference: OutputReference { output_index: p_idx, .. },
+        ..
+      } = p
+      tail
+        |> list.filter(
+            fn(
+              Input {
+                output_reference: OutputReference { output_index: a_idx, .. },
+                ..
               },
-            )
-          |> inputs_quicksort_asc
-      let after =
-        tail
-          |> list.filter(
-              fn(x) {
-                x.output_reference.output_index > p.output_reference.output_index
-              },
-            )
-          |> inputs_quicksort_asc
-      list.concat(before, [p, ..after])
+            ) {
+              a_idx <= p_idx
+            },
+          )
+        |> inputs_quicksort_asc
+        |> list.concat(
+            [
+              p,
+              ..tail
+                |> list.filter(
+                    fn(
+                      Input {
+                        output_reference: OutputReference {
+                          output_index: a_idx,
+                          ..
+                        },
+                        ..
+                      },
+                    ) {
+                      a_idx > p_idx
+                    },
+                  )
+                |> inputs_quicksort_asc
+            ],
+          )
     }
   }
 }
@@ -45,36 +72,47 @@ pub fn inputs_quicksort_asc(inputs: List<Input>) -> List<Input> {
 pub fn out_refs_sort_asc(
   out_refs: List<OutputReference>,
 ) -> List<OutputReference> {
-  list.sort(
-    out_refs,
-    fn(a: OutputReference, b: OutputReference) -> Ordering {
-      if a.output_index < b.output_index {
-        Less
-      } else if a.output_index == b.output_index {
-        Equal
-      } else {
-        Greater
-      }
-    },
-  )
+  out_refs
+    |> list.sort(
+        fn(
+          OutputReference { output_index: a_idx, .. },
+          OutputReference { output_index: b_idx, .. },
+        ) -> Ordering {
+          if a_idx < b_idx {
+            Less
+          } else if a_idx == b_idx {
+            Equal
+          } else {
+            Greater
+          }
+        },
+      )
 }
 
 pub fn out_refs_quicksort_asc(
   out_refs: List<OutputReference>,
 ) -> List<OutputReference> {
   when out_refs is {
-    [] ->
-      []
+    [] -> []
     [p, ..tail] -> {
-      let before =
-        tail
-          |> list.filter(fn(x) { x.output_index <= p.output_index })
-          |> out_refs_quicksort_asc
-      let after =
-        tail
-          |> list.filter(fn(x) { x.output_index > p.output_index })
-          |> out_refs_quicksort_asc
-      list.concat(before, [p, ..after])
+      let OutputReference { output_index: p_idx, .. } = p
+      tail
+        |> list.filter(
+            fn(OutputReference { output_index: a_idx, .. }) { a_idx <= p_idx },
+          )
+        |> out_refs_quicksort_asc
+        |> list.concat(
+            [
+              p,
+              ..tail
+                |> list.filter(
+                    fn(OutputReference { output_index: a_idx, .. }) {
+                      a_idx > p_idx
+                    },
+                  )
+                |> out_refs_quicksort_asc
+            ],
+          )
     }
   }
 }

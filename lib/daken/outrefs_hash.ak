@@ -8,17 +8,19 @@ use daken/sort
 use daken/types.{Blake2b224Hash, Blake2b256Hash}
 
 pub fn blake2b_256(out_refs: List<OutputReference>) -> Blake2b256Hash {
-  crypto.blake2b_256(
-    list.foldl(
-      out_refs,
-      #"",
-      fn(o: OutputReference, ret: ByteArray) -> ByteArray {
-        o.transaction_id
-          |> bytearray.concat(convert.int_to_digit(o.output_index))
-          |> bytearray.concat(ret, _)
-      },
-    ),
-  )
+  out_refs
+    |> list.foldl(
+        #"",
+        fn(
+          OutputReference { transaction_id, output_index }: OutputReference,
+          ret: ByteArray,
+        ) -> ByteArray {
+          convert.int_to_digit(output_index)
+            |> bytearray.concat(transaction_id, _)
+            |> bytearray.concat(ret, _)
+        },
+      )
+    |> crypto.blake2b_256
 }
 
 test succ_blake2b_256() {
@@ -30,8 +32,12 @@ test succ_blake2b_256() {
   blake2b_256([out_ref_1, out_ref_2, out_ref_3, out_ref_4, out_ref_5]) == #"0eb64f44615884988f7f32d7fab886172d8bac004ebf5c815410f8a87c5cd54d"
 }
 
+test succ_blake2b_256_empty() {
+  crypto.blake2b_256(#"") == #"0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8"
+}
+
 pub fn blake2b_256_sort_asc(out_refs: List<OutputReference>) -> Blake2b256Hash {
-  blake2b_256(sort.out_refs_sort_asc(out_refs))
+  out_refs |> sort.out_refs_sort_asc |> blake2b_256
 }
 
 test succ_blake2b_256_sort_asc() {
@@ -46,7 +52,7 @@ test succ_blake2b_256_sort_asc() {
 pub fn blake2b_256_quicksort_asc(
   out_refs: List<OutputReference>,
 ) -> Blake2b256Hash {
-  blake2b_256(sort.out_refs_quicksort_asc(out_refs))
+  out_refs |> sort.out_refs_quicksort_asc |> blake2b_256
 }
 
 test succ_blake2b_256_quicksort_asc() {
@@ -63,7 +69,7 @@ test succ_blake2b_256_quicksort_asc() {
 pub fn blake2b_256_head_sort_asc(
   out_refs: List<OutputReference>,
 ) -> Blake2b256Hash {
-  when list.head(sort.out_refs_sort_asc(out_refs)) is {
+  when out_refs |> sort.out_refs_sort_asc |> list.head is {
     Some(i) -> outref_hash.blake2b_256(i)
     _ -> #""
   }
@@ -87,7 +93,7 @@ test succ_blake2b_256_head_sort_asc() {
 pub fn blake2b_256_last_sort_asc(
   out_refs: List<OutputReference>,
 ) -> Blake2b256Hash {
-  when list.last(sort.out_refs_sort_asc(out_refs)) is {
+  when out_refs |> sort.out_refs_sort_asc |> list.last is {
     Some(i) -> outref_hash.blake2b_256(i)
     _ -> #""
   }
@@ -108,7 +114,7 @@ pub fn blake2b_256_salt_head_sort_asc(
   out_refs: List<OutputReference>,
   salt: ByteArray,
 ) -> Blake2b256Hash {
-  when list.head(sort.out_refs_sort_asc(out_refs)) is {
+  when out_refs |> sort.out_refs_sort_asc |> list.head is {
     Some(i) -> outref_hash.blake2b_256_salt(i, salt)
     _ -> #""
   }
@@ -132,17 +138,19 @@ test succ_blake2b_256_salt_head_sort_asc() {
 }
 
 pub fn blake2b_224(out_refs: List<OutputReference>) -> Blake2b224Hash {
-  crypto.blake2b_224(
-    list.foldl(
-      out_refs,
-      #"",
-      fn(o: OutputReference, ret: ByteArray) -> ByteArray {
-        o.transaction_id
-          |> bytearray.concat(convert.int_to_digit(o.output_index))
-          |> bytearray.concat(ret, _)
-      },
-    ),
-  )
+  out_refs
+    |> list.foldl(
+        #"",
+        fn(
+          OutputReference { transaction_id, output_index }: OutputReference,
+          ret: ByteArray,
+        ) -> ByteArray {
+          convert.int_to_digit(output_index)
+            |> bytearray.concat(transaction_id, _)
+            |> bytearray.concat(ret, _)
+        },
+      )
+    |> crypto.blake2b_224
 }
 
 test succ_blake2b_224() {
@@ -154,8 +162,12 @@ test succ_blake2b_224() {
   blake2b_224([out_ref_1, out_ref_2, out_ref_3, out_ref_4, out_ref_5]) == #"3a2193b236081057b9bdbf9300274efed0cec5d64036a7172662b72e"
 }
 
+test succ_blake2b_224_empty() {
+  crypto.blake2b_224(#"") == #"836cc68931c2e4e3e838602eca1902591d216837bafddfe6f0c8cb07"
+}
+
 pub fn blake2b_224_sort_asc(out_refs: List<OutputReference>) -> Blake2b224Hash {
-  blake2b_224(sort.out_refs_sort_asc(out_refs))
+  out_refs |> sort.out_refs_sort_asc |> blake2b_224
 }
 
 test succ_blake2b_224_sort_asc() {
@@ -170,7 +182,7 @@ test succ_blake2b_224_sort_asc() {
 pub fn blake2b_224_quicksort_asc(
   out_refs: List<OutputReference>,
 ) -> Blake2b224Hash {
-  blake2b_224(sort.out_refs_quicksort_asc(out_refs))
+  out_refs |> sort.out_refs_quicksort_asc |> blake2b_224
 }
 
 test succ_blake2b_224_quicksort_asc() {
@@ -187,7 +199,7 @@ test succ_blake2b_224_quicksort_asc() {
 pub fn blake2b_224_head_sort_asc(
   out_refs: List<OutputReference>,
 ) -> Blake2b224Hash {
-  when list.head(sort.out_refs_sort_asc(out_refs)) is {
+  when out_refs |> sort.out_refs_sort_asc |> list.head is {
     Some(i) -> outref_hash.blake2b_224(i)
     _ -> #""
   }
@@ -211,7 +223,7 @@ test succ_blake2b_224_head_sort_asc() {
 pub fn blake2b_224_last_sort_asc(
   out_refs: List<OutputReference>,
 ) -> Blake2b224Hash {
-  when list.last(sort.out_refs_sort_asc(out_refs)) is {
+  when out_refs |> sort.out_refs_sort_asc |> list.last is {
     Some(i) -> outref_hash.blake2b_224(i)
     _ -> #""
   }
@@ -232,7 +244,7 @@ pub fn blake2b_224_salt_head_sort_asc(
   out_refs: List<OutputReference>,
   salt: ByteArray,
 ) -> Blake2b224Hash {
-  when list.head(sort.out_refs_sort_asc(out_refs)) is {
+  when out_refs |> sort.out_refs_sort_asc |> list.head is {
     Some(i) -> outref_hash.blake2b_224_salt(i, salt)
     _ -> #""
   }

@@ -18,20 +18,59 @@ const l =
 /// This helper can be useful in a narrow scope where performance 
 /// is a high priority
 pub fn get(self: List<a>, at: Int) -> a {
-  expect at >= 0
-  expect [head, ..] = advance(self, at)
-  head
+  when advance(self, at) is {
+    [x, ..] -> x
+    _ -> fail
+  }
 }
 
 pub fn at(self: List<a>, at: Int) -> a {
   get(self, at)
 }
 
+test get_1() {
+  at([0, 1, 2, 3], 0) == 0
+}
+
+test get_2() {
+  at([0, 1, 2, 3], 1) == 1
+}
+
+test get_3() {
+  at([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 10) == 10
+}
+
+test get_4() {
+  at([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 11) == 11
+}
+
+test get_5() {
+  at([0, 1, 2, 3, 4, 5, 6], 5) == 5
+}
+
+test get_6() {
+  at([0, 1, 2, 3, 4, 5, 6], 6) == 6
+}
+
+// out of range
+test get_7() fail {
+  at([0, 1], 2) == 0
+}
+
+// negative index
+test get_8() fail {
+  at([0, 1], -1) == 0
+}
+
+// empty array
+test get_9() fail {
+  at([], 0) == 0
+}
+
 pub fn oget(self: List<a>, at: Int) -> Option<a> {
-  expect at >= 0
   when advance(self, at) is {
     [] -> None
-    [head, ..] -> Some(head)
+    [x, ..] -> Some(x)
   }
 }
 
@@ -39,12 +78,53 @@ pub fn ato(self: List<a>, at: Int) -> Option<a> {
   oget(self, at)
 }
 
+// out of range expect None
+test oget_1() {
+  ato([0, 1], 2) == None
+}
+
+test oget_2() {
+  ato([0, 1], 1) == Some(1)
+}
+
+// empty array
+test oget_3() fail {
+  ato([], 0) == Some(0)
+}
+
 pub fn get_with_tail(self: List<a>, at: Int) -> (Option<a>, List<a>) {
-  expect at >= 0
   when advance(self, at) is {
     [] -> (None, [])
-    [head, ..rest] -> (Some(head), rest)
+    [x, ..xs] -> (Some(x), xs)
   }
+}
+
+test get_with_tail_1() {
+  get_with_tail([1, 2, 3, 4], 0) == (Some(1), [2, 3, 4])
+}
+
+test get_with_tail_2() {
+  get_with_tail([1, 2, 3, 4], 1) == (Some(2), [3, 4])
+}
+
+test get_with_tail_3() {
+  get_with_tail([1, 2, 3, 4], 3) == (Some(4), [])
+}
+
+test get_with_tail_4() {
+  get_with_tail(l, 117) == (Some(118), [])
+}
+
+test get_with_tail_5() {
+  get(l, 117) == 118
+}
+
+test get_with_tail_6() {
+  oget(l, 117) == Some(118)
+}
+
+test get_with_tail_7() {
+  list.at(l, 117) == Some(118)
 }
 
 test compare_at_list() {
@@ -92,34 +172,6 @@ test compare_head_flist_4() {
 
 test compare_head_flist_5() {
   builtin.choose_list(l, 0, builtin.head_list(l)) == 1
-}
-
-test get_with_tail_1() {
-  get_with_tail([1, 2, 3, 4], 0) == (Some(1), [2, 3, 4])
-}
-
-test get_with_tail_2() {
-  get_with_tail([1, 2, 3, 4], 1) == (Some(2), [3, 4])
-}
-
-test get_with_tail_3() {
-  get_with_tail([1, 2, 3, 4], 3) == (Some(4), [])
-}
-
-test get_with_tail_4() {
-  get_with_tail(l, 117) == (Some(118), [])
-}
-
-test get_with_tail_5() {
-  get(l, 117) == 118
-}
-
-test get_with_tail_6() {
-  oget(l, 117) == Some(118)
-}
-
-test get_with_tail_7() {
-  list.at(l, 117) == Some(118)
 }
 
 pub fn take(self: List<a>, n: Int) -> List<a> {
@@ -238,7 +290,9 @@ test take_flist_reverse_2() {
 }
 
 pub fn advance(self: List<a>, idx: Int) -> List<a> {
-  if idx >= 10 {
+  if idx < 5 {
+    self |> advance_step_by_step(idx)
+  } else if idx >= 10 {
     self
       |> builtin.tail_list
       |> builtin.tail_list
@@ -251,7 +305,7 @@ pub fn advance(self: List<a>, idx: Int) -> List<a> {
       |> builtin.tail_list
       |> builtin.tail_list
       |> advance(idx - 10)
-  } else if idx >= 5 {
+  } else {
     self
       |> builtin.tail_list
       |> builtin.tail_list
@@ -259,8 +313,6 @@ pub fn advance(self: List<a>, idx: Int) -> List<a> {
       |> builtin.tail_list
       |> builtin.tail_list
       |> advance(idx - 5)
-  } else {
-    self |> advance_step_by_step(idx)
   }
 }
 
@@ -274,59 +326,6 @@ fn advance_step_by_step(self: List<a>, idx: Int) -> List<a> {
 
 test fail_when_advance_empty_list() fail {
   builtin.tail_list([]) == []
-}
-
-test get_1() {
-  get([0, 1, 2, 3], 0) == 0
-}
-
-test get_2() {
-  get([0, 1, 2, 3], 1) == 1
-}
-
-test get_3() {
-  get([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 10) == 10
-}
-
-test get_4() {
-  get([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 11) == 11
-}
-
-test get_5() {
-  get([0, 1, 2, 3, 4, 5, 6], 5) == 5
-}
-
-test get_6() {
-  get([0, 1, 2, 3, 4, 5, 6], 6) == 6
-}
-
-// out of range
-test get_7() fail {
-  get([0, 1], 2) == 0
-}
-
-// negative index
-test get_8() fail {
-  get([0, 1], -1) == 0
-}
-
-// empty array
-test get_9() fail {
-  get([], 0) == 0
-}
-
-// out of range expect None
-test oget_1() {
-  oget([0, 1], 2) == None
-}
-
-test oget_2() {
-  oget([0, 1], 1) == Some(1)
-}
-
-// empty array
-test oget_3() fail {
-  oget([], 0) == Some(0)
 }
 
 test take_head_flist_head_list_builtin() {

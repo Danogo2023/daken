@@ -882,7 +882,7 @@ test success_flatten_dt_when_minswap_v2_swap_multi_routing() {
   )
 }
 
-pub type BidLimitMulti {
+type BidLimitMulti {
   owner_vk: PublicKeyHash,
   owner_sk: Option<PublicKeyHash>,
   from_epoch: Int,
@@ -892,18 +892,18 @@ pub type BidLimitMulti {
   bond_types: List<BondType>,
 }
 
-pub type BondType {
+type BondType {
   DanogoBond
   OptimBond
 }
 
-pub type AskLimit {
+type AskLimit {
   owner_vk: PublicKeyHash,
   owner_sk: Option<PublicKeyHash>,
   requested_yield: Int,
 }
 
-pub type EscrowDatum {
+type EscrowDatum {
   epo_rewards: PValue,
   duration: Int,
   bond_symbol: PolicyId,

@@ -1,11 +1,17 @@
 use aiken/collection/dict
 use aiken/crypto
-use cardano/assets.{PolicyId}
+use cardano/assets.{AssetName, PolicyId}
+use cardano/script_context.{ScriptContext}
 use cardano/transaction.{Transaction}
 use daken/inputs_hash
+use daken/util
 
-validator lock_forever {
-  mint(_rdmr: Data, pid: PolicyId, transaction: Transaction) {
+validator one_shot {
+  mint(
+    _rdmr: Data,
+    pid: PolicyId,
+    Transaction { inputs, mint, .. }: Transaction,
+  ) {
     // - Mint:
     //    - NFT protocol (require):
     //      - nft_name: must be blake2b_256 hash all inputs
@@ -13,35 +19,51 @@ validator lock_forever {
     //    - NFT license (optional):
     //      - nft_license_name: must be hash blake2b_256 nft_name
     //      - quantity: should be 1
-    let Transaction { inputs, mint, .. } = transaction
     let nft_name = inputs_hash.blake2b_256_sort_asc(inputs)
-    let (has_protocol_nft, is_valid_nft_qty) =
-      dict.foldl(
-        assets.tokens(mint, pid),
-        (False, True),
-        fn(name, qty, (seen_has_protocol_nft, is_valid_nft_qty)) {
-          let is_valid_nft_qty = is_valid_nft_qty && qty == 1
-
-          let has_protocol_nft =
-            if name == nft_name {
-              // required
-              True
-            } else if name == crypto.blake2b_256(nft_name) {
-              // optional
-              seen_has_protocol_nft
-            } else {
-              fail @"mint nft is invalid"
-            }
-          (has_protocol_nft, is_valid_nft_qty)
-        },
-      )
-    and {
-      has_protocol_nft?,
-      is_valid_nft_qty?,
-    }
+    let license_name = crypto.blake2b_256(nft_name)
+    dict.foldl(
+      assets.tokens(mint, pid),
+      False,
+      fn(name, qty, seen_protocol_nft) {
+        if name == nft_name {
+          (qty == 1)?
+        } else if name == license_name {
+          and {
+            qty == 1,
+            seen_protocol_nft,
+          }?
+        } else {
+          fail @"minting is invalid"
+        }
+      },
+    )
   }
 
   else(_) {
-    fail @"lock forever"
+    fail @"support minting only"
+  }
+}
+
+validator nft_license(pid: PolicyId, tn: AssetName) {
+  else(
+    ScriptContext {
+      transaction: Transaction {
+        inputs,
+        reference_inputs,
+        extra_signatories,
+        ..
+      },
+      ..
+    }: ScriptContext,
+  ) {
+    // Required nft_license in inputs or reference_inputs of transaction
+    // Required signatory from the owner of nft_license
+    util.has_valid_nft_license(
+      inputs,
+      reference_inputs,
+      extra_signatories,
+      pid,
+      tn,
+    )
   }
 }

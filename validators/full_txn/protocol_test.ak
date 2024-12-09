@@ -37,10 +37,11 @@ test success_only_mint_protocol_nft() {
   let pid = "policy_id"
   let mint = assets.from_asset(pid, nft_name, 1)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test success_mint_all_nft() {
@@ -68,10 +69,11 @@ test success_mint_all_nft() {
   let mint =
     assets.from_asset(pid, nft_name, 1) |> assets.add(pid, license_name, 1)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test fail_only_mint_license_nft() fail {
@@ -98,10 +100,11 @@ test fail_only_mint_license_nft() fail {
   let pid = "policy_id"
   let mint = assets.from_asset(pid, license_name, 1)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test fail_mint_invalid_name_protocol_nft() fail {
@@ -127,10 +130,11 @@ test fail_mint_invalid_name_protocol_nft() fail {
   let pid = "policy_id"
   let mint = assets.from_asset(pid, invalid_name, 1)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test fail_mint_invalid_name_license_nft() fail {
@@ -159,10 +163,11 @@ test fail_mint_invalid_name_license_nft() fail {
     assets.from_asset(pid, nft_name, 1)
       |> assets.add(pid, invalid_license_name, 1)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test fail_mint_invalid_quantity_protocol_nft() fail {
@@ -188,10 +193,11 @@ test fail_mint_invalid_quantity_protocol_nft() fail {
   let pid = "policy_id"
   let mint = assets.from_asset(pid, nft_name, 2)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test fail_mint_invalid_quantity_license_nft() fail {
@@ -219,10 +225,11 @@ test fail_mint_invalid_quantity_license_nft() fail {
   let mint =
     assets.from_asset(pid, nft_name, 1) |> assets.add(pid, license_name, 2)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }
 
 test fail_mint_nft_name_is_empty() fail {
@@ -230,8 +237,9 @@ test fail_mint_nft_name_is_empty() fail {
   let pid = "policy_id"
   let mint = assets.from_asset(pid, #"", 1)
 
-  let transaction =
-    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint }
-
-  protocol.lock_forever.mint(None, pid, transaction)
+  protocol.one_shot.mint(
+    None,
+    pid,
+    Transaction { ..transaction.placeholder, inputs: inputs, mint: mint },
+  )
 }

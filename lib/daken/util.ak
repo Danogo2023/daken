@@ -1,11 +1,12 @@
 use aiken/collection/dict
 use aiken/collection/list
+use aiken/crypto.{VerificationKeyHash}
 use aiken/primitive/bytearray
 use cardano/address.{Address, Script, VerificationKey}
-use cardano/assets.{PolicyId}
+use cardano/assets.{AssetName, PolicyId}
 use cardano/script_context.{ScriptContext, Spending}
 use cardano/transaction.{
-  Datum, DatumHash, InlineDatum, Input, NoDatum, Transaction,
+  Datum, DatumHash, InlineDatum, Input, NoDatum, Output, Transaction,
 }
 use daken/types.{Datums, PublicKeyHash}
 
@@ -223,4 +224,52 @@ pub fn is_burned_nft(tx: Transaction, policy_id: PolicyId, nft_name: ByteArray) 
     tx.mint
       |> assets.quantity_of(policy_id, nft_name)
   ) == -1
+}
+
+pub fn find_map(self: List<a>, predicate: fn(a) -> Option<b>) -> Option<b> {
+  when self is {
+    [] -> None
+    [x, ..xs] ->
+      when predicate(x) is {
+        Some(y) -> Some(y)
+        None -> find_map(xs, predicate)
+      }
+  }
+}
+
+pub fn has_valid_nft_license(
+  inputs: List<Input>,
+  reference_inputs: List<Input>,
+  extra_signatories: List<VerificationKeyHash>,
+  nft_license_pid: PolicyId,
+  nft_license_name: AssetName,
+) -> Bool {
+  let contain_nft_license =
+    fn(
+      Input {
+        output: Output {
+          address: Address { payment_credential: pk, .. },
+          value: val,
+          ..
+        },
+        ..
+      },
+    ) {
+      if assets.quantity_of(val, nft_license_pid, nft_license_name) == 1 {
+        Some(pk)
+      } else {
+        None
+      }
+    }
+
+  // get nft_license in inputs or in reference_inputs
+  when find_map(inputs, contain_nft_license) is {
+    Some(_) -> True
+    None -> {
+      expect Some(VerificationKey(vkh)) =
+        find_map(reference_inputs, contain_nft_license)
+      // check signatory from the owner of nft_license
+      list.has(extra_signatories, vkh)?
+    }
+  }
 }
